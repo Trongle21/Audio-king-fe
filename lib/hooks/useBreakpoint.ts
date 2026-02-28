@@ -1,11 +1,12 @@
 "use client"
 
+import { useEffect, useState } from "react"
+
 import {
   breakpoints,
   getDeviceType,
   type MainBreakpoint,
 } from "@/lib/breakpoints"
-import { useEffect, useState } from "react"
 
 /**
  * Hook để detect breakpoint hiện tại
