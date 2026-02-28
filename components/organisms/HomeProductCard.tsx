@@ -23,6 +23,7 @@ export function HomeProductCard({ product }: { product: HomeProduct }) {
     >
       <div className="relative aspect-4/3 w-full bg-muted overflow-hidden">
         {/* Dùng img thường để tránh cấu hình domain, có thể thay bằng Image sau */}
+        {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           src={product.imageUrl}
           alt={product.name}

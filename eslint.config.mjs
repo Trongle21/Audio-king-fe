@@ -30,11 +30,14 @@ const eslintConfig = defineConfig([
     rules: {
       "react-refresh/only-export-components": [
         "warn",
-        { allowConstantExport: true },
+        { 
+          allowConstantExport: true,
+        },
       ],
+      "@next/next/no-img-element": "warn", // Cảnh báo nhưng không chặn, có thể dùng eslint-disable cho trường hợp đặc biệt
       semi: 0,
       "react/react-in-jsx-scope": 0,
-      "no-console": 1,
+      "no-console": ["warn", { allow: ["warn", "error"] }], // Cho phép console.warn và console.error
       "@typescript-eslint/no-explicit-any": 0,
       "@typescript-eslint/explicit-module-boundary-types": 0,
       "@typescript-eslint/ban-ts-comment": 0,
@@ -72,7 +75,7 @@ const eslintConfig = defineConfig([
         },
       ],
       "import/newline-after-import": 1,
-      "import/no-namespace": 1,
+      "import/no-namespace": "warn", // Cảnh báo nhưng không chặn, import * as React là pattern phổ biến
       "import/order": [
         1,
         {
@@ -116,6 +119,13 @@ const eslintConfig = defineConfig([
           },
         },
       ],
+    },
+  },
+  // Override cho Next.js app directory files - cho phép export metadata cùng với components
+  {
+    files: ["app/**/*.tsx", "app/**/*.ts"],
+    rules: {
+      "react-refresh/only-export-components": "off", // Tắt rule này cho Next.js pages/layouts
     },
   },
 ])
