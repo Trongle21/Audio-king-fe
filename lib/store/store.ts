@@ -1,4 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit"
+
 import exampleReducer from "./slices/exampleSlice"
 
 export const makeStore = () => {
