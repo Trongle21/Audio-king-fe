@@ -1,11 +1,11 @@
-import { defineConfig, globalIgnores } from "eslint/config"
+import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import nextVitals from "eslint-config-next/core-web-vitals"
 import nextTs from "eslint-config-next/typescript"
+import importPlugin from "eslint-plugin-import"
 import react from "eslint-plugin-react"
 import reactHooks from "eslint-plugin-react-hooks"
 import reactRefresh from "eslint-plugin-react-refresh"
-import typescriptEslint from "@typescript-eslint/eslint-plugin"
-import importPlugin from "eslint-plugin-import"
+import { defineConfig, globalIgnores } from "eslint/config"
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -37,7 +37,7 @@ const eslintConfig = defineConfig([
       "@next/next/no-img-element": "warn", // Cảnh báo nhưng không chặn, có thể dùng eslint-disable cho trường hợp đặc biệt
       semi: 0,
       "react/react-in-jsx-scope": 0,
-      "no-console": ["warn", { allow: ["warn", "error"] }], // Cho phép console.warn và console.error
+      "no-console": "off",
       "@typescript-eslint/no-explicit-any": 0,
       "@typescript-eslint/explicit-module-boundary-types": 0,
       "@typescript-eslint/ban-ts-comment": 0,
@@ -63,6 +63,7 @@ const eslintConfig = defineConfig([
       "react-hooks/rules-of-hooks": 1,
       "react-hooks/exhaustive-deps": 1,
       "no-unreachable": 1,
+      "react-refresh/only-export-components": "off",
       "import/extensions": [
         1,
         "ignorePackages",
@@ -75,7 +76,7 @@ const eslintConfig = defineConfig([
         },
       ],
       "import/newline-after-import": 1,
-      "import/no-namespace": "warn", // Cảnh báo nhưng không chặn, import * as React là pattern phổ biến
+      "import/no-namespace": "off", // Cảnh báo nhưng không chặn, import * as React là pattern phổ biến
       "import/order": [
         1,
         {
