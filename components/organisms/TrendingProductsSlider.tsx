@@ -2,7 +2,6 @@
 
 import * as React from "react"
 
-import type { Swiper as SwiperInstance } from "swiper"
 import { Autoplay } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
 
@@ -10,6 +9,8 @@ import {
   HomeProductCard,
   type HomeProduct,
 } from "@/components/organisms/HomeProductCard"
+
+import type { Swiper as SwiperInstance } from "swiper"
 
 import "swiper/css"
 

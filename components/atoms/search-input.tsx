@@ -1,10 +1,13 @@
 "use client"
 
 import * as React from "react"
+
 import { Search } from "lucide-react"
-import { Input } from "./input"
-import { Button } from "./button"
+
 import { cn } from "@/lib/utils"
+
+import { Button } from "./button"
+import { Input } from "./input"
 
 interface SearchInputProps extends React.ComponentProps<"input"> {
   onSearch?: (value: string) => void

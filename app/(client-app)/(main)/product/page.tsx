@@ -1,4 +1,5 @@
-import type { Metadata } from "next"
+import Link from "next/link"
+
 import { Badge, Button } from "@/components/atoms"
 import {
   Card,
@@ -6,8 +7,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/molecules"
-import Link from "next/link"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
+
+import type { Metadata } from "next"
 
 export const metadata: Metadata = genMetadata({
   title: "Sản phẩm",

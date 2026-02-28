@@ -1,3 +1,5 @@
+import Link from "next/link"
+
 import { Button } from "@/components/atoms"
 import {
   Card,
@@ -5,7 +7,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/molecules"
-import Link from "next/link"
 
 export default function HomePage() {
   return (
