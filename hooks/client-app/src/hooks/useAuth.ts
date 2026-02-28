@@ -11,7 +11,8 @@ interface User {
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
   // Khởi tạo isLoading = false ngay từ đầu thay vì setState trong effect
-  const [isLoading, setIsLoading] = useState(false)
+  // setIsLoading sẽ được dùng sau khi implement authentication logic
+  const [isLoading] = useState(false)
 
   useEffect(() => {
     // TODO: Kiểm tra authentication state

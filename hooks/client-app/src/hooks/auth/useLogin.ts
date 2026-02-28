@@ -9,7 +9,8 @@ import type { LoginFormData } from "@/lib/schemas/auth.schema"
 export function useLogin() {
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
-  const router = useRouter()
+  // router sẽ được dùng sau khi implement redirect logic
+  const _router = useRouter()
 
   const login = async (data: LoginFormData) => {
     setIsLoading(true)
