@@ -1,13 +1,15 @@
 "use client"
 
+import * as React from "react"
+
+import type { Swiper as SwiperInstance } from "swiper"
+import { Autoplay } from "swiper/modules"
+import { Swiper, SwiperSlide } from "swiper/react"
+
 import {
   HomeProductCard,
   type HomeProduct,
 } from "@/components/organisms/HomeProductCard"
-import * as React from "react"
-import type { Swiper as SwiperInstance } from "swiper"
-import { Autoplay } from "swiper/modules"
-import { Swiper, SwiperSlide } from "swiper/react"
 
 import "swiper/css"
 
@@ -22,6 +24,9 @@ const MAX_PRODUCTS = 12
 export function TrendingProductsSlider({
   products,
 }: TrendingProductsSliderProps) {
+  // Di chuyển useRef lên trước early return để tuân thủ rules of hooks
+  const swiperRef = React.useRef<SwiperInstance | null>(null)
+
   // Giới hạn tối đa MAX_PRODUCTS sản phẩm để hiển thị
   const visibleProducts = React.useMemo(
     () => products.slice(0, MAX_PRODUCTS),
@@ -29,8 +34,6 @@ export function TrendingProductsSlider({
   )
 
   if (visibleProducts.length === 0) return null
-
-  const swiperRef = React.useRef<SwiperInstance | null>(null)
 
   return (
     <div className="space-y-4">

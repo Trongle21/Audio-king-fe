@@ -1,11 +1,12 @@
 "use client"
 
+import * as React from "react"
+import ReactPaginate from "react-paginate"
+
 import {
   HomeProductCard,
   type HomeProduct,
 } from "@/components/organisms/HomeProductCard"
-import * as React from "react"
-import ReactPaginate from "react-paginate"
 
 interface PaginatedProductGridProps {
   products: HomeProduct[]

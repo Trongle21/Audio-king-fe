@@ -1,6 +1,7 @@
+import Link from "next/link"
+
 import { Button } from "@/components/atoms"
 import { Card, CardContent } from "@/components/molecules"
-import Link from "next/link"
 
 export type HomeProduct = {
   id: string

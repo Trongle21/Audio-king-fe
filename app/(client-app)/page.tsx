@@ -1,11 +1,12 @@
+import type { Metadata } from "next"
+import Link from "next/link"
+
 import { Button } from "@/components/atoms"
 import { HomeBannerSlider } from "@/components/organisms/HomeBannerSlider"
 import { type HomeProduct } from "@/components/organisms/HomeProductCard"
 import { PaginatedProductGrid } from "@/components/organisms/PaginatedProductGrid"
 import { TrendingProductsSlider } from "@/components/organisms/TrendingProductsSlider"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
-import type { Metadata } from "next"
-import Link from "next/link"
 
 export const metadata: Metadata = genMetadata({
   title: "Trang chủ",

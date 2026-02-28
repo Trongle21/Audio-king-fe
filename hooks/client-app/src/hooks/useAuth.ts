@@ -10,11 +10,12 @@ interface User {
 
 export function useAuth() {
   const [user, setUser] = useState<User | null>(null)
-  const [isLoading, setIsLoading] = useState(true)
+  // Khởi tạo isLoading = false ngay từ đầu thay vì setState trong effect
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     // TODO: Kiểm tra authentication state
-    setIsLoading(false)
+    // Nếu cần set loading state, nên làm trong callback của async operation
   }, [])
 
   const login = async (email: string, password: string) => {

@@ -1,8 +1,9 @@
 "use client"
 
+import { usePathname } from "next/navigation"
+
 import Footer from "@/components/organisms/Footer"
 import Header from "@/components/organisms/Header"
-import { usePathname } from "next/navigation"
 
 export default function ClientAppLayout({
   children,
