@@ -82,8 +82,8 @@ export function useMediaQuery(query: string): boolean {
   useEffect(() => {
     const media = window.matchMedia(query)
 
-    // Set initial value
-    setMatches(media.matches)
+    // Set initial value (chỉ cập nhật nếu khác để tránh render không cần thiết)
+    setMatches((prev) => (prev === media.matches ? prev : media.matches))
 
     // Create listener
     const listener = (event: MediaQueryListEvent) => {
