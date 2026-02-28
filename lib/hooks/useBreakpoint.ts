@@ -77,28 +77,27 @@ export function useBreakpoint() {
  * ```
  */
 export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(false)
+  // Khởi tạo giá trị ban đầu ngay trong useState (thay vì gọi setState trong effect)
+  const [matches, setMatches] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false
+    return window.matchMedia(query).matches
+  })
 
   useEffect(() => {
+    if (typeof window === "undefined") return
+
     const media = window.matchMedia(query)
 
-    // Set initial value (chỉ cập nhật nếu khác để tránh render không cần thiết)
-    setMatches((prev) => (prev === media.matches ? prev : media.matches))
-
-    // Create listener
     const listener = (event: MediaQueryListEvent) => {
       setMatches(event.matches)
     }
 
-    // Add listener
     if (media.addEventListener) {
       media.addEventListener("change", listener)
     } else {
-      // Fallback for older browsers
       media.addListener(listener)
     }
 
-    // Cleanup
     return () => {
       if (media.removeEventListener) {
         media.removeEventListener("change", listener)
