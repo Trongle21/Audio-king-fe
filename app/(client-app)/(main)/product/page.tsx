@@ -1,12 +1,15 @@
 import Link from "next/link"
+import { Suspense } from "react"
 
-import { Badge, Button } from "@/components/atoms"
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/molecules"
+  HomeProductCard,
+  type HomeProduct,
+} from "@/components/organisms/HomeProductCard"
+import {
+  ProductFiltersDrawer,
+  ProductFiltersSidebar,
+} from "@/components/organisms/ProductFilters"
+import { ProductSearchBar } from "@/components/organisms/ProductSearchBar"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
 import type { Metadata } from "next"
@@ -14,69 +17,102 @@ import type { Metadata } from "next"
 export const metadata: Metadata = genMetadata({
   title: "Sản phẩm",
   description:
-    "Khám phá danh sách các sản phẩm audio chất lượng cao tại FE-Audio. Từ Audio Premium đến Audio Basic, chúng tôi có đầy đủ sản phẩm phù hợp với nhu cầu của bạn.",
+    "Khám phá danh sách các sản phẩm audio chất lượng cao tại FE-Audio với đầy đủ loa karaoke, dàn âm thanh hội trường, vang số, micro và nhiều thiết bị khác.",
   keywords: [
     "sản phẩm audio",
-    "audio premium",
-    "audio standard",
-    "audio basic",
-    "mua audio",
+    "loa karaoke",
+    "dàn âm thanh",
+    "thiết bị âm thanh",
+    "mua loa",
     "FE-Audio products",
   ],
   canonical: "/product",
 })
 
-interface Product {
-  id: number
-  name: string
-  price: string
-  status: string
-  description?: string
-}
+const MOCK_PRODUCTS: HomeProduct[] = [
+  {
+    id: "p1",
+    name: "Loa Karaoke Nhật BIK BJ S888II (Bass 25cm, 600W)",
+    imageUrl:
+      "https://images.pexels.com/photos/63703/pexels-photo-63703.jpeg?auto=compress&cs=tinysrgb&w=800",
+    price: "8.290.000đ",
+    oldPrice: "10.890.000đ",
+    discountLabel: "-25%",
+    badge: "Bán chạy",
+    meta: "Loa karaoke gia đình, phòng 20–30m²",
+  },
+  {
+    id: "p2",
+    name: "Dàn Karaoke Đồng Bộ FE-Audio New 2026 (Vang Số + Cục Đẩy + Loa)",
+    imageUrl:
+      "https://images.pexels.com/photos/164716/pexels-photo-164716.jpeg?auto=compress&cs=tinysrgb&w=800",
+    price: "40.890.000đ",
+    oldPrice: "59.000.000đ",
+    discountLabel: "-31%",
+    badge: "Combo hot",
+    meta: "Phù hợp phòng khách, quán karaoke mini",
+  },
+  {
+    id: "p3",
+    name: "Dàn Âm Thanh Hội Trường FE-Audio HT25 (Array Active, 25m)",
+    imageUrl:
+      "https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=800",
+    price: "79.990.000đ",
+    oldPrice: "114.430.000đ",
+    discountLabel: "-30%",
+    badge: "Siêu sốc",
+    meta: "Hội trường 200–300m²",
+  },
+  {
+    id: "p4",
+    name: "Micro Không Dây Cao Cấp BKSound A3 Pro (Kèm Echo, Tăng Giảm Âm Lượng)",
+    imageUrl:
+      "https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=800",
+    price: "2.590.000đ",
+    oldPrice: "3.500.000đ",
+    discountLabel: "-26%",
+    badge: "New 2026",
+    meta: "Micro không dây cho karaoke gia đình",
+  },
+  {
+    id: "p5",
+    name: "Vang Số JBL KX190 (Có Bluetooth, Cổng Quang, USB Recording)",
+    imageUrl:
+      "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
+    price: "9.900.000đ",
+    oldPrice: "12.500.000đ",
+    discountLabel: "-21%",
+    badge: "Mua nhiều nhất",
+    meta: "Vang số karaoke, hỗ trợ nhiều ngõ vào",
+  },
+  {
+    id: "p6",
+    name: "Loa RCF C MAX 4112 (Full Bass 30, SX: Italy)",
+    imageUrl:
+      "https://images.pexels.com/photos/63703/pexels-photo-63703.jpeg?auto=compress&cs=tinysrgb&w=800",
+    price: "61.900.000đ",
+    oldPrice: "74.700.000đ",
+    discountLabel: "-17%",
+    badge: "Sản phẩm hot",
+    meta: "Phù hợp sân khấu, phòng trà, quán bar",
+  },
+]
 
 export default function ProductPage() {
-  const products: Product[] = [
-    {
-      id: 1,
-      name: "Audio Premium",
-      price: "999,000đ",
-      status: "Còn hàng",
-      description: "Sản phẩm audio cao cấp với chất lượng tuyệt vời",
-    },
-    {
-      id: 2,
-      name: "Audio Standard",
-      price: "599,000đ",
-      status: "Còn hàng",
-      description: "Sản phẩm audio tiêu chuẩn phù hợp với đa số người dùng",
-    },
-    {
-      id: 3,
-      name: "Audio Basic",
-      price: "299,000đ",
-      status: "Hết hàng",
-      description: "Sản phẩm audio cơ bản với giá cả hợp lý",
-    },
-  ]
-
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "ItemList",
     name: "Danh sách sản phẩm audio",
-    description: "Danh sách các sản phẩm audio chất lượng cao",
-    itemListElement: products.map((product, index) => ({
+    description:
+      "Danh sách các sản phẩm loa karaoke, dàn âm thanh, micro, vang số tại FE-Audio.",
+    itemListElement: MOCK_PRODUCTS.map((product, index) => ({
       "@type": "Product",
       position: index + 1,
       name: product.name,
-      description: product.description,
+      description: product.meta,
       offers: {
         "@type": "Offer",
-        price: product.price.replace(/[^\d]/g, ""),
         priceCurrency: "VND",
-        availability:
-          product.status === "Còn hàng"
-            ? "https://schema.org/InStock"
-            : "https://schema.org/OutOfStock",
       },
     })),
   }
@@ -87,63 +123,81 @@ export default function ProductPage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
-      <main className="container py-12">
-        <article className="space-y-8">
-          <header className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold">Sản phẩm</h1>
-              <p className="text-muted-foreground mt-2">
-                Danh sách các sản phẩm audio chất lượng cao
-              </p>
-            </div>
-            <nav>
-              <Link href="/" aria-label="Quay lại trang chủ">
-                <Button variant="outline">← Trang chủ</Button>
-              </Link>
-            </nav>
-          </header>
 
-          <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {products.map((product) => (
-              <article key={product.id}>
-                <Card>
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <CardTitle>{product.name}</CardTitle>
-                      <Badge
-                        variant={
-                          product.status === "Còn hàng"
-                            ? "default"
-                            : "secondary"
-                        }
-                        aria-label={`Trạng thái: ${product.status}`}
-                      >
-                        {product.status}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-2xl font-bold mb-4" aria-label="Giá">
-                      {product.price}
-                    </p>
-                    {product.description && (
-                      <p className="text-sm text-muted-foreground mb-4">
-                        {product.description}
-                      </p>
-                    )}
-                    <Button
-                      className="w-full"
-                      disabled={product.status === "Hết hàng"}
-                      aria-label={`Mua ${product.name}`}
-                    >
-                      {product.status === "Còn hàng" ? "Mua ngay" : "Hết hàng"}
-                    </Button>
-                  </CardContent>
-                </Card>
-              </article>
-            ))}
-          </section>
-        </article>
+      <main className="container py-6 md:py-8 lg:py-10">
+        {/* Breadcrumb SEO-friendly */}
+        <nav
+          aria-label="Breadcrumb"
+          className="mb-4 text-xs text-muted-foreground md:mb-6"
+        >
+          <ol className="flex flex-wrap items-center gap-1">
+            <li>
+              <Link href="/" className="hover:text-destructive">
+                Trang chủ
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li className="font-medium text-foreground">Sản phẩm</li>
+          </ol>
+        </nav>
+
+        <header className="space-y-2 md:space-y-3">
+          <h1 className="text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl">
+            Sản phẩm audio tại FE-Audio
+          </h1>
+        </header>
+
+        <section className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr),320px]">
+          {/* Cột trái: sản phẩm */}
+          <div className="space-y-4">
+            <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+              <Suspense
+                fallback={
+                  <div className="flex h-10 w-full max-w-md animate-pulse items-center gap-2 rounded-md border bg-muted/40 px-3 text-sm text-muted-foreground">
+                    Đang tải...
+                  </div>
+                }
+              >
+                <ProductSearchBar />
+              </Suspense>
+              {/* Tablet trở xuống: filter dạng drawer (Sheet - shadcn) */}
+              <div className="flex justify-end lg:hidden">
+                <Suspense
+                  fallback={
+                    <div className="h-10 w-[110px] rounded-md border bg-muted/40" />
+                  }
+                >
+                  <ProductFiltersDrawer />
+                </Suspense>
+              </div>
+            </div>
+
+            <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 lg:grid-cols-3">
+              {MOCK_PRODUCTS.map((product) => (
+                <HomeProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          </div>
+
+          {/* Desktop: filter sidebar bên phải */}
+          <aside
+            aria-label="Bộ lọc sản phẩm"
+            className="hidden lg:block lg:sticky lg:top-24 h-fit"
+          >
+            <Suspense
+              fallback={
+                <div className="space-y-3 rounded-lg border bg-card p-4 shadow-sm">
+                  <div className="h-4 w-24 animate-pulse rounded bg-muted/60" />
+                  <div className="h-10 animate-pulse rounded bg-muted/40" />
+                  <div className="h-20 animate-pulse rounded bg-muted/40" />
+                  <div className="h-10 animate-pulse rounded bg-muted/40" />
+                </div>
+              }
+            >
+              <ProductFiltersSidebar />
+            </Suspense>
+          </aside>
+        </section>
       </main>
     </>
   )

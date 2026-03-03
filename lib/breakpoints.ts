@@ -11,7 +11,7 @@
 
 export const breakpoints = {
   // Mobile nhỏ (iPhone SE, etc.)
-  xs: "0px",
+  xs: "480px",
 
   // Mobile lớn (iPhone, Android phones) - CHÍNH
   sm: "640px",
@@ -53,7 +53,7 @@ export const mainBreakpoints = {
  * Media queries helpers
  */
 export const mediaQueries = {
-  /** Mobile: từ 0px trở lên */
+  /** Mobile: từ 480px trở lên */
   mobile: `(min-width: ${breakpoints.xs})`,
 
   /** Mobile lớn: từ 640px trở lên */

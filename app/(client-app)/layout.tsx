@@ -4,6 +4,7 @@ import { usePathname } from "next/navigation"
 
 import Footer from "@/components/organisms/Footer"
 import Header from "@/components/organisms/Header"
+import { ZaloFloatingButton } from "@/components/organisms/ZaloFloatingButton"
 
 export default function ClientAppLayout({
   children,
@@ -27,6 +28,7 @@ export default function ClientAppLayout({
     <>
       <Header />
       <main className="flex-1">{children}</main>
+      <ZaloFloatingButton />
       <Footer />
     </>
   )

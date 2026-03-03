@@ -17,7 +17,7 @@ export type HomeProduct = {
 export function HomeProductCard({ product }: { product: HomeProduct }) {
   return (
     <article
-      className="group flex min-w-[220px] max-w-xs flex-col overflow-hidden rounded-lg border bg-card shadow-sm"
+      className="group flex h-full w-full flex-col overflow-hidden rounded-lg border bg-card shadow-sm"
       itemScope
       itemType="https://schema.org/Product"
     >
@@ -38,8 +38,8 @@ export function HomeProductCard({ product }: { product: HomeProduct }) {
         )}
       </div>
 
-      <Card className="border-0 shadow-none">
-        <CardContent className="space-y-2 p-3">
+      <Card className="flex flex-1 flex-col border-0 shadow-none">
+        <CardContent className="flex flex-1 flex-col space-y-2 p-3">
           <h3
             className="line-clamp-2 text-sm font-semibold hover:underline cursor-alias"
             itemProp="name"
@@ -80,7 +80,7 @@ export function HomeProductCard({ product }: { product: HomeProduct }) {
 
           <Button
             size="sm"
-            className="mt-2 w-full bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
+            className="mt-auto w-full bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
             aria-label={`Xem chi tiết ${product.name}`}
           >
             Xem chi tiết
