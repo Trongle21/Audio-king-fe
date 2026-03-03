@@ -2,13 +2,13 @@
 
 import * as React from "react"
 
+import { SlidersHorizontal } from "lucide-react"
 import {
   type ReadonlyURLSearchParams,
   usePathname,
   useRouter,
   useSearchParams,
 } from "next/navigation"
-import { SlidersHorizontal } from "lucide-react"
 
 import { Button, Input, Label } from "@/components/atoms"
 import {
