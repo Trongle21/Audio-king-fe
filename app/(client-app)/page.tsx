@@ -2,8 +2,8 @@ import Link from "next/link"
 
 import { Button } from "@/components/atoms"
 import { HomeBannerSlider } from "@/components/organisms/HomeBannerSlider"
-import { type HomeProduct } from "@/components/organisms/HomeProductCard"
 import { PaginatedProductGrid } from "@/components/organisms/PaginatedProductGrid"
+import { type HomeProduct } from "@/components/organisms/ProductCard"
 import { TrendingProductsSlider } from "@/components/organisms/TrendingProductsSlider"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 

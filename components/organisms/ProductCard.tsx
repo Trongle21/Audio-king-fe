@@ -1,12 +1,19 @@
+/* eslint-disable @next/next/no-img-element */
+"use client"
+
 import Link from "next/link"
 
 import { Button } from "@/components/atoms"
 import { Card, CardContent } from "@/components/molecules"
+import "swiper/css"
+import { Autoplay } from "swiper/modules"
+import { Swiper, SwiperSlide } from "swiper/react"
 
 export type HomeProduct = {
   id: string
   name: string
   imageUrl: string
+  images?: string[]
   price: string
   oldPrice?: string
   discountLabel?: string
@@ -14,38 +21,58 @@ export type HomeProduct = {
   meta?: string
 }
 
-export function HomeProductCard({ product }: { product: HomeProduct }) {
+export function ProductCard({ product }: { product: HomeProduct }) {
+  const images =
+    product.images && product.images.length > 0
+      ? product.images
+      : [product.imageUrl]
+
+  const detailHref = `/product/${product.id}`
+
   return (
     <article
       className="group flex h-full w-full flex-col overflow-hidden rounded-lg border bg-card shadow-sm"
       itemScope
       itemType="https://schema.org/Product"
     >
-      <div className="relative aspect-4/3 w-full bg-muted overflow-hidden">
-        {/* Dùng img thường để tránh cấu hình domain, có thể thay bằng Image sau */}
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
-          src={product.imageUrl}
-          alt={product.name}
-          loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105"
-          itemProp="image"
-        />
+      <Link
+        href={detailHref}
+        aria-label={product.name}
+        className="relative aspect-4/3 w-full bg-muted overflow-hidden cursor-pointer"
+      >
+        <Swiper
+          modules={[Autoplay]}
+          autoplay={{ delay: 4000, disableOnInteraction: false }}
+          loop={images.length > 1}
+          className="h-full w-full"
+        >
+          {images.map((src, index) => (
+            <SwiperSlide key={index}>
+              <img
+                src={src}
+                alt={product.name}
+                loading="lazy"
+                className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 cursor-pointer"
+                itemProp="image"
+              />
+            </SwiperSlide>
+          ))}
+        </Swiper>
         {product.badge && (
           <span className="absolute left-2 top-2 rounded-md bg-destructive px-2 py-1 text-xs font-semibold text-white">
             {product.badge}
           </span>
         )}
-      </div>
+      </Link>
 
       <Card className="flex flex-1 flex-col border-0 shadow-none">
         <CardContent className="flex flex-1 flex-col space-y-2 p-3">
           <h3
-            className="line-clamp-2 text-sm font-semibold hover:underline cursor-alias"
+            className="line-clamp-2 text-sm font-semibold hover:underline cursor-pointer"
             itemProp="name"
             title={product.name}
           >
-            <Link href={`/products/${product.id}`}>{product.name}</Link>
+            <Link href={detailHref}>{product.name}</Link>
           </h3>
           {product.meta && (
             <p className="line-clamp-1 text-xs text-muted-foreground">
@@ -78,13 +105,15 @@ export function HomeProductCard({ product }: { product: HomeProduct }) {
             <meta itemProp="priceCurrency" content="VND" />
           </div>
 
-          <Button
-            size="sm"
-            className="mt-auto w-full bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
-            aria-label={`Xem chi tiết ${product.name}`}
-          >
-            Xem chi tiết
-          </Button>
+          <Link href={detailHref} className="mt-auto">
+            <Button
+              size="sm"
+              className="w-full bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
+              aria-label={`Xem chi tiết ${product.name}`}
+            >
+              Xem chi tiết
+            </Button>
+          </Link>
         </CardContent>
       </Card>
     </article>

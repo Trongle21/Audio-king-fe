@@ -3,9 +3,9 @@ import { Suspense } from "react"
 import Link from "next/link"
 
 import {
-  HomeProductCard,
+  ProductCard,
   type HomeProduct,
-} from "@/components/organisms/HomeProductCard"
+} from "@/components/organisms/ProductCard"
 import {
   ProductFiltersDrawer,
   ProductFiltersSidebar,
@@ -148,9 +148,8 @@ export default function ProductPage() {
           </h1>
         </header>
 
-        <section className="mt-6 grid gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr),320px]">
-          {/* Cột trái: sản phẩm */}
-          <div className="space-y-4">
+        <section className="mt-6 gap-6 lg:mt-8 flex">
+          <div className="space-y-4 flex-1">
             <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
               <Suspense
                 fallback={
@@ -161,7 +160,6 @@ export default function ProductPage() {
               >
                 <ProductSearchBar />
               </Suspense>
-              {/* Tablet trở xuống: filter dạng drawer (Sheet - shadcn) */}
               <div className="flex justify-end lg:hidden">
                 <Suspense
                   fallback={
@@ -175,7 +173,7 @@ export default function ProductPage() {
 
             <div className="grid gap-4 grid-cols-1 xs:grid-cols-2 lg:grid-cols-3">
               {MOCK_PRODUCTS.map((product) => (
-                <HomeProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} />
               ))}
             </div>
           </div>
@@ -183,7 +181,7 @@ export default function ProductPage() {
           {/* Desktop: filter sidebar bên phải */}
           <aside
             aria-label="Bộ lọc sản phẩm"
-            className="hidden lg:block lg:sticky lg:top-24 h-fit"
+            className="hidden lg:block lg:sticky lg:top-24 h-fit w-full max-w-md flex-[0_0_320px]"
           >
             <Suspense
               fallback={

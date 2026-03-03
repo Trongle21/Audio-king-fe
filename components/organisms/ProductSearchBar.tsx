@@ -31,22 +31,46 @@ export function ProductSearchBar() {
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex w-full gap-2 sm:max-w-md">
-      <Input
-        id="q"
-        name="q"
-        placeholder="Tìm sản phẩm..."
-        className="h-10"
-        aria-label="Tìm kiếm sản phẩm"
-        value={q}
-        onChange={(e) => setQ(e.target.value)}
-      />
-      <Button
-        type="submit"
-        className="h-10 bg-destructive text-white hover:bg-destructive/90"
-      >
-        Tìm
-      </Button>
+    <form onSubmit={onSubmit} className="flex w-full justify-between">
+      <div className="flex items-center gap-2 min-w-0 max-w-md  md:min-w-120">
+        <Input
+          id="q"
+          name="q"
+          placeholder="Tìm sản phẩm..."
+          className="h-10 w-full"
+          aria-label="Tìm kiếm sản phẩm"
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+        />
+        <Button
+          type="submit"
+          className="h-10 bg-destructive text-white hover:bg-destructive/90"
+        >
+          Tìm
+        </Button>
+
+      </div>
+      <div className="flex items-start justify-between gap-3">
+        <div className="min-w-[160px] space-y-1">
+          <select
+            id="sort"
+            name="sort"
+            className="w-full rounded-md border bg-background px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          // value={state.sort}
+          // onChange={(e) =>
+          //   setState((s) => ({
+          //     ...s,
+          //     sort: e.target.value,
+          //   }))
+          // }
+          >
+            <option value="">Mặc định</option>
+            <option value="price_desc">Giá cao → thấp</option>
+            <option value="price_asc">Giá thấp → cao</option>
+          </select>
+        </div>
+      </div>
+
     </form>
   )
 }

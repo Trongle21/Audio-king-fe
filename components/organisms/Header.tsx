@@ -31,16 +31,16 @@ import { useAuth } from "@/hooks/client-app/src/hooks/useAuth"
 
 
 const primaryCategories = [
-  { href: "/loa-keo", label: "Loa Kéo" },
-  { href: "/loa-karaoke", label: "Loa Karaoke" },
-  { href: "/dan-karaoke", label: "Dàn Karaoke" },
-  { href: "/micro", label: "Micro" },
-  { href: "/cuc-day", label: "Cục Đẩy" },
-  { href: "/vang", label: "Vang" },
-  { href: "/loa-bluetooth", label: "Loa Bluetooth" },
-  { href: "/cong-trinh-thuc-te", label: "Công Trình Thực Tế" },
-  { href: "/ho-so-nang-luc", label: "Hồ Sơ Năng Lực" },
-  { href: "/tin-tuc", label: "Tin Tức" },
+  { key: "loa-keo", label: "Loa Kéo" },
+  { key: "loa-karaoke", label: "Loa Karaoke" },
+  { key: "dan-karaoke", label: "Dàn Karaoke" },
+  { key: "micro", label: "Micro" },
+  { key: "cuc-day", label: "Cục Đẩy" },
+  { key: "vang", label: "Vang" },
+  { key: "loa-bluetooth", label: "Loa Bluetooth" },
+  { key: "cong-trinh-thuc-te", label: "Công Trình Thực Tế" },
+  { key: "ho-so-nang-luc", label: "Hồ Sơ Năng Lực" },
+  { key: "tin-tuc", label: "Tin Tức" },
 ] as const
 
 const showrooms = [
@@ -228,8 +228,8 @@ export default function Header() {
               >
                 {primaryCategories.map((c) => (
                   <Link
-                    key={c.href}
-                    href={c.href}
+                    key={c.key}
+                    href={`/product?category=${encodeURIComponent(c.key)}`}
                     className="px-3 py-2 text-sm font-semibold hover:bg-white/10 rounded-md"
                   >
                     {c.label}
@@ -252,7 +252,7 @@ export default function Header() {
                     <ChevronDown className="size-4 opacity-90" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-[14rem]">
+                <DropdownMenuContent align="end" className="min-w-56">
                   <DropdownMenuLabel>Showroom</DropdownMenuLabel>
                   <DropdownMenuSeparator />
                   {showrooms.map((s) => (
@@ -281,8 +281,8 @@ export default function Header() {
               <div className="grid grid-cols-2 gap-1">
                 {primaryCategories.map((c) => (
                   <Link
-                    key={c.href}
-                    href={c.href}
+                    key={c.key}
+                    href={`/product?category=${encodeURIComponent(c.key)}`}
                     className="min-w-48 rounded-md px-3 py-2 text-sm font-medium hover:bg-white/10"
                     onClick={() => setMobileMenuOpen(false)}
                   >

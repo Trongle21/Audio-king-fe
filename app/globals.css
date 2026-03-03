@@ -166,6 +166,8 @@
     .container {
       padding-left: 1.5rem; /* ~24px */
       padding-right: 1.5rem;
+      width: 100%;
+      max-width: 1200px;
     }
   }
 
@@ -173,6 +175,8 @@
     .container {
       padding-left: 2rem; /* ~32px */
       padding-right: 2rem;
+      width: 100%;
+      max-width: 1200px;
     }
   }
 
@@ -180,6 +184,8 @@
     .container {
       padding-left: 3rem; /* ~48px */
       padding-right: 3rem;
+      width: 100%;
+      max-width: 1400px;
     }
   }
 
@@ -187,6 +193,8 @@
     .container {
       padding-left: 4rem; /* ~64px */
       padding-right: 4rem;
+      width: 100%;
+      max-width: 1400px;
     }
   }
 

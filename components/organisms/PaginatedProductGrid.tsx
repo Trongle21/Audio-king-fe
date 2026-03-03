@@ -5,9 +5,9 @@ import * as React from "react"
 import ReactPaginate from "react-paginate"
 
 import {
-  HomeProductCard,
+  ProductCard,
   type HomeProduct,
-} from "@/components/organisms/HomeProductCard"
+} from "@/components/organisms/ProductCard"
 
 interface PaginatedProductGridProps {
   products: HomeProduct[]
@@ -37,7 +37,7 @@ export function PaginatedProductGrid({
     <div className="space-y-4">
       <div className="grid items-stretch gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {currentItems.map((product) => (
-          <HomeProductCard key={product.id} product={product} />
+          <ProductCard key={product.id} product={product} />
         ))}
       </div>
 

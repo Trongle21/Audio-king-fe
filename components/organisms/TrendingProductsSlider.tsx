@@ -6,9 +6,9 @@ import { Autoplay } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
 
 import {
-  HomeProductCard,
+  ProductCard,
   type HomeProduct,
-} from "@/components/organisms/HomeProductCard"
+} from "@/components/organisms/ProductCard"
 
 import type { Swiper as SwiperInstance } from "swiper"
 
@@ -61,7 +61,7 @@ export function TrendingProductsSlider({
       >
         {visibleProducts.map((product) => (
           <SwiperSlide key={product.id} className="h-auto!">
-            <HomeProductCard product={product} />
+            <ProductCard product={product} />
           </SwiperSlide>
         ))}
       </Swiper>
