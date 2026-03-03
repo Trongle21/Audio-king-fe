@@ -1,8 +1,9 @@
-import type { Metadata } from "next"
 import Link from "next/link"
 
 import { ProductImageGallery } from "@/components/organisms/ProductImageGallery"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
+
+import type { Metadata } from "next"
 
 type ProductDetailProps = {
   params: { id: string }
