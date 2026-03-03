@@ -3,11 +3,12 @@
 
 import Link from "next/link"
 
-import { Button } from "@/components/atoms"
-import { Card, CardContent } from "@/components/molecules"
 import "swiper/css"
 import { Autoplay } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
+
+import { Button } from "@/components/atoms"
+import { Card, CardContent } from "@/components/molecules"
 
 export type HomeProduct = {
   id: string
