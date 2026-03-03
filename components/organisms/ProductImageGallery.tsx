@@ -7,6 +7,7 @@ import "swiper/css"
 import "swiper/css/navigation"
 import { Autoplay, Navigation } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
+
 import type { Swiper as SwiperInstance } from "swiper"
 
 type ProductImageGalleryProps = {
