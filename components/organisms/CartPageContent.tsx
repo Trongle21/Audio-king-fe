@@ -1,8 +1,9 @@
 "use client"
 
-import { formatCurrency } from "@/lib"
 import Image from "next/image"
 import Link from "next/link"
+
+import { formatCurrency } from "@/lib"
 
 import { Button, Input, Label } from "@/components/atoms"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
