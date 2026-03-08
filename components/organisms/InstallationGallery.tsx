@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-
 import ReactPaginate from "react-paginate"
 
 import { usePagination } from "@/hooks/client-app/src/hooks/ui"
@@ -28,7 +27,7 @@ export function InstallationGallery({
             key={`${src}-${index}`}
             className="group relative overflow-hidden rounded-lg border bg-card"
           >
-            <div className="relative aspect-[4/3] w-full">
+            <div className="relative aspect-4/3 w-full">
               <Image
                 src={src}
                 alt={`Công trình karaoke ${index + 1}`}

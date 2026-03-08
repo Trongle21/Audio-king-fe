@@ -14,6 +14,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 
+import { formatCurrency } from "@/lib"
+
 import { Button } from "@/components/atoms/button"
 import { IconButton } from "@/components/atoms/icon-button"
 import { SearchInput } from "@/components/atoms/search-input"
@@ -28,7 +30,6 @@ import {
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
 import { useSearch } from "@/hooks/client-app/src/hooks/search"
 import { useAuth } from "@/hooks/client-app/src/hooks/useAuth"
-import { formatCurrency } from "@/lib"
 
 
 const primaryCategories = [

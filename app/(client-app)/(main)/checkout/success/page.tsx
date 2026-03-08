@@ -1,6 +1,5 @@
-import Link from "next/link"
-
 import { CheckCircle2, Home, ShoppingBag } from "lucide-react"
+import Link from "next/link"
 
 import { Button } from "@/components/atoms"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
