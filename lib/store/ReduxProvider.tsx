@@ -3,6 +3,8 @@
 import { useState } from "react"
 
 import { Provider } from "react-redux"
+import { persistStore } from "redux-persist"
+import { PersistGate } from "redux-persist/integration/react"
 
 import { makeStore, type AppStore } from "./store"
 
@@ -11,8 +13,14 @@ export default function ReduxProvider({
 }: {
   children: React.ReactNode
 }) {
-  // Tạo store một lần bằng lazy initializer của useState (tuân thủ react-hooks/refs)
   const [store] = useState<AppStore>(() => makeStore())
+  const [persistor] = useState(() => persistStore(store))
 
-  return <Provider store={store}>{children}</Provider>
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        {children}
+      </PersistGate>
+    </Provider>
+  )
 }

@@ -1,91 +1,59 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useMemo } from "react"
 
-interface CartItem {
-  id: string
-  name: string
-  price: number
-  quantity: number
-}
+import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
+import {
+  addItem as addItemAction,
+  clearCart as clearCartAction,
+  removeItem as removeItemAction,
+  updateQuantity as updateQuantityAction,
+} from "@/lib/store/slices/cartSlice"
 
 export function useCart() {
-  const [items, setItems] = useState<CartItem[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const dispatch = useAppDispatch()
+  const items = useAppSelector((state) => state.cart.items)
 
-  useEffect(() => {
-    // Load cart from localStorage or API
-    const loadCart = async () => {
-      try {
-        const stored = localStorage.getItem("cart")
-        if (stored) {
-          setItems(JSON.parse(stored))
-        }
-      } catch (error) {
-        console.error("Failed to load cart:", error)
-      } finally {
-        setIsLoading(false)
-      }
-    }
+  const totalItems = useMemo(
+    () => items.reduce((sum, item) => sum + item.quantity, 0),
+    [items],
+  )
 
-    loadCart()
-  }, [])
+  const totalPrice = useMemo(
+    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    [items],
+  )
 
-  const addItem = (item: Omit<CartItem, "quantity">) => {
-    setItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id)
-      if (existing) {
-        const updated = prev.map((i) =>
-          i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
-        )
-        localStorage.setItem("cart", JSON.stringify(updated))
-        return updated
-      }
-      const updated = [...prev, { ...item, quantity: 1 }]
-      localStorage.setItem("cart", JSON.stringify(updated))
-      return updated
-    })
+  const addItem = (item: {
+    id: string
+    name: string
+    price: number
+    imageUrl?: string
+  }) => {
+    dispatch(addItemAction(item))
   }
 
   const removeItem = (id: string) => {
-    setItems((prev) => {
-      const updated = prev.filter((i) => i.id !== id)
-      localStorage.setItem("cart", JSON.stringify(updated))
-      return updated
-    })
+    dispatch(removeItemAction(id))
   }
 
   const updateQuantity = (id: string, quantity: number) => {
-    if (quantity <= 0) {
-      removeItem(id)
-      return
-    }
-    setItems((prev) => {
-      const updated = prev.map((i) => (i.id === id ? { ...i, quantity } : i))
-      localStorage.setItem("cart", JSON.stringify(updated))
-      return updated
-    })
+    dispatch(updateQuantityAction({ id, quantity }))
   }
 
   const clearCart = () => {
-    setItems([])
-    localStorage.removeItem("cart")
+    dispatch(clearCartAction())
   }
-
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0)
-  const totalPrice = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  )
 
   return {
     items,
     totalItems,
     totalPrice,
-    isLoading,
+    isLoading: false,
     addItem,
     removeItem,
     updateQuantity,
     clearCart,
   }
 }
+

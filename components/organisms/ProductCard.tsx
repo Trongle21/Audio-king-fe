@@ -1,6 +1,9 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
+import * as React from "react"
+
+import { ShoppingCart } from "lucide-react"
 import Link from "next/link"
 import "swiper/css"
 import { Autoplay } from "swiper/modules"
@@ -8,6 +11,7 @@ import { Swiper, SwiperSlide } from "swiper/react"
 
 import { Button } from "@/components/atoms"
 import { Card, CardContent } from "@/components/molecules"
+import { useCart } from "@/hooks/client-app/src/hooks/cart"
 
 export type HomeProduct = {
   id: string
@@ -22,12 +26,72 @@ export type HomeProduct = {
 }
 
 export function ProductCard({ product }: { product: HomeProduct }) {
+  const imageContainerRef = React.useRef<HTMLAnchorElement | null>(null)
+  const { addItem } = useCart()
+
   const images =
     product.images && product.images.length > 0
       ? product.images
       : [product.imageUrl]
 
   const detailHref = `/product/${product.id}`
+
+  const handleAddToCart = () => {
+    const numericPrice = Number(product.price.replace(/[^\d]/g, "")) || 0
+
+    addItem({
+      id: product.id,
+      name: product.name,
+      price: numericPrice,
+      imageUrl: product.imageUrl,
+    })
+
+    if (typeof document === "undefined") return
+
+    const sourceEl = imageContainerRef.current
+    const cartEl = document.getElementById("cart-icon")
+    if (!sourceEl || !cartEl) return
+
+    const sourceRect = sourceEl.getBoundingClientRect()
+    const cartRect = cartEl.getBoundingClientRect()
+
+    const clone = sourceEl.cloneNode(true) as HTMLElement
+    clone.style.position = "fixed"
+    clone.style.left = `${sourceRect.left}px`
+    clone.style.top = `${sourceRect.top}px`
+    clone.style.width = `${sourceRect.width}px`
+    clone.style.height = `${sourceRect.height}px`
+    clone.style.zIndex = "9999"
+    clone.style.pointerEvents = "none"
+    clone.style.overflow = "hidden"
+    clone.style.borderRadius = "0.75rem"
+    clone.style.transition = "transform 0.7s ease, opacity 0.7s ease"
+
+    document.body.appendChild(clone)
+
+    const translateX =
+      cartRect.left +
+      cartRect.width / 2 -
+      (sourceRect.left + sourceRect.width / 2)
+    const translateY =
+      cartRect.top +
+      cartRect.height / 2 -
+      (sourceRect.top + sourceRect.height / 2)
+
+    // Trigger transition in next frame
+    requestAnimationFrame(() => {
+      clone.style.transform = `translate(${translateX}px, ${translateY}px) scale(0.1)`
+      clone.style.opacity = "0"
+    })
+
+    clone.addEventListener(
+      "transitionend",
+      () => {
+        clone.remove()
+      },
+      { once: true },
+    )
+  }
 
   return (
     <article
@@ -36,6 +100,7 @@ export function ProductCard({ product }: { product: HomeProduct }) {
       itemType="https://schema.org/Product"
     >
       <Link
+        ref={imageContainerRef}
         href={detailHref}
         aria-label={product.name}
         className="relative aspect-4/3 w-full bg-muted overflow-hidden cursor-pointer"
@@ -105,15 +170,28 @@ export function ProductCard({ product }: { product: HomeProduct }) {
             <meta itemProp="priceCurrency" content="VND" />
           </div>
 
-          <Link href={detailHref} className="mt-auto">
+          <div className="mt-auto flex flex-col gap-2 sm:flex-row">
+            <Link href={detailHref} className="sm:flex-1">
+              <Button
+                size="sm"
+                className="w-full bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
+                aria-label={`Xem chi tiết ${product.name}`}
+              >
+                Chi tiết
+              </Button>
+            </Link>
+
             <Button
+              type="button"
               size="sm"
-              className="w-full bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
-              aria-label={`Xem chi tiết ${product.name}`}
+              onClick={handleAddToCart}
+              className="sm:flex-1 border border-destructive bg-white text-destructive hover:bg-destructive/5 cursor-pointer"
+              aria-label={`Thêm ${product.name} vào giỏ hàng`}
             >
-              Xem chi tiết
+              <ShoppingCart className="mr-1.5 h-4 w-4" />
+              Thêm vào giỏ
             </Button>
-          </Link>
+          </div>
         </CardContent>
       </Card>
     </article>

@@ -15,5 +15,8 @@ export * from "./cart"
 // Search hooks
 export * from "./search"
 
+// Checkout hooks
+export * from "./checkout"
+
 // Root level hooks
 export { useAuth } from "./useAuth"

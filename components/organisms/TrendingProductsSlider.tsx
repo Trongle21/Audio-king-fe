@@ -19,16 +19,13 @@ interface TrendingProductsSliderProps {
 }
 
 const AUTO_PLAY_INTERVAL = 5000 // 5s
-// Lấy tối đa 12 sản phẩm, hiển thị 6 sản phẩm / màn hình desktop ⇒ vẫn có sản phẩm để trượt
 const MAX_PRODUCTS = 12
 
 export function TrendingProductsSlider({
   products,
 }: TrendingProductsSliderProps) {
-  // Di chuyển useRef lên trước early return để tuân thủ rules of hooks
   const swiperRef = React.useRef<SwiperInstance | null>(null)
 
-  // Giới hạn tối đa MAX_PRODUCTS sản phẩm để hiển thị
   const visibleProducts = React.useMemo(
     () => products.slice(0, MAX_PRODUCTS),
     [products]
@@ -56,7 +53,7 @@ export function TrendingProductsSlider({
           640: { slidesPerView: 2.2, spaceBetween: 14 },
           768: { slidesPerView: 3, spaceBetween: 16 },
           1024: { slidesPerView: 4, spaceBetween: 18 },
-          1280: { slidesPerView: 6, spaceBetween: 20 },
+          1280: { slidesPerView: 4, spaceBetween: 20 },
         }}
       >
         {visibleProducts.map((product) => (

@@ -1,18 +1,43 @@
-import { configureStore } from "@reduxjs/toolkit"
+import { combineReducers, configureStore } from "@reduxjs/toolkit"
+import {
+  FLUSH,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+  REHYDRATE,
+  persistReducer,
+} from "redux-persist"
+import storage from "redux-persist/lib/storage"
 
+import cartReducer from "./slices/cartSlice"
 import exampleReducer from "./slices/exampleSlice"
 
-export const makeStore = () => {
-  return configureStore({
-    reducer: {
-      // Thêm các reducers của bạn vào đây
-      example: exampleReducer,
-    },
-  })
+const rootReducer = combineReducers({
+  example: exampleReducer,
+  cart: cartReducer,
+})
+
+const persistConfig = {
+  key: "root",
+  storage,
+  whitelist: ["cart"] as string[],
 }
 
-// Suy luận kiểu của makeStore
+const persistedReducer = persistReducer(persistConfig, rootReducer)
+
+export const makeStore = () =>
+  configureStore({
+    reducer: persistedReducer,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware({
+        serializableCheck: {
+          ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        },
+      }),
+  })
+
 export type AppStore = ReturnType<typeof makeStore>
-// Suy luận kiểu `RootState` và `AppDispatch` từ store
 export type RootState = ReturnType<AppStore["getState"]>
 export type AppDispatch = AppStore["dispatch"]
+

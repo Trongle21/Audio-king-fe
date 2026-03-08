@@ -181,7 +181,7 @@ export default function ProductPage() {
           {/* Desktop: filter sidebar bên phải */}
           <aside
             aria-label="Bộ lọc sản phẩm"
-            className="hidden lg:block lg:sticky lg:top-24 h-fit w-full max-w-md flex-[0_0_320px]"
+            className="hidden lg:block lg:sticky lg:top-32 h-fit w-full max-w-md flex-[0_0_320px]"
           >
             <Suspense
               fallback={

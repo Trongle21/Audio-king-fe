@@ -1,4 +1,5 @@
 // Atoms - Các component nhỏ nhất, không thể tách nhỏ hơn
+export { AppInput } from "./app-input"
 export { Avatar, AvatarFallback, AvatarImage } from "./avatar"
 export { Badge } from "./badge"
 export { Button, buttonVariants } from "./button"

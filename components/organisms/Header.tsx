@@ -4,15 +4,15 @@ import * as React from "react"
 
 import {
   ChevronDown,
-  MapPin,
   Menu,
-  Percent,
   PhoneCall,
   ShoppingCart,
   User,
-  X,
+  X
 } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 
 import { Button } from "@/components/atoms/button"
 import { IconButton } from "@/components/atoms/icon-button"
@@ -28,6 +28,7 @@ import {
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
 import { useSearch } from "@/hooks/client-app/src/hooks/search"
 import { useAuth } from "@/hooks/client-app/src/hooks/useAuth"
+import { formatCurrency } from "@/lib"
 
 
 const primaryCategories = [
@@ -37,28 +38,22 @@ const primaryCategories = [
   { key: "micro", label: "Micro" },
   { key: "cuc-day", label: "Cục Đẩy" },
   { key: "vang", label: "Vang" },
-  { key: "loa-bluetooth", label: "Loa Bluetooth" },
-  { key: "cong-trinh-thuc-te", label: "Công Trình Thực Tế" },
-  { key: "ho-so-nang-luc", label: "Hồ Sơ Năng Lực" },
-  { key: "tin-tuc", label: "Tin Tức" },
 ] as const
 
-const showrooms = [
-  { label: "Hà Nội", href: "/showrooms/ha-noi" },
-  { label: "TP. Hồ Chí Minh", href: "/showrooms/tp-hcm" },
-  { label: "Đà Nẵng", href: "/showrooms/da-nang" },
-] as const
 
 const hotlines = [
   { label: "Tư vấn mua hàng: 0818808808", href: "tel:0818808808" },
   { label: "Kỹ thuật / bảo hành: 0987654321", href: "tel:0987654321" },
 ] as const
 
+
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
-  const { totalItems } = useCart()
+  const [cartOpen, setCartOpen] = React.useState(false)
+  const { items, totalItems, totalPrice } = useCart()
   const { handleSearch } = useSearch()
   const { isAuthenticated, logout } = useAuth()
+  const router = useRouter()
 
   return (
     <>
@@ -101,21 +96,108 @@ export default function Header() {
 
               {/* Right actions */}
               <div className="ml-auto flex items-center gap-1.5 shrink-0">
-                <IconButton
-                  icon={<ShoppingCart className="size-5 text-white" />}
-                  label="Giỏ hàng"
-                  href="/cart"
-                  showLabel={false}
-                  badge={totalItems}
-                  className="text-white hover:bg-white/10"
-                />
+                <DropdownMenu open={cartOpen} onOpenChange={setCartOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <div
+                      id="cart-icon"
+                      onMouseEnter={() => setCartOpen(true)}
+                      onClick={(event) => {
+                        event.preventDefault()
+                        setCartOpen(false)
+                        router.push("/cart")
+                      }}
+                      className={`cursor-pointer rounded-md transition-colors ${cartOpen ? "bg-white/15" : "hover:bg-white/15"
+                        }`}
+                    >
+                      <IconButton
+                        icon={<ShoppingCart className="size-5 text-white cursor-pointer" />}
+                        label="Giỏ hàng"
+                        showLabel={false}
+                        badge={totalItems}
+                        className="cursor-pointer text-white hover:bg-white/10"
+                      />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    sideOffset={10}
+                    className="w-80 max-w-[90vw] sm:w-96 p-0"
+                    onMouseEnter={() => setCartOpen(true)}
+                    onMouseLeave={() => setCartOpen(false)}
+                  >
+                    <div className="flex items-center justify-between px-3 py-2 border-b">
+                      <p className="text-sm font-semibold">
+                        Giỏ hàng ({totalItems})
+                      </p>
+                      {totalItems > 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          Tổng:{" "}
+                          <span className="font-semibold text-destructive">
+                            {formatCurrency(totalPrice)}
+                          </span>
+                        </p>
+                      )}
+                    </div>
+
+                    {items.length === 0 ? (
+                      <div className="px-4 py-6 text-sm text-center text-muted-foreground">
+                        Chưa có sản phẩm nào trong giỏ.
+                      </div>
+                    ) : (
+                      <div className="max-h-72 overflow-y-auto px-2 py-2 space-y-2">
+                        {items.map((item) => (
+                          <Link
+                            key={item.id}
+                            href={`/product/${item.id}`}
+                            className="group flex gap-2 rounded-md bg-muted/60 p-2 hover:bg-muted cursor-pointer transition-colors"
+                          >
+                            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded">
+                              {item.imageUrl ? (
+                                <Image
+                                  src={item.imageUrl}
+                                  alt={item.name}
+                                  fill
+                                  sizes="56px"
+                                  className="object-cover"
+                                />
+                              ) : (
+                                <div className="h-full w-full bg-slate-200" />
+                              )}
+                            </div>
+                            <div className="flex min-w-0 flex-1 flex-col">
+                              <p className="line-clamp-2 text-xs font-medium group-hover:underline">
+                                {item.name}
+                              </p>
+                              <div className="mt-1 flex items-center justify-between text-xs">
+                                <span className="font-semibold text-destructive">
+                                  {formatCurrency(item.price)}
+                                </span>
+                                <span className="text-muted-foreground">
+                                  x{item.quantity}
+                                </span>
+                              </div>
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+
+                    <div className="border-t px-3 py-3">
+                      <Link href="/cart" className="block">
+                        <Button className="w-full bg-destructive text-white hover:bg-destructive/90">
+                          Đặt hàng ngay
+                        </Button>
+                      </Link>
+                    </div>
+                  </DropdownMenuContent>
+                </DropdownMenu>
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
                       size="icon"
-                      className="text-white hover:bg-white/10"
+                      className="cursor-pointer text-white transition-colors hover:bg-white/15 data-[state=open]:bg-white/15 focus-visible:ring-0 focus-visible:border-transparent"
                       aria-label="Tài khoản"
                     >
                       <User className="size-5" />
@@ -148,22 +230,11 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Button
-                  variant="ghost"
-                  className="hidden lg:inline-flex text-white hover:bg-white/10"
-                  asChild
-                >
-                  <Link href="/tra-gop" aria-label="Trả góp">
-                    <Percent className="size-5" />
-                    Trả góp
-                  </Link>
-                </Button>
-
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="hidden sm:inline-flex text-white hover:bg-white/10"
+                      className="hidden sm:inline-flex cursor-pointer text-white transition-colors hover:bg-white/15 data-[state=open]:bg-white/15 focus-visible:ring-0 focus-visible:border-transparent"
                       aria-label="Hotline"
                     >
                       <PhoneCall className="size-5" />
@@ -236,36 +307,11 @@ export default function Header() {
                   </Link>
                 ))}
               </div>
-
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    className="shrink-0 text-white hover:bg-white/10"
-                    aria-label="Showroom toàn quốc"
-                  >
-                    <MapPin className="size-4" />
-                    <span className="hidden lg:inline">
-                      18 showroom toàn quốc
-                    </span>
-                    <span className="lg:hidden">Showroom</span>
-                    <ChevronDown className="size-4 opacity-90" />
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="min-w-56">
-                  <DropdownMenuLabel>Showroom</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  {showrooms.map((s) => (
-                    <DropdownMenuItem key={s.href} asChild>
-                      <Link href={s.href}>{s.label}</Link>
-                    </DropdownMenuItem>
-                  ))}
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem asChild>
-                    <Link href="/showrooms">Xem tất cả showroom</Link>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center gap-2">
+                <Link href="/gioi-thieu">
+                  Giới thiệu
+                </Link>
+              </div>
             </div>
           </div>
         </nav>
