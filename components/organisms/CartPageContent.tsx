@@ -1,12 +1,12 @@
 "use client"
 
+import { formatCurrency } from "@/lib"
 import Image from "next/image"
 import Link from "next/link"
 
 import { Button, Input, Label } from "@/components/atoms"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
 
-import { formatCurrency } from "@/lib"
 
 export function CartPageContent() {
   const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart()
