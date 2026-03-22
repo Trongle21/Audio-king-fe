@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { Button } from "@/components/atoms"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
 import type { Metadata } from "next"
@@ -22,19 +21,19 @@ export default function AuthLayout({
       <div className="border-b bg-background px-2" role="banner">
         <div className="container flex h-16 items-center justify-between">
           <Link
-            href="/"
-            className="text-xl font-bold"
+            href="/admin"
+            className="cursor-pointer text-xl font-bold"
             aria-label="FE-Audio - Về trang chủ"
           >
             FE-Audio
           </Link>
-          <nav>
+          {/* <nav>
             <Link href="/" aria-label="Về trang chủ">
               <Button variant="ghost" size="sm">
                 ← Về trang chủ
               </Button>
             </Link>
-          </nav>
+          </nav> */}
         </div>
       </div>
 

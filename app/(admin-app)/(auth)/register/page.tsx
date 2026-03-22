@@ -140,7 +140,7 @@ export default function RegisterPage() {
                 Đã có tài khoản?{" "}
                 <Link
                   href="/login"
-                  className="hover:text-primary font-medium"
+                  className="hover:text-primary cursor-pointer font-medium"
                   aria-label="Đăng nhập"
                 >
                   Đăng nhập ngay

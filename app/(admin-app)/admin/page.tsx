@@ -1,89 +1,66 @@
 "use client"
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/molecules"
-import { useDashboard } from "@/hooks/admin-app/src/hooks/admin"
+import { BarChart3 } from "lucide-react"
+
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/molecules"
 
 export default function AdminDashboardPage() {
-  const { stats, isLoading } = useDashboard()
-
-  if (isLoading) {
-    return (
-      <main className="container py-12">
-        <div className="text-center" role="status" aria-live="polite">
-          Đang tải...
-        </div>
-      </main>
-    )
-  }
-
   return (
-    <main className="container py-12">
-      <article className="space-y-8">
-        <header>
-          <h1 className="text-4xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground mt-2">
-            Quản lý hệ thống FE-Audio
-          </p>
-        </header>
+    <section className="space-y-4">
+      <header className="rounded-2xl border bg-white p-5 shadow-sm">
+        <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
+        <p className="mt-1 text-sm text-slate-500">Quản trị tổng quan hệ thống FE-Audio</p>
+      </header>
 
-        <section className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-          <article>
-            <Card>
-              <CardHeader>
-                <CardTitle>Người dùng</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p
-                  className="text-2xl font-bold"
-                  aria-label="Tổng số người dùng"
-                >
-                  {stats.totalUsers}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tổng số người dùng
-                </p>
-              </CardContent>
-            </Card>
-          </article>
+      <div className="grid grid-cols-4 gap-4">
+        <Card className="border-slate-200 bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-slate-500">Total Users</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-slate-900">1,245</p>
+          </CardContent>
+        </Card>
 
-          <article>
-            <Card>
-              <CardHeader>
-                <CardTitle>Sản phẩm</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold" aria-label="Tổng số sản phẩm">
-                  {stats.totalProducts}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tổng số sản phẩm
-                </p>
-              </CardContent>
-            </Card>
-          </article>
+        <Card className="border-slate-200 bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-slate-500">Categories</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-slate-900">58</p>
+          </CardContent>
+        </Card>
 
-          <article>
-            <Card>
-              <CardHeader>
-                <CardTitle>Đơn hàng</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-2xl font-bold" aria-label="Tổng số đơn hàng">
-                  {stats.totalOrders}
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Tổng số đơn hàng
-                </p>
-              </CardContent>
-            </Card>
-          </article>
-        </section>
-      </article>
-    </main>
+        <Card className="border-slate-200 bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-slate-500">Products</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-slate-900">1,932</p>
+          </CardContent>
+        </Card>
+
+        <Card className="border-slate-200 bg-white">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm text-slate-500">Active Carts</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-2xl font-bold text-slate-900">324</p>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Card className="border-slate-200 bg-white">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Performance Snapshot
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="h-48 rounded-lg border border-dashed border-slate-300 bg-slate-50" />
+        </CardContent>
+      </Card>
+    </section>
   )
 }

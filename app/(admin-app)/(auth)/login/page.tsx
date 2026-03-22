@@ -1,15 +1,14 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import Link from "next/link"
 import { useForm } from "react-hook-form"
 
 import { Button, Input, Label } from "@/components/atoms"
 import {
   Card,
+  CardContent,
   CardHeader,
   CardTitle,
-  CardContent,
 } from "@/components/molecules"
 import { useLogin } from "@/hooks/client-app/src/hooks/auth"
 import { loginSchema, type LoginFormData } from "@/lib/schemas/auth.schema"
@@ -98,7 +97,7 @@ export default function LoginPage() {
                 {isLoading ? "Đang xử lý..." : "Đăng nhập"}
               </Button>
             </form>
-            <nav className="mt-4 text-center text-sm" aria-label="Navigation">
+            {/* <nav className="mt-4 text-center text-sm" aria-label="Navigation">
               <p className="text-muted-foreground">
                 Chưa có tài khoản?{" "}
                 <Link
@@ -109,7 +108,7 @@ export default function LoginPage() {
                   Đăng ký ngay
                 </Link>
               </p>
-            </nav>
+            </nav> */}
           </CardContent>
         </Card>
       </article>
