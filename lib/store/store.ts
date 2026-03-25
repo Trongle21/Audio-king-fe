@@ -10,11 +10,13 @@ import {
 } from "redux-persist"
 import storage from "redux-persist/lib/storage"
 
+import authReducer from "./slices/authSlice"
 import cartReducer from "./slices/cartSlice"
 import exampleReducer from "./slices/exampleSlice"
 
 const rootReducer = combineReducers({
   example: exampleReducer,
+  auth: authReducer,
   cart: cartReducer,
 })
 

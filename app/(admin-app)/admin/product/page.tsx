@@ -1,222 +1,355 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
+import { type ColumnDef } from "@tanstack/react-table"
 import { Filter } from "lucide-react"
+import Link from "next/link"
+import { toast } from "sonner"
 
-import { AppModal, Button, Input, Label } from "@/components/atoms"
-import { AdminEntityTable } from "@/components/organisms/admin-entity-table"
-import { AdminFilterDrawer } from "@/components/organisms/admin-filter-drawer"
-import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
+import { Button, Input, Label } from "@/components/atoms"
 import {
-  useProductsTable,
-  type ProductFilterStatus,
-} from "@/hooks/admin-app/src/hooks/admin/useProductsTable"
+  AdminEntityTable,
+  AdminFilterDrawer,
+  DeleteProductModal,
+  RestoreProductForm,
+} from "@/components/organisms"
+import {
+  useProducts,
+  useRestoreProduct,
+  useSoftDeleteProduct,
+} from "@/hooks/admin-app/src/hooks/admin/product"
+import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
+import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
+
+import type { Product, ProductOrder, ProductSortBy } from "@/api/product"
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) return error.message
+  return "Có lỗi xảy ra, vui lòng thử lại."
+}
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("vi-VN").format(price)
+}
 
 export default function AdminProductsPage() {
-  const {
-    filteredData,
-    columns,
-    isModalOpen,
-    setIsModalOpen,
-    isFilterOpen,
-    setIsFilterOpen,
-    editingId,
-    form,
-    setForm,
-    search,
-    setSearch,
-    statusFilter,
-    setStatusFilter,
-    resetFilters,
-    openAddModal,
-    openEditModal,
-    onSave,
-    onDelete,
-  } = useProductsTable()
+  const [q, setQ] = useState("")
+  const [statusFilter, setStatusFilter] = useState("")
+  const [categoryId, setCategoryId] = useState("")
+  const [minPrice, setMinPrice] = useState("")
+  const [maxPrice, setMaxPrice] = useState("")
+  const [sortBy, setSortBy] = useState<ProductSortBy>("createdAt")
+  const [order, setOrder] = useState<ProductOrder>("desc")
+  const [page, setPage] = useState(1)
+  const [limit, setLimit] = useState(12)
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const table = useAdminTable(filteredData, columns)
+  const debouncedQ = useDebounce(q, 450)
+
+  const params = useMemo(
+    () => ({
+      q: debouncedQ || undefined,
+      status: statusFilter !== "" ? Number(statusFilter) : undefined,
+      categoryId: categoryId || undefined,
+      minPrice: minPrice !== "" ? Number(minPrice) : undefined,
+      maxPrice: maxPrice !== "" ? Number(maxPrice) : undefined,
+      sortBy,
+      order,
+      page,
+      limit,
+    }),
+    [debouncedQ, statusFilter, categoryId, minPrice, maxPrice, sortBy, order, page, limit],
+  )
+
+  const { data, isLoading, isError, error } = useProducts(params)
+  const deleteMutation = useSoftDeleteProduct()
+  const restoreMutation = useRestoreProduct()
+
+  const items = data?.items ?? []
+  const pagination = data?.pagination
+
+  const drawerStatus: "all" | "Visible" | "Hidden" =
+    statusFilter === "Visible" || statusFilter === "Hidden"
+      ? statusFilter
+      : "all"
+
+  const columns = useMemo<ColumnDef<Product>[]>(
+    () => [
+      {
+        id: "thumbnail",
+        header: "Ảnh",
+        cell: ({ row }) => {
+          const src = row.original.thumbnail || row.original.images?.[0]?.url
+          if (!src) return <span className="text-xs text-slate-400">Không có ảnh</span>
+          return (
+            <img
+              src={src}
+              alt={row.original.name}
+              className="h-12 w-12 rounded-md border object-cover"
+            />
+          )
+        },
+      },
+      {
+        accessorKey: "name",
+        header: "Tên sản phẩm",
+      },
+      {
+        accessorKey: "sku",
+        header: "SKU",
+      },
+      {
+        id: "price",
+        header: "Giá",
+        cell: ({ row }) => `${formatPrice(row.original.price)}đ`,
+      },
+      {
+        accessorKey: "stock",
+        header: "Tồn kho",
+      },
+      {
+        id: "status",
+        header: "Trạng thái",
+        cell: ({ row }) => String(row.original.status ?? ""),
+      },
+      {
+        id: "detail",
+        header: "Chi tiết",
+        cell: ({ row }) => (
+          <Link
+            href={`/admin/product/${row.original._id}`}
+            className="text-blue-600 hover:underline"
+          >
+            Xem
+          </Link>
+        ),
+      },
+    ],
+    [],
+  )
+
+  const table = useAdminTable(items, columns)
 
   const openDeleteModal = (id: string) => {
     setDeletingId(id)
     setIsDeleteModalOpen(true)
   }
 
-  const confirmDelete = () => {
+  const confirmDelete = async () => {
     if (!deletingId) return
-    onDelete(deletingId)
-    setIsDeleteModalOpen(false)
-    setDeletingId(null)
+    try {
+      const res = await deleteMutation.mutateAsync(deletingId)
+      toast.success(res.message)
+      setDeletingId(null)
+      setIsDeleteModalOpen(false)
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
+
+  const handleRestore = async (id: string) => {
+    try {
+      const res = await restoreMutation.mutateAsync(id)
+      toast.success(res.message)
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
+
+  const resetFilters = () => {
+    setQ("")
+    setStatusFilter("")
+    setCategoryId("")
+    setMinPrice("")
+    setMaxPrice("")
+    setSortBy("createdAt")
+    setOrder("desc")
+    setPage(1)
+    setLimit(12)
   }
 
   return (
-    <main className="min-h-screen bg-slate-100 p-6">
+    <main className="min-h-screen bg-slate-100 p-6 space-y-4">
       <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
         <header className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Product Management</h1>
+            <h1 className="text-2xl font-bold text-slate-900">Quản lý sản phẩm</h1>
             <p className="mt-1 text-sm text-slate-500">
-              Quản lý sản phẩm, hỗ trợ thêm/sửa/xoá/tìm kiếm và filter.
+              Danh sách sản phẩm với tìm kiếm, lọc, sắp xếp, phân trang.
             </p>
           </div>
 
           <div className="flex items-center gap-2">
             <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />
-              Filter
+              Bộ lọc
             </Button>
-            <Button className="bg-destructive text-white hover:bg-destructive/90" onClick={openAddModal}>
-              Add Product
-            </Button>
+            <Link href="/admin/product/create">
+              <Button>Thêm sản phẩm</Button>
+            </Link>
           </div>
         </header>
 
-        <div className="flex items-center gap-3">
-          <Input
-            placeholder="Tìm theo tên sản phẩm, SKU hoặc danh mục..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="max-w-md"
-          />
+        <div className="flex flex-wrap items-end gap-3">
+          <div className="min-w-[280px] space-y-1">
+            <Label>Tìm kiếm</Label>
+            <Input
+              placeholder="Nhập tên sản phẩm..."
+              value={q}
+              onChange={(e) => {
+                setQ(e.target.value)
+                setPage(1)
+              }}
+            />
+          </div>
+
+          <div className="space-y-1">
+            <Label>Sắp xếp theo</Label>
+            <select
+              className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as ProductSortBy)}
+            >
+              <option value="createdAt">createdAt</option>
+              <option value="name">name</option>
+              <option value="price">price</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <Label>Thứ tự</Label>
+            <select
+              className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+              value={order}
+              onChange={(e) => setOrder(e.target.value as ProductOrder)}
+            >
+              <option value="desc">desc</option>
+              <option value="asc">asc</option>
+            </select>
+          </div>
+
+          <div className="space-y-1">
+            <Label>Limit</Label>
+            <select
+              className="border-input bg-background rounded-md border px-3 py-2 text-sm"
+              value={limit}
+              onChange={(e) => {
+                setLimit(Number(e.target.value))
+                setPage(1)
+              }}
+            >
+              <option value={12}>12</option>
+              <option value={24}>24</option>
+              <option value={36}>36</option>
+            </select>
+          </div>
+
           <Button variant="outline" onClick={resetFilters}>
             Reset
           </Button>
         </div>
 
-        <AdminEntityTable
-          table={table}
-          renderActions={(row) => (
+        <RestoreProductForm
+          isSubmitting={restoreMutation.isPending}
+          onSubmit={handleRestore}
+        />
+
+        {isLoading && (
+          <div className="rounded-xl border bg-slate-50 p-6 text-sm text-slate-500">
+            Đang tải danh sách sản phẩm...
+          </div>
+        )}
+
+        {isError && (
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+            {getErrorMessage(error)}
+          </div>
+        )}
+
+        {!isLoading && !isError && items.length === 0 && (
+          <div className="rounded-xl border bg-slate-50 p-6 text-sm text-slate-500">
+            Không có sản phẩm nào.
+          </div>
+        )}
+
+        {!isLoading && !isError && items.length > 0 && (
+          <AdminEntityTable
+            table={table}
+            renderActions={(row) => (
+              <div className="flex gap-2">
+                <Link href={`/admin/product/${row._id}/edit`}>
+                  <Button variant="outline" size="sm">
+                    Sửa
+                  </Button>
+                </Link>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => openDeleteModal(row._id)}
+                >
+                  Xóa
+                </Button>
+              </div>
+            )}
+          />
+        )}
+
+        {pagination && (
+          <div className="flex items-center justify-between rounded-lg border bg-slate-50 p-3 text-sm">
+            <p>
+              Tổng: <strong>{pagination.total}</strong> | Trang{" "}
+              <strong>{pagination.page}</strong> / {pagination.totalPages}
+            </p>
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => openEditModal(row.id)}>
-                Edit
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Trang trước
               </Button>
-              <Button variant="destructive" size="sm" onClick={() => openDeleteModal(row.id)}>
-                Delete
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= pagination.totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Trang sau
               </Button>
             </div>
-          )}
-        />
+          </div>
+        )}
       </section>
 
       <AdminFilterDrawer
         open={isFilterOpen}
         onOpenChange={setIsFilterOpen}
-        search={search}
-        status={statusFilter}
-        onChangeSearch={setSearch}
-        onChangeStatus={(value) => setStatusFilter(value as ProductFilterStatus)}
+        search={q}
+        status={drawerStatus}
+        onChangeSearch={(value) => {
+          setQ(value)
+          setPage(1)
+        }}
+        onChangeStatus={(value) => {
+          const next = value === "all" ? "" : value
+          setStatusFilter(next)
+          setPage(1)
+        }}
         onApply={() => setIsFilterOpen(false)}
         onReset={resetFilters}
       />
 
-      <AppModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        title={editingId ? "Edit Product" : "Add Product"}
-        description="Nhập thông tin sản phẩm"
-        footer={
-          <>
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button className="bg-destructive text-white hover:bg-destructive/90" onClick={onSave}>
-              Save
-            </Button>
-          </>
-        }
-      >
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="productName">Name</Label>
-            <Input
-              id="productName"
-              value={form.name}
-              onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="productSku">SKU</Label>
-            <Input
-              id="productSku"
-              value={form.sku}
-              onChange={(e) => setForm((prev) => ({ ...prev, sku: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="productCategory">Category</Label>
-            <Input
-              id="productCategory"
-              value={form.category}
-              onChange={(e) => setForm((prev) => ({ ...prev, category: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="productPrice">Price</Label>
-            <Input
-              id="productPrice"
-              value={form.price}
-              onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="productStock">Stock</Label>
-            <Input
-              id="productStock"
-              type="number"
-              min={0}
-              value={form.stock}
-              onChange={(e) => setForm((prev) => ({ ...prev, stock: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="productStatus">Status</Label>
-            <select
-              id="productStatus"
-              value={form.status}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  status: e.target.value as "Visible" | "Hidden",
-                }))
-              }
-              className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
-            >
-              <option value="Visible">Visible</option>
-              <option value="Hidden">Hidden</option>
-            </select>
-          </div>
-        </div>
-      </AppModal>
-
-      <AppModal
+      <DeleteProductModal
         open={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}
-        title="Delete Product"
-        description="Bạn có chắc chắn muốn xoá sản phẩm này không? Hành động này không thể hoàn tác."
-        footer={
-          <>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDeleteModalOpen(false)
-                setDeletingId(null)
-              }}
-            >
-              Cancel
-            </Button>
-            <Button className="bg-destructive text-white hover:bg-destructive/90" onClick={confirmDelete}>
-              Delete
-            </Button>
-          </>
-        }
-      >
-        <p className="text-sm text-slate-600">
-          Nhấn <strong>Delete</strong> để xác nhận xoá sản phẩm đã chọn.
-        </p>
-      </AppModal>
+        isSubmitting={deleteMutation.isPending}
+        onConfirm={confirmDelete}
+      />
     </main>
   )
 }

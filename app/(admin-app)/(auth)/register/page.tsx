@@ -7,18 +7,21 @@ import { useForm } from "react-hook-form"
 import { Button, Input, Label } from "@/components/atoms"
 import {
   Card,
+  CardContent,
   CardHeader,
   CardTitle,
-  CardContent,
 } from "@/components/molecules"
+import { useRegister } from "@/hooks/client-app/src/hooks/auth"
 import {
   registerSchema,
   type RegisterFormData,
 } from "@/lib/schemas/auth.schema"
 
 export default function RegisterPage() {
+  const { register: registerAction, isLoading, error } = useRegister()
+
   const {
-    register,
+    register: rhfRegister,
     handleSubmit,
     formState: { errors },
   } = useForm<RegisterFormData>({
@@ -26,8 +29,7 @@ export default function RegisterPage() {
   })
 
   const onSubmit = async (data: RegisterFormData) => {
-    // TODO: Implement register logic
-    console.log("Register:", data)
+    await registerAction(data)
   }
 
   return (
@@ -50,17 +52,17 @@ export default function RegisterPage() {
                   type="text"
                   placeholder="Nhập tên của bạn"
                   autoComplete="name"
-                  {...register("name")}
-                  aria-invalid={errors.name ? "true" : "false"}
-                  aria-describedby={errors.name ? "name-error" : undefined}
+                  {...rhfRegister("username")}
+                  aria-invalid={errors.username ? "true" : "false"}
+                  aria-describedby={errors.username ? "username-error" : undefined}
                 />
-                {errors.name && (
+                {errors.username && (
                   <p
                     id="name-error"
                     className="text-sm text-destructive"
                     role="alert"
                   >
-                    {errors.name.message}
+                    {errors.username.message}
                   </p>
                 )}
               </div>
@@ -71,7 +73,7 @@ export default function RegisterPage() {
                   type="email"
                   placeholder="your@email.com"
                   autoComplete="email"
-                  {...register("email")}
+                  {...rhfRegister("email")}
                   aria-invalid={errors.email ? "true" : "false"}
                   aria-describedby={errors.email ? "email-error" : undefined}
                 />
@@ -92,7 +94,7 @@ export default function RegisterPage() {
                   type="password"
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  {...register("password")}
+                  {...rhfRegister("password")}
                   aria-invalid={errors.password ? "true" : "false"}
                   aria-describedby={
                     errors.password ? "password-error" : undefined
@@ -115,7 +117,7 @@ export default function RegisterPage() {
                   type="password"
                   placeholder="••••••••"
                   autoComplete="new-password"
-                  {...register("confirmPassword")}
+                  {...rhfRegister("confirmPassword")}
                   aria-invalid={errors.confirmPassword ? "true" : "false"}
                   aria-describedby={
                     errors.confirmPassword ? "confirmPassword-error" : undefined
@@ -131,8 +133,20 @@ export default function RegisterPage() {
                   </p>
                 )}
               </div>
-              <Button type="submit" className="w-full">
-                Đăng ký
+              {error && (
+                <div
+                  className="text-sm text-destructive text-center"
+                  role="alert"
+                >
+                  {error}
+                </div>
+              )}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isLoading}
+              >
+                {isLoading ? "Đang xử lý..." : "Đăng ký"}
               </Button>
             </form>
             <nav className="mt-4 text-center text-sm" aria-label="Navigation">

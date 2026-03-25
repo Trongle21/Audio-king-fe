@@ -1,41 +1,19 @@
 "use client"
 
-import { useState } from "react"
-
-import { useRouter } from "next/navigation"
+import { useLoginMutate } from "@/services/auth"
 
 import type { LoginFormData } from "@/lib/schemas/auth.schema"
 
 export function useLogin() {
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  // router sẽ được dùng sau khi implement redirect logic
-  const _router = useRouter()
+  const loginMutate = useLoginMutate()
 
   const login = async (data: LoginFormData) => {
-    setIsLoading(true)
-    setError(null)
-
-    try {
-      // TODO: Implement login API call với React Query
-      console.log("Login attempt:", data)
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // TODO: Xử lý response và redirect
-      // router.push("/")
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Đăng nhập thất bại")
-      throw err
-    } finally {
-      setIsLoading(false)
-    }
+    await loginMutate.mutateAsync(data)
   }
 
   return {
     login,
-    isLoading,
-    error,
+    isLoading: loginMutate.isPending,
+    error: loginMutate.error?.message ?? null,
   }
 }

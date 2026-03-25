@@ -1,55 +1,147 @@
 "use client"
 
-import { useState } from "react"
+import { useMemo, useState } from "react"
 
+import { type ColumnDef } from "@tanstack/react-table"
 import { Filter } from "lucide-react"
+import Link from "next/link"
+import { toast } from "sonner"
 
-import { AppModal, Button, Input, Label } from "@/components/atoms"
-import { AdminEntityTable } from "@/components/organisms/admin-entity-table"
-import { AdminFilterDrawer } from "@/components/organisms/admin-filter-drawer"
-import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
+import { Button, Input } from "@/components/atoms"
 import {
-  useCategoriesTable,
-  type CategoryFilterStatus,
-} from "@/hooks/admin-app/src/hooks/admin/useCategoriesTable"
+  AdminEntityTable,
+  AdminFilterDrawer,
+  CategoryFormModal,
+  DeleteCategoryModal,
+  RestoreCategoryForm,
+} from "@/components/organisms"
+import {
+  useCategories,
+  useCreateCategory,
+  useSoftDeleteCategory,
+  useUpdateCategory,
+} from "@/hooks/admin-app/src/hooks/admin/category"
+import { useRestoreCategory } from "@/hooks/admin-app/src/hooks/admin/category/useCategoryQueries"
+import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
+import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
+
+import type { Category } from "@/api/category"
+import type { CategoryNameFormData } from "@/lib/schemas/category.schema"
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error && error.message) return error.message
+  return "Có lỗi xảy ra, vui lòng thử lại."
+}
 
 export default function AdminCategoriesPage() {
-  const {
-    filteredData,
-    columns,
-    isModalOpen,
-    setIsModalOpen,
-    isFilterOpen,
-    setIsFilterOpen,
-    editingId,
-    form,
-    setForm,
-    search,
-    setSearch,
-    statusFilter,
-    setStatusFilter,
-    resetFilters,
-    openAddModal,
-    openEditModal,
-    onSave,
-    onDelete,
-  } = useCategoriesTable()
+  const [search, setSearch] = useState("")
+  const [isFilterOpen, setIsFilterOpen] = useState(false)
 
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
+  const debouncedSearch = useDebounce(search, 450)
+
+  const [isFormOpen, setIsFormOpen] = useState(false)
+  const [editingCategory, setEditingCategory] = useState<Category | null>(null)
+
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const table = useAdminTable(filteredData, columns)
+  const { data, isLoading, isError, error } = useCategories({ q: debouncedSearch })
+
+  const createMutation = useCreateCategory()
+  const updateMutation = useUpdateCategory()
+  const deleteMutation = useSoftDeleteCategory()
+  const restoreMutation = useRestoreCategory()
+
+  const categories = data ?? []
+
+  const columns = useMemo<ColumnDef<Category>[]>(
+    () => [
+      {
+        accessorKey: "name",
+        header: "Name",
+      },
+      {
+        accessorKey: "slug",
+        header: "Slug",
+      },
+      {
+        id: "products",
+        header: "Products",
+        cell: ({ row }) => row.original.products?.length ?? 0,
+      },
+      {
+        id: "detail",
+        header: "Detail",
+        cell: ({ row }) => (
+          <Link
+            href={`/admin/category/${row.original._id}`}
+            className="text-blue-600 hover:underline"
+          >
+            View detail
+          </Link>
+        ),
+      },
+    ],
+    [],
+  )
+
+  const table = useAdminTable(categories, columns)
+
+  const openAddModal = () => {
+    setEditingCategory(null)
+    setIsFormOpen(true)
+  }
+
+  const openEditModal = (category: Category) => {
+    setEditingCategory(category)
+    setIsFormOpen(true)
+  }
 
   const openDeleteModal = (id: string) => {
     setDeletingId(id)
-    setIsDeleteModalOpen(true)
+    setIsDeleteOpen(true)
   }
 
-  const confirmDelete = () => {
+  const handleSubmitForm = async (payload: CategoryNameFormData) => {
+    try {
+      if (editingCategory) {
+        const res = await updateMutation.mutateAsync({
+          id: editingCategory._id,
+          payload: { name: payload.name },
+        })
+        toast.success(res.message)
+      } else {
+        const res = await createMutation.mutateAsync({ name: payload.name })
+        toast.success(res.message)
+      }
+
+      setIsFormOpen(false)
+      setEditingCategory(null)
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
+
+  const handleDelete = async () => {
     if (!deletingId) return
-    onDelete(deletingId)
-    setIsDeleteModalOpen(false)
-    setDeletingId(null)
+
+    try {
+      const res = await deleteMutation.mutateAsync(deletingId)
+      toast.success(res.message)
+      setIsDeleteOpen(false)
+      setDeletingId(null)
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
+  }
+
+  const handleRestore = async (id: string) => {
+    try {
+      const res = await restoreMutation.mutateAsync(id)
+      toast.success(res.message)
+    } catch (err) {
+      toast.error(getErrorMessage(err))
+    }
   }
 
   return (
@@ -59,7 +151,7 @@ export default function AdminCategoriesPage() {
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Category Management</h1>
             <p className="mt-1 text-sm text-slate-500">
-              Quản lý danh mục sản phẩm, hỗ trợ thêm/sửa/xoá/tìm kiếm và filter.
+              Quản lý category theo đúng API backend.
             </p>
           </div>
 
@@ -68,9 +160,7 @@ export default function AdminCategoriesPage() {
               <Filter className="mr-2 h-4 w-4" />
               Filter
             </Button>
-            <Button className="bg-destructive text-white hover:bg-destructive/90" onClick={openAddModal}>
-              Add Category
-            </Button>
+            <Button onClick={openAddModal}>Add Category</Button>
           </div>
         </header>
 
@@ -81,126 +171,81 @@ export default function AdminCategoriesPage() {
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-md"
           />
-          <Button variant="outline" onClick={resetFilters}>
+          <Button variant="outline" onClick={() => setSearch("")}>
             Reset
           </Button>
         </div>
 
-        <AdminEntityTable
-          table={table}
-          renderActions={(row) => (
-            <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => openEditModal(row.id)}>
-                Edit
-              </Button>
-              <Button variant="destructive" size="sm" onClick={() => openDeleteModal(row.id)}>
-                Delete
-              </Button>
-            </div>
-          )}
+        <RestoreCategoryForm
+          isSubmitting={restoreMutation.isPending}
+          onSubmit={handleRestore}
         />
+
+        {isLoading && (
+          <div className="rounded-xl border bg-slate-50 p-6 text-sm text-slate-500">
+            Đang tải danh sách category...
+          </div>
+        )}
+
+        {isError && (
+          <div className="rounded-xl border border-destructive/30 bg-destructive/5 p-6 text-sm text-destructive">
+            {getErrorMessage(error)}
+          </div>
+        )}
+
+        {!isLoading && !isError && categories.length === 0 && (
+          <div className="rounded-xl border bg-slate-50 p-6 text-sm text-slate-500">
+            Không có category nào.
+          </div>
+        )}
+
+        {!isLoading && !isError && categories.length > 0 && (
+          <AdminEntityTable
+            table={table}
+            renderActions={(row) => (
+              <div className="flex gap-2">
+                <Button variant="outline" size="sm" onClick={() => openEditModal(row)}>
+                  Edit
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={() => openDeleteModal(row._id)}
+                >
+                  Delete
+                </Button>
+              </div>
+            )}
+          />
+        )}
       </section>
 
       <AdminFilterDrawer
         open={isFilterOpen}
         onOpenChange={setIsFilterOpen}
         search={search}
-        status={statusFilter}
+        status="all"
         onChangeSearch={setSearch}
-        onChangeStatus={(value) => setStatusFilter(value as CategoryFilterStatus)}
+        onChangeStatus={() => undefined}
         onApply={() => setIsFilterOpen(false)}
-        onReset={resetFilters}
+        onReset={() => setSearch("")}
       />
 
-      <AppModal
-        open={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        title={editingId ? "Edit Category" : "Add Category"}
-        description="Nhập thông tin danh mục"
-        footer={
-          <>
-            <Button variant="outline" onClick={() => setIsModalOpen(false)}>
-              Cancel
-            </Button>
-            <Button className="bg-destructive text-white hover:bg-destructive/90" onClick={onSave}>
-              Save
-            </Button>
-          </>
-        }
-      >
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <Label htmlFor="categoryName">Name</Label>
-            <Input
-              id="categoryName"
-              value={form.name}
-              onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="categorySlug">Slug</Label>
-            <Input
-              id="categorySlug"
-              value={form.slug}
-              onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="categoryCount">Product Count</Label>
-            <Input
-              id="categoryCount"
-              type="number"
-              min={0}
-              value={form.productCount}
-              onChange={(e) => setForm((prev) => ({ ...prev, productCount: e.target.value }))}
-            />
-          </div>
-          <div className="space-y-1">
-            <Label htmlFor="categoryStatus">Status</Label>
-            <select
-              id="categoryStatus"
-              value={form.status}
-              onChange={(e) =>
-                setForm((prev) => ({
-                  ...prev,
-                  status: e.target.value as "Visible" | "Hidden",
-                }))
-              }
-              className="border-input bg-background w-full rounded-md border px-3 py-2 text-sm"
-            >
-              <option value="Visible">Visible</option>
-              <option value="Hidden">Hidden</option>
-            </select>
-          </div>
-        </div>
-      </AppModal>
+      <CategoryFormModal
+        open={isFormOpen}
+        onOpenChange={setIsFormOpen}
+        mode={editingCategory ? "edit" : "create"}
+        defaultName={editingCategory?.name}
+        isSubmitting={createMutation.isPending || updateMutation.isPending}
+        onSubmit={handleSubmitForm}
+      />
 
-      <AppModal
-        open={isDeleteModalOpen}
-        onOpenChange={setIsDeleteModalOpen}
-        title="Delete Category"
-        description="Bạn có chắc chắn muốn xoá danh mục này không? Hành động này không thể hoàn tác."
-        footer={
-          <>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setIsDeleteModalOpen(false)
-                setDeletingId(null)
-              }}
-            >
-              Cancel
-            </Button>
-            <Button className="bg-destructive text-white hover:bg-destructive/90" onClick={confirmDelete}>
-              Delete
-            </Button>
-          </>
-        }
-      >
-        <p className="text-sm text-slate-600">
-          Nhấn <strong>Delete</strong> để xác nhận xoá danh mục đã chọn.
-        </p>
-      </AppModal>
+      <DeleteCategoryModal
+        open={isDeleteOpen}
+        onOpenChange={setIsDeleteOpen}
+        isSubmitting={deleteMutation.isPending}
+        onConfirm={handleDelete}
+      />
     </main>
   )
 }

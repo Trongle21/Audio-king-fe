@@ -15,7 +15,7 @@ export type LoginFormData = z.infer<typeof loginSchema>
 // Schema validation cho đăng ký (ví dụ)
 export const registerSchema = z
   .object({
-    name: z
+    username: z
       .string()
       .min(1, "Tên là bắt buộc")
       .min(2, "Tên phải có ít nhất 2 ký tự"),

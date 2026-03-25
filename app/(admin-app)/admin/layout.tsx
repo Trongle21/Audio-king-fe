@@ -4,6 +4,8 @@ import { Button } from "@/components/atoms"
 import { AdminSidebarNav } from "@/components/organisms/admin-sidebar-nav"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
+import { AdminAuthGate } from "./AdminAuthGate"
+
 import type { Metadata } from "next"
 
 export const metadata: Metadata = genMetadata({
@@ -27,6 +29,7 @@ export default function AdminAppLayout({
   children: React.ReactNode
 }) {
   return (
+    <AdminAuthGate>
     <div className="min-h-screen bg-slate-100">
       <header
         className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur"
@@ -58,5 +61,6 @@ export default function AdminAppLayout({
         <section>{children}</section>
       </div>
     </div>
+    </AdminAuthGate>
   )
 }

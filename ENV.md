@@ -26,7 +26,7 @@ File này mô tả các biến môi trường được sử dụng trong dự á
 
 ### API Configuration
 
-- `NEXT_PUBLIC_API_URL`: Base URL cho API calls (ví dụ: `http://localhost:3000/api`)
+- `NEXT_PUBLIC_API_URL`: Base URL cho API calls (ví dụ: `https://audio-king-be.vercel.app/api`)
 
 ### Database (Optional)
 

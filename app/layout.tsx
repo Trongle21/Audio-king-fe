@@ -1,6 +1,8 @@
 import { Geist, Geist_Mono } from "next/font/google"
 
 import "./globals.css"
+import { Toaster } from "sonner"
+
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 import ReactQueryProvider from "@/lib/ReactQueryProvider"
 import ReduxProvider from "@/lib/store/ReduxProvider"
@@ -44,7 +46,10 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ReactQueryProvider>
-          <ReduxProvider>{children}</ReduxProvider>
+          <ReduxProvider>
+            {children}
+            <Toaster richColors position="top-right" />
+          </ReduxProvider>
         </ReactQueryProvider>
       </body>
     </html>
