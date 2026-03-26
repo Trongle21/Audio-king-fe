@@ -28,11 +28,12 @@ export default function AdminCreateProductPage() {
                 stock: payload.stock,
                 status: payload.status,
                 description: payload.description,
-                sku: payload.sku,
                 rating: payload.rating,
                 categories: payload.categories,
                 images: payload.images,
                 thumbnail: payload.thumbnail || undefined,
+                specifications: payload.specifications,
+                highlights: payload.highlights,
                 files: payload.files,
             })
 

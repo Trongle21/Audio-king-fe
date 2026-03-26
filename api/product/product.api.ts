@@ -45,6 +45,14 @@ function buildCreateProductFormData(payload: CreateProductPayload) {
     formData.append("images", JSON.stringify(payload.images))
   }
 
+  if (payload.specifications && Object.keys(payload.specifications).length > 0) {
+    formData.append("specifications", JSON.stringify(payload.specifications))
+  }
+
+  if (payload.highlights && payload.highlights.length > 0) {
+    formData.append("highlights", JSON.stringify(payload.highlights))
+  }
+
   if (payload.thumbnail) {
     formData.append("thumbnail", payload.thumbnail)
   }

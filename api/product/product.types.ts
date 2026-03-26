@@ -36,6 +36,8 @@ export interface Product {
   rating?: number
   thumbnail?: string
   images?: ProductImage[]
+  specifications?: Record<string, string>
+  highlights?: string[]
   categories: string[] | ProductCategoryRef[]
   isDelete: boolean
   createdAt?: string
@@ -95,11 +97,12 @@ export interface CreateProductPayload {
   stock: number | string
   status?: number | string
   description?: string
-  sku: string
   rating?: number | string
   categories: string[]
   images?: ProductImageInput[]
   thumbnail?: string
+  specifications?: Record<string, string>
+  highlights?: string[]
   files?: File[]
 }
 
@@ -115,4 +118,6 @@ export interface UpdateProductPayload {
   categories?: string[]
   images?: ProductImageInput[]
   thumbnail?: string
+  specifications?: Record<string, string>
+  highlights?: string[]
 }

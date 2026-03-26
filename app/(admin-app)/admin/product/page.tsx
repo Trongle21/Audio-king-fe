@@ -11,8 +11,7 @@ import { Button, Input, Label } from "@/components/atoms"
 import {
   AdminEntityTable,
   AdminFilterDrawer,
-  DeleteProductModal,
-  RestoreProductForm,
+  DeleteProductModal
 } from "@/components/organisms"
 import {
   useProducts,
@@ -214,9 +213,9 @@ export default function AdminProductsPage() {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value as ProductSortBy)}
             >
-              <option value="createdAt">createdAt</option>
-              <option value="name">name</option>
-              <option value="price">price</option>
+              <option value="createdAt">Ngày tạo</option>
+              <option value="name">Tên</option>
+              <option value="price">Giá</option>
             </select>
           </div>
 
@@ -227,12 +226,12 @@ export default function AdminProductsPage() {
               value={order}
               onChange={(e) => setOrder(e.target.value as ProductOrder)}
             >
-              <option value="desc">desc</option>
-              <option value="asc">asc</option>
+              <option value="desc">Giảm dần</option>
+              <option value="asc">Tăng dần</option>
             </select>
           </div>
 
-          <div className="space-y-1">
+          {/* <div className="space-y-1">
             <Label>Limit</Label>
             <select
               className="border-input bg-background rounded-md border px-3 py-2 text-sm"
@@ -246,17 +245,17 @@ export default function AdminProductsPage() {
               <option value={24}>24</option>
               <option value={36}>36</option>
             </select>
-          </div>
+          </div> */}
 
           <Button variant="outline" onClick={resetFilters}>
             Reset
           </Button>
         </div>
 
-        <RestoreProductForm
+        {/* <RestoreProductForm
           isSubmitting={restoreMutation.isPending}
           onSubmit={handleRestore}
-        />
+        /> */}
 
         {isLoading && (
           <div className="rounded-xl border bg-slate-50 p-6 text-sm text-slate-500">

@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Upload } from "lucide-react"
+import { Plus, Trash2, Upload } from "lucide-react"
 import Image from "next/image"
 import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
@@ -22,6 +22,25 @@ interface ProductFormProps {
   onSubmit: (payload: ProductFormSubmitPayload) => Promise<void>
 }
 
+interface SpecificationRow {
+  key: string
+  value: string
+}
+
+function mapSpecRecordToRows(specifications?: Record<string, unknown>): SpecificationRow[] {
+  if (!specifications) return [{ key: "", value: "" }]
+
+  const rows: SpecificationRow[] = []
+
+  for (const [key, value] of Object.entries(specifications)) {
+    if (typeof value === "string") {
+      rows.push({ key, value })
+    }
+  }
+
+  return rows.length > 0 ? rows : [{ key: "", value: "" }]
+}
+
 export function ProductForm({
   defaultValues,
   isSubmitting,
@@ -29,7 +48,14 @@ export function ProductForm({
   onSubmit,
 }: ProductFormProps) {
   const [files, setFiles] = useState<File[]>([])
-  const [thumbnailIndex, setThumbnailIndex] = useState(0)
+  const [thumbnailFile, setThumbnailFile] = useState<File | null>(null)
+  const [thumbnailError, setThumbnailError] = useState<string | null>(null)
+  const [highlightsText, setHighlightsText] = useState(
+    (defaultValues?.highlights ?? []).join("\n")
+  )
+  const [specRows, setSpecRows] = useState<SpecificationRow[]>(
+    mapSpecRecordToRows(defaultValues?.specifications)
+  )
 
   const { data: categoriesData, isLoading: isLoadingCategories } = useCategories({ q: "" })
 
@@ -43,13 +69,14 @@ export function ProductForm({
     resolver: zodResolver(productCreateSchema),
     defaultValues: {
       name: defaultValues?.name ?? "",
-      sku: defaultValues?.sku ?? "",
       price: defaultValues?.price ?? 0,
-      sale: defaultValues?.sale,
       stock: defaultValues?.stock ?? 0,
       description: defaultValues?.description ?? "",
       rating: defaultValues?.rating,
       categories: defaultValues?.categories ?? [],
+      thumbnail: defaultValues?.thumbnail ?? "",
+      highlights: defaultValues?.highlights ?? [],
+      specifications: defaultValues?.specifications ?? {},
     },
   })
 
@@ -57,26 +84,56 @@ export function ProductForm({
 
   const filePreviews = useMemo(() => files.map((file) => URL.createObjectURL(file)), [files])
 
-  const toggleCategory = (categoryId: string, checked: boolean) => {
-    const next = checked
-      ? [...selectedCategories, categoryId]
-      : selectedCategories.filter((id) => id !== categoryId)
+  const onCategorySelectChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const values = Array.from(event.target.selectedOptions).map((option) => option.value)
+    setValue("categories", values, { shouldValidate: true })
+  }
 
-    setValue("categories", next, { shouldValidate: true })
+  const setSpecificationAt = (index: number, field: keyof SpecificationRow, value: string) => {
+    setSpecRows((prev) => prev.map((row, rowIndex) => (rowIndex === index ? { ...row, [field]: value } : row)))
+  }
+
+  const addSpecRow = () => {
+    setSpecRows((prev) => [...prev, { key: "", value: "" }])
+  }
+
+  const removeSpecRow = (index: number) => {
+    setSpecRows((prev) => {
+      const next = prev.filter((_, i) => i !== index)
+      return next.length > 0 ? next : [{ key: "", value: "" }]
+    })
   }
 
   const onFormSubmit = handleSubmit(async (values) => {
-    const safeIndex = Math.min(Math.max(thumbnailIndex, 0), Math.max(files.length - 1, 0))
-    const reorderedFiles = files.length
-      ? [files[safeIndex], ...files.filter((_, idx) => idx !== safeIndex)]
-      : []
+    if (!thumbnailFile) {
+      setThumbnailError("Vui lòng chọn ảnh thumbnail")
+      return
+    }
+
+    const reorderedFiles = [thumbnailFile, ...files]
+
+    const specifications = specRows.reduce<Record<string, string>>((acc, row) => {
+      const key = row.key.trim()
+      const value = row.value.trim()
+
+      if (key && value) {
+        acc[key] = value
+      }
+
+      return acc
+    }, {})
+
+    const highlights = (values.highlights ?? [])
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
 
     await onSubmit({
       ...values,
+      specifications,
+      highlights,
       files: reorderedFiles,
       images: undefined,
       thumbnail: undefined,
-      status: undefined,
     })
   })
 
@@ -84,38 +141,36 @@ export function ProductForm({
     <form className="space-y-4" onSubmit={onFormSubmit}>
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-1">
-          <Label htmlFor="name">Tên sản phẩm</Label>
+          <Label htmlFor="name">
+            Tên sản phẩm <span className="text-destructive">*</span>
+          </Label>
           <Input id="name" {...register("name")} />
           {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
         </div>
 
-        <div className="space-y-1">
-          <Label htmlFor="sku">SKU</Label>
-          <Input id="sku" {...register("sku")} />
-          {errors.sku && <p className="text-sm text-destructive">{errors.sku.message}</p>}
-        </div>
 
         <div className="space-y-1">
-          <Label htmlFor="price">Giá</Label>
+          <Label htmlFor="price">
+            Giá <span className="text-destructive">*</span>
+          </Label>
           <Input id="price" type="number" min={0} {...register("price")} />
           {errors.price && <p className="text-sm text-destructive">{errors.price.message}</p>}
         </div>
 
         <div className="space-y-1">
-          <Label htmlFor="stock">Tồn kho</Label>
+          <Label htmlFor="stock">
+            Tồn kho <span className="text-destructive">*</span>
+          </Label>
           <Input id="stock" type="number" min={0} {...register("stock")} />
           {errors.stock && <p className="text-sm text-destructive">{errors.stock.message}</p>}
-        </div>
-
-        <div className="space-y-1">
-          <Label htmlFor="sale">Sale</Label>
-          <Input id="sale" type="number" min={0} {...register("sale")} />
         </div>
 
         <div className="space-y-1">
           <Label htmlFor="rating">Rating</Label>
           <Input id="rating" type="number" min={0} max={5} step={0.1} {...register("rating")} />
         </div>
+
+
       </div>
 
       <div className="space-y-1">
@@ -128,30 +183,112 @@ export function ProductForm({
         />
       </div>
 
+      <div className="space-y-1">
+        <Label htmlFor="highlights">Highlights (mỗi lần Enter xuống 1 dòng là 1 ý)</Label>
+        <textarea
+          id="highlights"
+          className="w-full rounded-md border p-2 text-sm"
+          rows={4}
+          value={highlightsText}
+          onChange={(e) => {
+            const nextText = e.target.value
+            setHighlightsText(nextText)
+
+            const values = nextText
+              .split("\n")
+              .map((line) => line.trim())
+              .filter((line) => line.length > 0)
+
+            setValue("highlights", values, { shouldValidate: true })
+          }}
+        />
+      </div>
+
       <div className="space-y-2 rounded-lg border p-3">
-        <Label>Danh mục</Label>
+        <div className="flex items-center justify-between">
+          <Label>Thuộc tính</Label>
+          <Button type="button" variant="outline" size="sm" onClick={addSpecRow}>
+            <Plus className="mr-1 h-4 w-4" />
+            Thêm dòng
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          {specRows.map((row, index) => (
+            <div key={`spec-${index}`} className="grid gap-2 md:grid-cols-[1fr_1fr_auto]">
+              <Input
+                placeholder="Tên thuộc tính (vd: Chất liệu)"
+                value={row.key}
+                onChange={(e) => setSpecificationAt(index, "key", e.target.value)}
+              />
+              <Input
+                placeholder="Giá trị (vd: Cotton)"
+                value={row.value}
+                onChange={(e) => setSpecificationAt(index, "value", e.target.value)}
+              />
+              <Button type="button" variant="ghost" onClick={() => removeSpecRow(index)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2 rounded-lg border p-3">
+        <Label htmlFor="categories">
+          Danh mục <span className="text-destructive">*</span> (giữ Ctrl/Cmd để chọn nhiều)
+        </Label>
         {isLoadingCategories ? (
           <p className="text-sm text-slate-500">Đang tải danh mục...</p>
         ) : (
-          <div className="grid gap-2 md:grid-cols-2">
-            {(categoriesData ?? []).map((category) => {
-              const checked = selectedCategories.includes(category._id)
-
-              return (
-                <label key={category._id} className="flex items-center gap-2 rounded border p-2 text-sm">
-                  <input
-                    type="checkbox"
-                    checked={checked}
-                    onChange={(e) => toggleCategory(category._id, e.target.checked)}
-                  />
-                  <span>{category.name}</span>
-                </label>
-              )
-            })}
-          </div>
+          <select
+            id="categories"
+            multiple
+            className="min-h-36 w-full rounded-md border p-2 text-sm"
+            value={selectedCategories}
+            onChange={onCategorySelectChange}
+          >
+            {(categoriesData ?? []).map((category) => (
+              <option key={category._id} value={category._id}>
+                {category.name}
+              </option>
+            ))}
+          </select>
         )}
         {errors.categories && (
           <p className="text-sm text-destructive">{errors.categories.message as string}</p>
+        )}
+      </div>
+
+      <div className="space-y-2 rounded-lg border p-3">
+        <Label htmlFor="thumbnail">
+          Thumbnail <span className="text-destructive">*</span>
+        </Label>
+        <div className="flex items-center gap-2">
+          <Input
+            id="thumbnail"
+            type="file"
+            accept="image/*"
+            onChange={(e) => {
+              const file = e.target.files?.[0] ?? null
+              setThumbnailFile(file)
+              setThumbnailError(null)
+            }}
+          />
+          <Upload className="h-4 w-4 text-muted-foreground" />
+        </div>
+        {thumbnailError && <p className="text-sm text-destructive">{thumbnailError}</p>}
+        {thumbnailFile && (
+          <div className="mt-2">
+            <Image
+              src={URL.createObjectURL(thumbnailFile)}
+              alt="thumbnail-preview"
+              width={120}
+              height={120}
+              unoptimized
+              className="h-24 w-24 rounded border object-cover"
+            />
+          </div>
         )}
       </div>
 
@@ -166,7 +303,6 @@ export function ProductForm({
             onChange={(e) => {
               const nextFiles = Array.from(e.target.files ?? [])
               setFiles(nextFiles)
-              setThumbnailIndex(0)
             }}
           />
           <Upload className="h-4 w-4 text-muted-foreground" />
@@ -174,33 +310,21 @@ export function ProductForm({
 
         {filePreviews.length > 0 && (
           <div className="space-y-2">
-            <Label>Chọn ảnh đại diện (thumbnail)</Label>
+            <Label>Ảnh bổ sung</Label>
             <div className="grid grid-cols-3 gap-2 md:grid-cols-6">
               {filePreviews.map((preview, index) => (
-                <label key={`${preview}-${index}`} className="space-y-1 text-xs">
+                <div key={`${preview}-${index}`} className="space-y-1 text-xs">
                   <Image
                     src={preview}
                     alt={`preview-${index}`}
                     width={80}
                     height={80}
                     unoptimized
-                    className={`h-20 w-full rounded border object-cover ${thumbnailIndex === index ? "ring-2 ring-destructive" : ""}`}
+                    className="h-20 w-full rounded border object-cover"
                   />
-                  <div className="flex items-center gap-1">
-                    <input
-                      type="radio"
-                      name="thumbnail-file"
-                      checked={thumbnailIndex === index}
-                      onChange={() => setThumbnailIndex(index)}
-                    />
-                    <span>Ảnh đại diện</span>
-                  </div>
-                </label>
+                </div>
               ))}
             </div>
-            <p className="text-xs text-slate-500">
-              Ảnh đại diện sẽ được ưu tiên đưa lên đầu danh sách upload.
-            </p>
           </div>
         )}
       </div>

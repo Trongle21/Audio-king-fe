@@ -12,8 +12,7 @@ import {
   AdminEntityTable,
   AdminFilterDrawer,
   CategoryFormModal,
-  DeleteCategoryModal,
-  RestoreCategoryForm,
+  DeleteCategoryModal
 } from "@/components/organisms"
 import {
   useCategories,
@@ -176,10 +175,10 @@ export default function AdminCategoriesPage() {
           </Button>
         </div>
 
-        <RestoreCategoryForm
+        {/* <RestoreCategoryForm
           isSubmitting={restoreMutation.isPending}
           onSubmit={handleRestore}
-        />
+        /> */}
 
         {isLoading && (
           <div className="rounded-xl border bg-slate-50 p-6 text-sm text-slate-500">

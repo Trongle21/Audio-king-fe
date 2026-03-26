@@ -65,7 +65,9 @@ export function CategoryFormModal({
       }
     >
       <form className="space-y-2" onSubmit={submitHandler}>
-        <Label htmlFor="category-name">Tên danh mục</Label>
+        <Label htmlFor="category-name">
+          Tên danh mục <span className="text-destructive">*</span>
+        </Label>
         <Input id="category-name" {...register("name")} placeholder="Ví dụ: Loa kéo" />
         {errors.name && <p className="text-sm text-destructive">{errors.name.message}</p>}
       </form>

@@ -7,7 +7,6 @@ export const productImageSchema = z.object({
 
 export const productCreateSchema = z.object({
   name: z.string().trim().min(1, "Tên sản phẩm là bắt buộc"),
-  sku: z.string().trim().min(1, "SKU là bắt buộc"),
   price: z.coerce.number().min(0, "Giá không hợp lệ"),
   sale: z.coerce.number().min(0, "Sale không hợp lệ").optional(),
   stock: z.coerce.number().min(0, "Tồn kho không hợp lệ"),
@@ -21,6 +20,8 @@ export const productCreateSchema = z.object({
     .refine((value) => !value || /^https?:\/\//.test(value), "Thumbnail phải là URL hợp lệ"),
   categories: z.array(z.string().trim().min(1)).min(1, "Chọn ít nhất 1 danh mục"),
   images: z.array(productImageSchema).optional(),
+  specifications: z.record(z.string(), z.string().trim()).optional(),
+  highlights: z.array(z.string().trim().min(1)).optional(),
 })
 
 export const productUpdateSchema = productCreateSchema.partial()
