@@ -1,13 +1,10 @@
+import type { Metadata } from "next"
 import { Geist, Geist_Mono } from "next/font/google"
-
-import "./globals.css"
 import { Toaster } from "sonner"
-
+import "./globals.css"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 import ReactQueryProvider from "@/lib/ReactQueryProvider"
 import ReduxProvider from "@/lib/store/ReduxProvider"
-
-import type { Metadata } from "next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

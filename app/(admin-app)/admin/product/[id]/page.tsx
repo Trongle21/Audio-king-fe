@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { useParams } from "next/navigation"
 
 import { Button } from "@/components/atoms"
@@ -17,12 +18,7 @@ function formatPrice(value: number) {
     return new Intl.NumberFormat("vi-VN").format(value)
 }
 
-function formatDate(value?: string) {
-    if (!value) return "-"
-    const date = new Date(value)
-    if (Number.isNaN(date.getTime())) return "-"
-    return date.toLocaleString("vi-VN")
-}
+// removed unused formatDate
 
 function renderCategories(categories: string[] | ProductCategoryRef[]) {
     if (!categories || categories.length === 0) return "Không có danh mục"
@@ -124,7 +120,14 @@ export default function AdminProductDetailPage() {
                 {thumbnailUrl && (
                     <div>
                         <p className="mb-1 text-sm text-slate-500">Thumbnail</p>
-                        <img src={thumbnailUrl} alt={data.name} className="h-48 w-48 rounded-lg border object-cover" />
+                        <Image
+                            src={thumbnailUrl}
+                            alt={data.name}
+                            width={192}
+                            height={192}
+                            unoptimized
+                            className="h-48 w-48 rounded-lg border object-cover"
+                        />
                     </div>
                 )}
 
@@ -132,7 +135,14 @@ export default function AdminProductDetailPage() {
                     <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
                         {gallery.map((img, idx) => (
                             <figure key={`${img.url}-${idx}`} className="rounded-md border p-2">
-                                <img src={img.url} alt={img.alt || `Ảnh ${idx + 1}`} className="h-24 w-full object-cover rounded" />
+                                <Image
+                                    src={img.url}
+                                    alt={img.alt || `Ảnh ${idx + 1}`}
+                                    width={160}
+                                    height={120}
+                                    unoptimized
+                                    className="h-24 w-full object-cover rounded"
+                                />
                                 <figcaption className="mt-1 text-xs text-slate-500 truncate">
                                     {img.alt || img.url}
                                 </figcaption>
