@@ -52,7 +52,11 @@ function mapSpecRecordToRows(specifications?: Record<string, unknown>): Specific
 function getInitialThumbnailUrl(defaultValues?: Partial<ProductUpdateFormData>) {
   const thumbnail = defaultValues?.thumbnail
   if (!thumbnail) return null
-  return typeof thumbnail === "string" ? thumbnail : null
+  if (typeof thumbnail === "string") return thumbnail
+  if (typeof thumbnail === "object" && typeof thumbnail.url === "string" && thumbnail.url.trim()) {
+    return thumbnail.url
+  }
+  return null
 }
 
 function getInitialExistingImages(defaultValues?: Partial<ProductUpdateFormData>): ExistingImage[] {

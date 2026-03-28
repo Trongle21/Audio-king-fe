@@ -20,7 +20,3 @@ export interface Banner {
   createdAt?: string
   updatedAt?: string
 }
-
-export interface BannerPayload {
-  images: BannerImage[]
-}

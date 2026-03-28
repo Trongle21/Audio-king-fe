@@ -10,6 +10,7 @@ import {
     useProductDetail,
     useUpdateProduct,
 } from "@/hooks/admin-app/src/hooks/admin/product"
+import { useUploadProductFile } from "@/hooks/admin-app/src/hooks/admin/product"
 
 import type { ProductCategoryRef } from "@/api/product"
 import type { ProductUpdateFormData } from "@/lib/schemas/product.schema"
@@ -32,6 +33,7 @@ export default function AdminEditProductPage() {
 
     const { data, isLoading, isError, error } = useProductDetail(id)
     const updateMutation = useUpdateProduct()
+    const uploadMutation = useUploadProductFile()
 
     const defaultValues = useMemo(() => {
         if (!data) return undefined
@@ -60,7 +62,39 @@ export default function AdminEditProductPage() {
         if (!id || !data) return
 
         try {
-            const mergedImages = [...(payload.images ?? [])]
+            // Upload new files first (if any). Note: product-form orders files so that
+            // the thumbnail file (when chosen) is first in the array.
+            const uploadedUrls: string[] = []
+            if (payload.files && payload.files.length > 0) {
+                for (const file of payload.files) {
+                    const res = await uploadMutation.mutateAsync(file)
+                    uploadedUrls.push(res.data.url)
+                }
+            }
+
+            // Images to persist (after deletions in the UI)
+            const existingImages = [...(payload.images ?? [])]
+
+            // Determine thumbnail:
+            // - Prefer explicit thumbnail from payload (selected existing image), ensure it has alt
+            // - Else, if there are uploaded files, use the first uploaded as thumbnail
+            const fallbackAlt = payload.name ?? data.name
+            const normalizedPayloadThumbnail = payload.thumbnail
+                ? { url: payload.thumbnail.url, alt: payload.thumbnail.alt ?? fallbackAlt }
+                : undefined
+            const nextThumbnail =
+                normalizedPayloadThumbnail ??
+                (uploadedUrls.length > 0 ? { url: uploadedUrls[0], alt: fallbackAlt } : undefined)
+
+            // Determine new images to append:
+            // - If we used first uploaded for thumbnail (no payload.thumbnail), skip it for gallery images
+            // - Otherwise, include all uploaded files as gallery images
+            const startIndexForImages = payload.thumbnail ? 0 : 1
+            const uploadedImages = uploadedUrls
+                .slice(startIndexForImages)
+                .map((url) => ({ url }))
+
+            const mergedImages = [...existingImages, ...uploadedImages]
 
             // lưu ý: PATCH backend nhận JSON, file mới muốn upload phải đi qua upload-audio trước
             // ở đây giữ đúng contract update JSON
@@ -77,7 +111,7 @@ export default function AdminEditProductPage() {
                     rating: payload.rating,
                     categories: payload.categories,
                     images: mergedImages,
-                    thumbnail: payload.thumbnail || undefined,
+                    thumbnail: nextThumbnail,
                     specifications: payload.specifications,
                     highlights: payload.highlights,
                 },

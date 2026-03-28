@@ -77,7 +77,6 @@ export default function AdminProductDetailPage() {
                 <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-2">
                     <p><strong>Name:</strong> {data.name || "-"}</p>
                     <p><strong>Price:</strong> {formatPrice(data.price)}đ</p>
-                    <p><strong>Sale:</strong> {data.sale ?? 0}</p>
                     <p><strong>Stock:</strong> {data.stock}</p>
                     <p><strong>Description:</strong> {data.description || "Không có mô tả"}</p>
                     <p><strong>Rating:</strong> {data.rating ?? 0}</p>

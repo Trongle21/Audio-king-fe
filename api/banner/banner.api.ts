@@ -1,6 +1,6 @@
 import { apiDelete, apiGet, apiPatch, apiPost, getAccessToken } from "@/api"
 
-import type { ApiSuccessResponse, Banner, BannerPayload } from "./banner.types"
+import type { ApiSuccessResponse, Banner } from "./banner.types"
 
 const BANNER_BASE_PATH = "/banners"
 
@@ -16,26 +16,22 @@ export async function getBanners() {
   return apiGet<ApiSuccessResponse<Banner[]>>(BANNER_BASE_PATH, {}, { auth: false })
 }
 
-export async function getBannerById(id: string) {
-  return apiGet<ApiSuccessResponse<Banner>>(`${BANNER_BASE_PATH}/${id}`, {}, { auth: false })
-}
-
-export async function createBanner(payload: BannerPayload) {
-  return apiPost<ApiSuccessResponse<Banner>, BannerPayload>(
+export async function createBanner(formData: FormData) {
+  return apiPost<ApiSuccessResponse<Banner>, FormData>(
     BANNER_BASE_PATH,
     {
-      body: payload,
+      body: formData,
       headers: buildTokenHeader(),
     },
     { auth: false },
   )
 }
 
-export async function updateBanner(id: string, payload: Partial<BannerPayload>) {
-  return apiPatch<ApiSuccessResponse<Banner>, Partial<BannerPayload>>(
+export async function updateBanner(id: string, formData: FormData) {
+  return apiPatch<ApiSuccessResponse<Banner>, FormData>(
     `${BANNER_BASE_PATH}/${id}`,
     {
-      body: payload,
+      body: formData,
       headers: buildTokenHeader(),
     },
     { auth: false },

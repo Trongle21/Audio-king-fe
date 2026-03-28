@@ -8,10 +8,7 @@ import { toast } from "sonner"
 
 import { Button } from "@/components/atoms"
 import { BannerForm } from "@/components/organisms/admin-banner/banner-form"
-import {
-  useBannerDetail,
-  useUpdateBanner,
-} from "@/hooks/admin-app/src/hooks/admin/banner"
+import { useBanners, useUpdateBanner } from "@/hooks/admin-app/src/hooks/admin/banner"
 
 import type { BannerFormData } from "@/lib/schemas/banner.schema"
 
@@ -26,25 +23,24 @@ export default function AdminEditBannerPage() {
 
   const bannerId = params?.id ?? ""
 
-  const { data: currentBanner, isLoading, isError, error } = useBannerDetail(bannerId)
+  const { data: banners, isLoading, isError, error } = useBanners()
   const updateMutation = useUpdateBanner()
 
-  const defaultValues = useMemo<BannerFormData | undefined>(() => {
-    if (!currentBanner) return undefined
-
-    return {
-      images: currentBanner.images.map((image) => ({
-        url: image.url,
-        alt: image.alt ?? "",
-      })),
-    }
-  }, [currentBanner])
+  const currentBanner = useMemo(
+    () => banners?.find((banner) => banner._id === bannerId),
+    [banners, bannerId],
+  )
 
   const handleSubmit = async (payload: BannerFormData) => {
     try {
+      const formData = new FormData()
+      payload.files.forEach((file) => {
+        formData.append("files", file)
+      })
+
       const response = await updateMutation.mutateAsync({
         id: bannerId,
-        payload,
+        formData,
       })
       toast.success(response.message)
       router.push("/admin/banner")
@@ -59,7 +55,7 @@ export default function AdminEditBannerPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Cập nhật banner</h1>
-            <p className="mt-1 text-sm text-slate-500">Chỉnh sửa mảng images theo backend contract.</p>
+            <p className="mt-1 text-sm text-slate-500">Upload ảnh mới để replace toàn bộ banner images.</p>
           </div>
 
           <Link href="/admin/banner">
@@ -85,9 +81,9 @@ export default function AdminEditBannerPage() {
           </div>
         )}
 
-        {!isLoading && !isError && currentBanner && defaultValues && (
+        {!isLoading && !isError && currentBanner && (
           <BannerForm
-            defaultValues={defaultValues}
+            existingImages={currentBanner.images}
             isSubmitting={updateMutation.isPending}
             submitLabel="Cập nhật banner"
             onSubmit={handleSubmit}

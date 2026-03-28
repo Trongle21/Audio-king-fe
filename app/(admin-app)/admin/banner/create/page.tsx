@@ -21,7 +21,12 @@ export default function AdminCreateBannerPage() {
 
   const handleSubmit = async (payload: BannerFormData) => {
     try {
-      const response = await createMutation.mutateAsync(payload)
+      const formData = new FormData()
+      payload.files.forEach((file) => {
+        formData.append("files", file)
+      })
+
+      const response = await createMutation.mutateAsync(formData)
       toast.success(response.message)
       router.push("/admin/banner")
     } catch (error) {
