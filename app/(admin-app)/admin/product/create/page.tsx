@@ -9,7 +9,7 @@ import { Button } from "@/components/atoms"
 import { ProductForm } from "@/components/organisms"
 import { useCreateProduct } from "@/hooks/admin-app/src/hooks/admin/product"
 
-import type { ProductCreateFormData } from "@/lib/schemas/product.schema"
+import type { ProductFormSubmitPayload } from "@/components/organisms/admin-product/product-form"
 
 function getErrorMessage(error: unknown) {
     if (error instanceof Error && error.message) return error.message
@@ -20,7 +20,7 @@ export default function AdminCreateProductPage() {
     const router = useRouter()
     const createMutation = useCreateProduct()
 
-    const handleSubmit = async (payload: ProductCreateFormData & { files: File[] }) => {
+    const handleSubmit = async (payload: ProductFormSubmitPayload) => {
         try {
             const uploaded = await Promise.all(payload.files.map((file) => uploadProductFile(file)))
 
@@ -31,19 +31,23 @@ export default function AdminCreateProductPage() {
 
             const thumbnail = uploadedImages[0]
 
+            if (!payload.name || payload.price === undefined || payload.stock === undefined || !payload.categories) {
+                throw new Error("Dữ liệu sản phẩm không hợp lệ")
+            }
+
             const response = await createMutation.mutateAsync({
                 name: payload.name,
                 price: payload.price,
-                sale: payload.sale,
                 stock: payload.stock,
-                description: payload.description,
-                rating: payload.rating,
                 categories: payload.categories,
                 images: uploadedImages,
                 thumbnail,
-                specifications: payload.specifications,
-                highlights: payload.highlights,
                 files: [],
+                ...(payload.sale !== undefined ? { sale: payload.sale } : {}),
+                ...(payload.description !== undefined ? { description: payload.description } : {}),
+                ...(payload.rating !== undefined ? { rating: payload.rating } : {}),
+                ...(payload.specifications !== undefined ? { specifications: payload.specifications } : {}),
+                ...(payload.highlights !== undefined ? { highlights: payload.highlights } : {}),
             })
 
             toast.success(response.message)

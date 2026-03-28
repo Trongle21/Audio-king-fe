@@ -16,7 +16,7 @@ import {
 } from "@/lib/schemas/product.schema"
 
 type ProductUpdateFormInput = z.input<typeof productUpdateSchema>
-type ProductFormSubmitPayload = ProductUpdateFormData & { files: File[] }
+export type ProductFormSubmitPayload = ProductUpdateFormData & { files: File[] }
 
 interface ProductFormProps {
   defaultValues?: Partial<ProductUpdateFormData>
