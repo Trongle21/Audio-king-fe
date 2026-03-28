@@ -16,7 +16,6 @@ import {
 } from "@/components/organisms"
 import {
   useProducts,
-  useRestoreProduct,
   useSoftDeleteProduct,
 } from "@/hooks/admin-app/src/hooks/admin/product"
 import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
@@ -67,7 +66,6 @@ export default function AdminProductsPage() {
 
   const { data, isLoading, isError, error } = useProducts(params)
   const deleteMutation = useSoftDeleteProduct()
-  const restoreMutation = useRestoreProduct()
 
   const items = data?.items ?? []
   const pagination = data?.pagination
@@ -83,7 +81,8 @@ export default function AdminProductsPage() {
         id: "thumbnail",
         header: "Ảnh",
         cell: ({ row }) => {
-          const src = row.original.thumbnail || row.original.images?.[0]?.url
+          const raw = row.original.thumbnail || row.original.images?.[0]?.url
+          const src = typeof raw === "string" ? raw : raw?.url
           if (!src) return <span className="text-xs text-slate-400">Không có ảnh</span>
           return (
             <Image
