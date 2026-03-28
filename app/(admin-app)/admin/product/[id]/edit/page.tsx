@@ -64,13 +64,14 @@ export default function AdminEditProductPage() {
         try {
             // Upload new files first (if any). Note: product-form orders files so that
             // the thumbnail file (when chosen) is first in the array.
-            const uploadedUrls: string[] = []
-            if (payload.files && payload.files.length > 0) {
-                for (const file of payload.files) {
-                    const res = await uploadMutation.mutateAsync(file)
-                    uploadedUrls.push(res.data.url)
-                }
-            }
+            const uploadedUrls =
+                payload.files && payload.files.length > 0
+                    ? (
+                        await Promise.all(
+                            payload.files.map((file) => uploadMutation.mutateAsync(file)),
+                        )
+                    ).map((res) => res.data.url)
+                    : []
 
             // Images to persist (after deletions in the UI)
             const existingImages = [...(payload.images ?? [])]
