@@ -1,5 +1,6 @@
 "use client"
 
+import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
@@ -72,9 +73,12 @@ export default function AdminCategoryDetailPage() {
                                 <p><strong>Price:</strong> {formatPrice(product.price)}đ</p>
                                 {product.description && <p><strong>Description:</strong> {product.description}</p>}
                                 {product.thumbnail && (
-                                    <img
+                                    <Image
                                         src={product.thumbnail}
                                         alt={product.name}
+                                        width={112}
+                                        height={112}
+                                        unoptimized
                                         className="mt-2 h-28 w-28 object-cover rounded-md border"
                                     />
                                 )}
