@@ -1,6 +1,6 @@
-import { Geist, Geist_Mono } from "next/font/google"
 import "./globals.css"
 
+import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "sonner"
 
 import { generateMetadata as genMetadata } from "@/lib/metadata"

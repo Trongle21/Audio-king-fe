@@ -1,8 +1,8 @@
 "use client"
 
+import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2 } from "lucide-react"
 import { useFieldArray, useForm } from "react-hook-form"
-import { zodResolver } from "@hookform/resolvers/zod"
 
 import { Button, Input, Label } from "@/components/atoms"
 import { bannerSchema, type BannerFormData } from "@/lib/schemas/banner.schema"

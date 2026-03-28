@@ -4,6 +4,7 @@ import { useMemo, useState } from "react"
 
 import { type ColumnDef } from "@tanstack/react-table"
 import { Filter } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -85,9 +86,12 @@ export default function AdminProductsPage() {
           const src = row.original.thumbnail || row.original.images?.[0]?.url
           if (!src) return <span className="text-xs text-slate-400">Không có ảnh</span>
           return (
-            <img
+            <Image
               src={src}
               alt={row.original.name}
+              width={48}
+              height={48}
+              unoptimized
               className="h-12 w-12 rounded-md border object-cover"
             />
           )
@@ -141,14 +145,7 @@ export default function AdminProductsPage() {
     }
   }
 
-  const handleRestore = async (id: string) => {
-    try {
-      const res = await restoreMutation.mutateAsync(id)
-      toast.success(res.message)
-    } catch (err) {
-      toast.error(getErrorMessage(err))
-    }
-  }
+  // removed unused handleRestore
 
   const resetFilters = () => {
     setQ("")
