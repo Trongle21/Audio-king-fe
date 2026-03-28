@@ -98,10 +98,6 @@ export default function AdminProductsPage() {
         header: "Tên sản phẩm",
       },
       {
-        accessorKey: "sku",
-        header: "SKU",
-      },
-      {
         id: "price",
         header: "Giá",
         cell: ({ row }) => `${formatPrice(row.original.price)}đ`,
@@ -109,11 +105,6 @@ export default function AdminProductsPage() {
       {
         accessorKey: "stock",
         header: "Tồn kho",
-      },
-      {
-        id: "status",
-        header: "Trạng thái",
-        cell: ({ row }) => String(row.original.status ?? ""),
       },
       {
         id: "detail",

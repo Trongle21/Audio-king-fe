@@ -23,10 +23,11 @@ export { default as Header } from "./Header"
 
 // Admin components
 export * from "./admin-category"
+export * from "./admin-banner"
 export { AdminEntityTable } from "./admin-entity-table"
 export { AdminFilterDrawer } from "./admin-filter-drawer"
 export { AdminSidebarNav } from "./admin-sidebar-nav"
 
 export * from "./admin-category"
 export * from "./admin-product"
-
+export * from "./admin-about"

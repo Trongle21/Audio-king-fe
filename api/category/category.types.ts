@@ -28,6 +28,23 @@ export interface Category {
   updatedAt?: string
 }
 
+export interface CategoryListPagination {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface CategoryListFilter {
+  q: string | null
+}
+
+export interface CategoryListData {
+  items: Category[]
+  filter: CategoryListFilter
+  pagination: CategoryListPagination
+}
+
 export interface CreateCategoryPayload {
   name: string
 }
@@ -38,4 +55,6 @@ export interface UpdateCategoryPayload {
 
 export interface CategoriesQuery {
   q?: string
+  page?: number
+  limit?: number
 }

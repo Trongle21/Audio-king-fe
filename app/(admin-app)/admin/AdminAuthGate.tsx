@@ -13,7 +13,7 @@ interface Props {
 export function AdminAuthGate({ children }: Props) {
   const router = useRouter()
   const pathname = usePathname()
-  const [isReady, setIsReady] = useState(false)
+  const [isReady] = useState(() => Boolean(getAccessToken()))
 
   useEffect(() => {
     const token = getAccessToken()
@@ -27,15 +27,13 @@ export function AdminAuthGate({ children }: Props) {
       router.replace(`${redirect}${search}`)
       return
     }
-
-    setIsReady(true)
   }, [pathname, router])
 
   if (!isReady) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        < div className="text-sm text-muted-foreground">Đang kiểm tra phiên đăng nhập…</div>
-      </div >
+        <div className="text-sm text-muted-foreground">Đang kiểm tra phiên đăng nhập…</div>
+      </div>
     )
   }
 

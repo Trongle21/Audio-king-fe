@@ -4,6 +4,7 @@ import type {
   ApiSuccessResponse,
   CategoriesQuery,
   Category,
+  CategoryListData,
   CreateCategoryPayload,
   UpdateCategoryPayload,
 } from "./category.types"
@@ -19,10 +20,17 @@ function buildTokenHeader(): Record<string, string> {
 }
 
 export async function getCategories(query?: CategoriesQuery) {
-  const q = query?.q?.trim()
-  const search = q ? `?q=${encodeURIComponent(q)}` : ""
+  const searchParams = new URLSearchParams()
 
-  return apiGet<ApiSuccessResponse<Category[]>>(
+  const q = query?.q?.trim()
+  if (q) searchParams.set("q", q)
+  if (query?.page !== undefined) searchParams.set("page", String(query.page))
+  if (query?.limit !== undefined) searchParams.set("limit", String(query.limit))
+
+  const queryString = searchParams.toString()
+  const search = queryString ? `?${queryString}` : ""
+
+  return apiGet<ApiSuccessResponse<CategoryListData>>(
     `${CATEGORY_BASE_PATH}${search}`,
     {},
     { auth: false },

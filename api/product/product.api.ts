@@ -35,9 +35,7 @@ function buildCreateProductFormData(payload: CreateProductPayload) {
   appendIfDefined(formData, "price", payload.price)
   appendIfDefined(formData, "sale", payload.sale)
   appendIfDefined(formData, "stock", payload.stock)
-  appendIfDefined(formData, "status", payload.status)
   appendIfDefined(formData, "description", payload.description)
-  formData.append("sku", payload.sku)
   appendIfDefined(formData, "rating", payload.rating)
   formData.append("categories", JSON.stringify(payload.categories))
 
@@ -54,7 +52,10 @@ function buildCreateProductFormData(payload: CreateProductPayload) {
   }
 
   if (payload.thumbnail) {
-    formData.append("thumbnail", payload.thumbnail)
+    formData.append("thumbnail", JSON.stringify({
+      url: payload.thumbnail.url,
+      alt: payload.thumbnail.alt,
+    }))
   }
 
   if (payload.files && payload.files.length > 0) {

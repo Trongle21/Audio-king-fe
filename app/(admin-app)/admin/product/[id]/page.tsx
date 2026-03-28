@@ -17,6 +17,13 @@ function formatPrice(value: number) {
     return new Intl.NumberFormat("vi-VN").format(value)
 }
 
+function formatDate(value?: string) {
+    if (!value) return "-"
+    const date = new Date(value)
+    if (Number.isNaN(date.getTime())) return "-"
+    return date.toLocaleString("vi-VN")
+}
+
 function renderCategories(categories: string[] | ProductCategoryRef[]) {
     if (!categories || categories.length === 0) return "Không có danh mục"
     if (typeof categories[0] === "string") return (categories as string[]).join(", ")
@@ -53,7 +60,8 @@ export default function AdminProductDetailPage() {
     }
 
     const gallery = data.images ?? []
-    const thumb = data.thumbnail || gallery[0]?.url
+    const thumbnailUrl =
+        typeof data.thumbnail === "string" ? data.thumbnail : data.thumbnail?.url || gallery[0]?.url
 
     return (
         <main className="min-h-screen bg-slate-100 p-6 space-y-4">
@@ -71,26 +79,52 @@ export default function AdminProductDetailPage() {
                 </div>
 
                 <div className="grid gap-2 text-sm text-slate-700 md:grid-cols-2">
-                    <p><strong>ID:</strong> {data._id}</p>
-                    <p><strong>SKU:</strong> {data.sku}</p>
-                    <p><strong>Slug:</strong> {data.slug}</p>
-                    <p><strong>Giá:</strong> {formatPrice(data.price)}đ</p>
+                    <p><strong>Name:</strong> {data.name || "-"}</p>
+                    <p><strong>Price:</strong> {formatPrice(data.price)}đ</p>
                     <p><strong>Sale:</strong> {data.sale ?? 0}</p>
-                    <p><strong>Tồn kho:</strong> {data.stock}</p>
-                    <p><strong>Status:</strong> {data.status ?? ""}</p>
+                    <p><strong>Stock:</strong> {data.stock}</p>
+                    <p><strong>Description:</strong> {data.description || "Không có mô tả"}</p>
                     <p><strong>Rating:</strong> {data.rating ?? 0}</p>
-                    <p className="md:col-span-2"><strong>Danh mục:</strong> {renderCategories(data.categories)}</p>
-                    <p className="md:col-span-2"><strong>Mô tả:</strong> {data.description || "Không có mô tả"}</p>
+                    <p><strong>Categories:</strong> {renderCategories(data.categories)}</p>
+                    <p><strong>Images count:</strong> {gallery.length}</p>
                 </div>
+            </section>
+
+            <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
+                <h2 className="text-lg font-semibold">Specifications</h2>
+                {data.specifications && Object.keys(data.specifications).length > 0 ? (
+                    <div className="grid gap-2 text-sm md:grid-cols-2">
+                        {Object.entries(data.specifications).map(([key, value]) => (
+                            <p key={key}>
+                                <strong>{key}:</strong> {value}
+                            </p>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-slate-500">Không có specifications.</p>
+                )}
+            </section>
+
+            <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
+                <h2 className="text-lg font-semibold">Highlights</h2>
+                {data.highlights && data.highlights.length > 0 ? (
+                    <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+                        {data.highlights.map((item, index) => (
+                            <li key={`${item}-${index}`}>{item}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-slate-500">Không có highlights.</p>
+                )}
             </section>
 
             <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
                 <h2 className="text-lg font-semibold">Thư viện ảnh</h2>
 
-                {thumb && (
+                {thumbnailUrl && (
                     <div>
                         <p className="mb-1 text-sm text-slate-500">Thumbnail</p>
-                        <img src={thumb} alt={data.name} className="h-48 w-48 rounded-lg border object-cover" />
+                        <img src={thumbnailUrl} alt={data.name} className="h-48 w-48 rounded-lg border object-cover" />
                     </div>
                 )}
 

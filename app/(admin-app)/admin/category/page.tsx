@@ -12,7 +12,7 @@ import {
   AdminEntityTable,
   AdminFilterDrawer,
   CategoryFormModal,
-  DeleteCategoryModal
+  DeleteCategoryModal,
 } from "@/components/organisms"
 import {
   useCategories,
@@ -20,7 +20,6 @@ import {
   useSoftDeleteCategory,
   useUpdateCategory,
 } from "@/hooks/admin-app/src/hooks/admin/category"
-import { useRestoreCategory } from "@/hooks/admin-app/src/hooks/admin/category/useCategoryQueries"
 import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
 import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
 
@@ -36,6 +35,9 @@ export default function AdminCategoriesPage() {
   const [search, setSearch] = useState("")
   const [isFilterOpen, setIsFilterOpen] = useState(false)
 
+  const [page, setPage] = useState(1)
+  const [limit] = useState(12)
+
   const debouncedSearch = useDebounce(search, 450)
 
   const [isFormOpen, setIsFormOpen] = useState(false)
@@ -44,14 +46,18 @@ export default function AdminCategoriesPage() {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
 
-  const { data, isLoading, isError, error } = useCategories({ q: debouncedSearch })
+  const { data, isLoading, isError, error } = useCategories({
+    q: debouncedSearch,
+    page,
+    limit,
+  })
 
   const createMutation = useCreateCategory()
   const updateMutation = useUpdateCategory()
   const deleteMutation = useSoftDeleteCategory()
-  const restoreMutation = useRestoreCategory()
 
-  const categories = data ?? []
+  const categories = data?.items ?? []
+  const pagination = data?.pagination
 
   const columns = useMemo<ColumnDef<Category>[]>(
     () => [
@@ -134,15 +140,6 @@ export default function AdminCategoriesPage() {
     }
   }
 
-  const handleRestore = async (id: string) => {
-    try {
-      const res = await restoreMutation.mutateAsync(id)
-      toast.success(res.message)
-    } catch (err) {
-      toast.error(getErrorMessage(err))
-    }
-  }
-
   return (
     <main className="min-h-screen bg-slate-100 p-6">
       <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
@@ -167,18 +164,22 @@ export default function AdminCategoriesPage() {
           <Input
             placeholder="Tìm theo tên hoặc slug..."
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => {
+              setSearch(e.target.value)
+              setPage(1)
+            }}
             className="max-w-md"
           />
-          <Button variant="outline" onClick={() => setSearch("")}>
+          <Button
+            variant="outline"
+            onClick={() => {
+              setSearch("")
+              setPage(1)
+            }}
+          >
             Reset
           </Button>
         </div>
-
-        {/* <RestoreCategoryForm
-          isSubmitting={restoreMutation.isPending}
-          onSubmit={handleRestore}
-        /> */}
 
         {isLoading && (
           <div className="rounded-xl border bg-slate-50 p-6 text-sm text-slate-500">
@@ -217,6 +218,33 @@ export default function AdminCategoriesPage() {
             )}
           />
         )}
+
+        {pagination && (
+          <div className="flex items-center justify-between rounded-lg border bg-slate-50 p-3 text-sm">
+            <p>
+              Tổng: <strong>{pagination.total}</strong> | Trang{" "}
+              <strong>{pagination.page}</strong> / {pagination.totalPages}
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page <= 1}
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+              >
+                Trang trước
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                disabled={page >= pagination.totalPages}
+                onClick={() => setPage((p) => p + 1)}
+              >
+                Trang sau
+              </Button>
+            </div>
+          </div>
+        )}
       </section>
 
       <AdminFilterDrawer
@@ -224,10 +252,16 @@ export default function AdminCategoriesPage() {
         onOpenChange={setIsFilterOpen}
         search={search}
         status="all"
-        onChangeSearch={setSearch}
+        onChangeSearch={(value) => {
+          setSearch(value)
+          setPage(1)
+        }}
         onChangeStatus={() => undefined}
         onApply={() => setIsFilterOpen(false)}
-        onReset={() => setSearch("")}
+        onReset={() => {
+          setSearch("")
+          setPage(1)
+        }}
       />
 
       <CategoryFormModal

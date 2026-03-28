@@ -4,6 +4,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
+import { uploadProductFile } from "@/api/product"
 import { Button } from "@/components/atoms"
 import { ProductForm } from "@/components/organisms"
 import { useCreateProduct } from "@/hooks/admin-app/src/hooks/admin/product"
@@ -21,20 +22,28 @@ export default function AdminCreateProductPage() {
 
     const handleSubmit = async (payload: ProductCreateFormData & { files: File[] }) => {
         try {
+            const uploaded = await Promise.all(payload.files.map((file) => uploadProductFile(file)))
+
+            const uploadedImages = uploaded.map((item, index) => ({
+                url: item.data.url,
+                alt: `${payload.name} ${index + 1}`,
+            }))
+
+            const thumbnail = uploadedImages[0]
+
             const response = await createMutation.mutateAsync({
                 name: payload.name,
                 price: payload.price,
                 sale: payload.sale,
                 stock: payload.stock,
-                status: payload.status,
                 description: payload.description,
                 rating: payload.rating,
                 categories: payload.categories,
-                images: payload.images,
-                thumbnail: payload.thumbnail || undefined,
+                images: uploadedImages,
+                thumbnail,
                 specifications: payload.specifications,
                 highlights: payload.highlights,
-                files: payload.files,
+                files: [],
             })
 
             toast.success(response.message)

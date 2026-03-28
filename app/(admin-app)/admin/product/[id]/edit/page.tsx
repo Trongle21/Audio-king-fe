@@ -12,7 +12,7 @@ import {
 } from "@/hooks/admin-app/src/hooks/admin/product"
 
 import type { ProductCategoryRef } from "@/api/product"
-import type { ProductCreateFormData } from "@/lib/schemas/product.schema"
+import type { ProductUpdateFormData } from "@/lib/schemas/product.schema"
 
 function getErrorMessage(error: unknown) {
     if (error instanceof Error && error.message) return error.message
@@ -35,6 +35,10 @@ export default function AdminEditProductPage() {
 
     const defaultValues = useMemo(() => {
         if (!data) return undefined
+        const thumbnail =
+            typeof data.thumbnail === "string"
+                ? { url: data.thumbnail }
+                : data.thumbnail
         return {
             name: data.name,
             sku: data.sku,
@@ -44,14 +48,16 @@ export default function AdminEditProductPage() {
             status: data.status,
             description: data.description,
             rating: data.rating,
-            thumbnail: data.thumbnail,
+            thumbnail,
             categories: toCategoryIdArray(data.categories),
             images: data.images?.map((img) => ({ url: img.url, alt: img.alt || "" })) ?? [],
+            specifications: data.specifications ?? {},
+            highlights: data.highlights ?? [],
         }
     }, [data])
 
-    const handleSubmit = async (payload: ProductCreateFormData & { files: File[] }) => {
-        if (!id) return
+    const handleSubmit = async (payload: ProductUpdateFormData & { files: File[] }) => {
+        if (!id || !data) return
 
         try {
             const mergedImages = [...(payload.images ?? [])]
@@ -72,6 +78,8 @@ export default function AdminEditProductPage() {
                     categories: payload.categories,
                     images: mergedImages,
                     thumbnail: payload.thumbnail || undefined,
+                    specifications: payload.specifications,
+                    highlights: payload.highlights,
                 },
             })
 

@@ -16,16 +16,26 @@ import {
 
 export const categoryQueryKeys = {
   all: ["categories"] as const,
-  list: (q?: string) => ["categories", { q: q?.trim() || "" }] as const,
+  list: (query: { q?: string; page?: number; limit?: number }) =>
+    [
+      "categories",
+      {
+        q: query.q?.trim() || "",
+        page: query.page ?? 1,
+        limit: query.limit ?? 12,
+      },
+    ] as const,
   detail: (id: string) => ["category", id] as const,
 }
 
 export function useCategories(query: CategoriesQuery) {
   const q = query.q?.trim() || ""
+  const page = query.page ?? 1
+  const limit = query.limit ?? 12
 
   return useQuery({
-    queryKey: categoryQueryKeys.list(q),
-    queryFn: () => getCategories({ q }),
+    queryKey: categoryQueryKeys.list({ q, page, limit }),
+    queryFn: () => getCategories({ q, page, limit }),
     select: (response) => response.data,
   })
 }

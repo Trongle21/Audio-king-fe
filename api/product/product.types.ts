@@ -23,6 +23,8 @@ export interface ProductImage {
   alt?: string
 }
 
+export type ProductThumbnail = string | ProductImage
+
 export interface Product {
   _id: string
   name: string
@@ -34,7 +36,7 @@ export interface Product {
   stock: number
   status?: number
   rating?: number
-  thumbnail?: string
+  thumbnail?: ProductThumbnail
   images?: ProductImage[]
   specifications?: Record<string, string>
   highlights?: string[]
@@ -92,6 +94,7 @@ export interface ProductImageInput {
 
 export interface CreateProductPayload {
   name: string
+  sku?: string
   price: number | string
   sale?: number | string
   stock: number | string
@@ -100,7 +103,7 @@ export interface CreateProductPayload {
   rating?: number | string
   categories: string[]
   images?: ProductImageInput[]
-  thumbnail?: string
+  thumbnail?: ProductImage
   specifications?: Record<string, string>
   highlights?: string[]
   files?: File[]
@@ -117,7 +120,7 @@ export interface UpdateProductPayload {
   rating?: number
   categories?: string[]
   images?: ProductImageInput[]
-  thumbnail?: string
+  thumbnail?: ProductImage
   specifications?: Record<string, string>
   highlights?: string[]
 }
