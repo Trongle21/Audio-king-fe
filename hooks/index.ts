@@ -3,5 +3,5 @@
 // Client App Hooks
 export * from "./client-app/src/hooks"
 
-// Admin App Hooks
-export * from "./admin-app/src/hooks"
+// Admin App Hooks (namespace export to avoid naming collisions)
+export * as adminHooks from "./admin-app/src/hooks"

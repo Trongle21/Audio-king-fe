@@ -20,7 +20,7 @@ export function useLoginMutate() {
                 setAuth({
                     accessToken: data.accessToken,
                     refreshToken: data.refreshToken,
-                    user: data.user ?? undefined,
+                    user: (data.user as Record<string, unknown> | undefined) ?? undefined,
                 }),
             )
             router.push("/admin")

@@ -13,6 +13,7 @@ import type { LoginFormData, RegisterFormData } from "@/lib/schemas/auth.schema"
 type ApiPayload = Record<string, unknown>
 
 export interface AuthUser {
+    [key: string]: unknown
     id?: string
     email?: string
     name?: string
