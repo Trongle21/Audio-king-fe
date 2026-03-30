@@ -1,94 +1,117 @@
 "use client"
 
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Plus, Trash2 } from "lucide-react"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useMemo } from "react"
+import Image from "next/image"
+import { useForm, useWatch } from "react-hook-form"
+import { z } from "zod"
 
 import { Button, Input, Label } from "@/components/atoms"
 import { aboutSchema, type AboutFormData } from "@/lib/schemas/about.schema"
 
 interface AboutFormProps {
-    defaultValues?: AboutFormData
-    isSubmitting?: boolean
-    submitLabel?: string
-    onSubmit: (payload: AboutFormData) => Promise<void>
+  defaultValues?: AboutFormData
+  isSubmitting?: boolean
+  submitLabel?: string
+  existingImages?: Array<{ url: string; alt?: string }>
+  onSubmit: (payload: AboutFormData) => Promise<void>
 }
 
 export function AboutForm({
-    defaultValues,
-    isSubmitting,
-    submitLabel = "Lưu about",
-    onSubmit,
+  defaultValues,
+  isSubmitting,
+  submitLabel = "Lưu about",
+  existingImages,
+  onSubmit,
 }: AboutFormProps) {
-    const {
-        control,
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm<AboutFormData>({
-        resolver: zodResolver(aboutSchema),
-        defaultValues: defaultValues ?? { images: [{ url: "", alt: "" }] },
-    })
+  const {
+    control,
+    setValue,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<z.input<typeof aboutSchema>, unknown, AboutFormData>({
+    resolver: zodResolver(aboutSchema),
+    defaultValues: defaultValues ?? { files: [] },
+  })
 
-    const { fields, append, remove } = useFieldArray({
-        control,
-        name: "images",
-    })
+  const watchedFiles = useWatch({ control, name: "files" })
+  const files = useMemo<File[]>(() => {
+    if (!watchedFiles) return []
+    return Array.isArray(watchedFiles)
+      ? watchedFiles
+      : Array.from(watchedFiles)
+  }, [watchedFiles])
 
-    const submitHandler = handleSubmit(async (values) => {
-        await onSubmit({
-            images: values.images.map((img) => ({
-                url: img.url.trim(),
-                alt: img.alt?.trim() || undefined,
-            })),
-        })
-    })
+  const previews = useMemo(
+    () => files.map((file) => ({ file, url: URL.createObjectURL(file) })),
+    [files],
+  )
 
-    return (
-        <form className="space-y-4" onSubmit={submitHandler}>
-            <div className="flex items-center justify-between">
-                <Label>Danh sách ảnh about</Label>
-                <Button type="button" variant="outline" size="sm" onClick={() => append({ url: "", alt: "" })}>
-                    <Plus className="mr-1 h-4 w-4" />
-                    Thêm dòng ảnh
-                </Button>
+  const submitHandler = handleSubmit(async (values) => {
+    await onSubmit(values)
+  })
+
+  return (
+    <form className="space-y-4" onSubmit={submitHandler}>
+      <div className="space-y-2">
+        <Label htmlFor="about-files">
+          Ảnh about <span className="text-destructive">*</span>
+        </Label>
+        <Input
+          id="about-files"
+          type="file"
+          accept="image/*"
+          multiple
+          onChange={(event) => {
+            const nextFiles = Array.from(event.target.files ?? [])
+            setValue("files", nextFiles, { shouldValidate: true })
+          }}
+        />
+        {errors.files?.message && (
+          <p className="text-sm text-destructive">{errors.files.message}</p>
+        )}
+        {existingImages && existingImages.length > 0 && files.length === 0 && (
+          <div className="space-y-2">
+            <Label>Ảnh hiện tại</Label>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+              {existingImages.map((image, index) => (
+                <Image
+                  key={`${image.url}-${index}`}
+                  src={image.url}
+                  alt={image.alt || `about-current-${index + 1}`}
+                  width={160}
+                  height={96}
+                  unoptimized
+                  className="h-24 w-full rounded-md border object-cover"
+                />
+              ))}
             </div>
+          </div>
+        )}
+      </div>
 
-            {fields.map((field, index) => (
-                <div key={field.id} className="space-y-2 rounded-md border p-3">
-                    <div className="space-y-1">
-                        <Label htmlFor={`images.${index}.url`}>
-                            URL ảnh <span className="text-destructive">*</span>
-                        </Label>
-                        <Input
-                            id={`images.${index}.url`}
-                            placeholder="https://example.com/about.jpg"
-                            {...register(`images.${index}.url`)}
-                        />
-                        {errors.images?.[index]?.url && (
-                            <p className="text-sm text-destructive">{errors.images[index]?.url?.message}</p>
-                        )}
-                    </div>
-
-                    <div className="space-y-1">
-                        <Label htmlFor={`images.${index}.alt`}>Alt text</Label>
-                        <Input id={`images.${index}.alt`} placeholder="Ảnh about 1" {...register(`images.${index}.alt`)} />
-                    </div>
-
-                    <div className="flex justify-end">
-                        <Button type="button" variant="ghost" disabled={fields.length === 1} onClick={() => remove(index)}>
-                            <Trash2 className="mr-1 h-4 w-4" />
-                            Xóa dòng
-                        </Button>
-                    </div>
-                </div>
+      {previews.length > 0 && (
+        <div className="space-y-2">
+          <Label>Preview ảnh upload mới</Label>
+          <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+            {previews.map(({ file, url }, index) => (
+              <Image
+                key={`${file.name}-${index}`}
+                src={url}
+                alt={file.name}
+                width={160}
+                height={96}
+                unoptimized
+                className="h-24 w-full rounded-md border object-cover"
+              />
             ))}
+          </div>
+        </div>
+      )}
 
-            {errors.images?.message && <p className="text-sm text-destructive">{errors.images.message}</p>}
-
-            <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? "Đang xử lý..." : submitLabel}
-            </Button>
-        </form>
-    )
+      <Button type="submit" disabled={isSubmitting}>
+        {isSubmitting ? "Đang xử lý..." : submitLabel}
+      </Button>
+    </form>
+  )
 }

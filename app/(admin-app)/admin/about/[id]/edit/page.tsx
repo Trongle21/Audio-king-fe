@@ -26,7 +26,12 @@ export default function AdminEditAboutPage() {
     // page này cho phép nhập/sửa payload trực tiếp và submit PATCH theo id route.
     const handleSubmit = async (payload: AboutFormData) => {
         try {
-            const res = await updateMutation.mutateAsync({ id, payload })
+            const formData = new FormData()
+            payload.files.forEach((file) => {
+                formData.append("files", file)
+            })
+
+            const res = await updateMutation.mutateAsync({ id, formData })
             toast.success(res.message)
             router.push("/admin/about")
         } catch (err) {

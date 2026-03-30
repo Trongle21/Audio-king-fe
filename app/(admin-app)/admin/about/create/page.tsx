@@ -21,7 +21,12 @@ export default function AdminCreateAboutPage() {
 
     const handleSubmit = async (payload: AboutFormData) => {
         try {
-            const res = await createMutation.mutateAsync(payload)
+            const formData = new FormData()
+            payload.files.forEach((file) => {
+                formData.append("files", file)
+            })
+
+            const res = await createMutation.mutateAsync(formData)
             toast.success(res.message)
             router.push("/admin/about")
         } catch (err) {

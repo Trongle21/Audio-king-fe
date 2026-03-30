@@ -4,7 +4,6 @@ import type {
   AboutDocument,
   AboutImagesData,
   AboutImagesParams,
-  AboutPayload,
   ApiSuccessResponse,
 } from "./about.types"
 
@@ -34,22 +33,22 @@ export async function getAboutImages(params: AboutImagesParams = {}) {
   return apiGet<ApiSuccessResponse<AboutImagesData>>(`${ABOUT_BASE_PATH}${query}`, {}, { auth: false })
 }
 
-export async function createAbout(payload: AboutPayload) {
-  return apiPost<ApiSuccessResponse<AboutDocument>, AboutPayload>(
+export async function createAbout(formData: FormData) {
+  return apiPost<ApiSuccessResponse<AboutDocument>, FormData>(
     ABOUT_BASE_PATH,
     {
-      body: payload,
+      body: formData,
       headers: buildTokenHeader(),
     },
     { auth: false },
   )
 }
 
-export async function updateAbout(id: string, payload: Partial<AboutPayload>) {
-  return apiPatch<ApiSuccessResponse<AboutDocument>, Partial<AboutPayload>>(
+export async function updateAbout(id: string, formData: FormData) {
+  return apiPatch<ApiSuccessResponse<AboutDocument>, FormData>(
     `${ABOUT_BASE_PATH}/${id}`,
     {
-      body: payload,
+      body: formData,
       headers: buildTokenHeader(),
     },
     { auth: false },

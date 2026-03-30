@@ -8,7 +8,6 @@ import {
   getAboutImages,
   updateAbout,
   type AboutImagesParams,
-  type AboutPayload,
 } from "@/api/about"
 
 export const aboutQueryKeys = {
@@ -32,7 +31,7 @@ export function useCreateAbout() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (payload: AboutPayload) => createAbout(payload),
+    mutationFn: (formData: FormData) => createAbout(formData),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
     },
@@ -43,8 +42,13 @@ export function useUpdateAbout() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: Partial<AboutPayload> }) =>
-      updateAbout(id, payload),
+    mutationFn: ({
+      id,
+      formData,
+    }: {
+      id: string
+      formData: FormData
+    }) => updateAbout(id, formData),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.detail(variables.id) })
