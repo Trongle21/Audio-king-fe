@@ -2,12 +2,14 @@ import Link from "next/link"
 
 import type { Metadata } from "next"
 
+import { getTrending } from "@/api/trending"
 import { Button } from "@/components/atoms"
 import { HomeBannerSlider } from "@/components/organisms/HomeBannerSlider"
 import { PaginatedProductGrid } from "@/components/organisms/PaginatedProductGrid"
 import { type HomeProduct } from "@/components/organisms/ProductCard"
 import { TrendingProductsSlider } from "@/components/organisms/TrendingProductsSlider"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
+import { mapProductToHomeProduct } from "@/lib/product-list/map-product-to-card"
 
 export const metadata: Metadata = genMetadata({
     title: "Trang chủ",
@@ -25,7 +27,7 @@ export const metadata: Metadata = genMetadata({
     canonical: "/",
 })
 
-export default function ClientHomePage() {
+export default async function ClientHomePage() {
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "WebSite",
@@ -39,98 +41,16 @@ export default function ClientHomePage() {
         },
     }
 
-    const trendingProducts: HomeProduct[] = [
-        {
-            id: "p1",
-            name: "Micro Không Dây Cao Cấp BKSound A3 Pro (Kèm Echo, Tăng Giảm Âm Lượng)",
-            imageUrl:
-                "https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "2.590.000đ",
-            oldPrice: "3.500.000đ",
-            discountLabel: "-26%",
-            badge: "New 2026",
-        },
-        {
-            id: "p2",
-            name: "Loa Di Động Auraphon MS7 (Bass Đôi 20cm, 490W, Bluetooth 5.4)",
-            imageUrl:
-                "https://images.pexels.com/photos/63703/pexels-photo-63703.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "20.900.000đ",
-            oldPrice: "24.800.000đ",
-            discountLabel: "-16%",
-            badge: "New 2026",
-        },
-        {
-            id: "p3",
-            name: "Dàn Karaoke Đồng Bộ FE-Audio New 2026 (Vang Số + Cục Đẩy + Loa)",
-            imageUrl:
-                "https://images.pexels.com/photos/164716/pexels-photo-164716.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "40.890.000đ",
-            oldPrice: "59.000.000đ",
-            discountLabel: "-31%",
-            badge: "Bán chạy",
-        },
-        {
-            id: "p4",
-            name: "Vang Số JBL KX190 (Có Bluetooth, Cổng Quang, USB Recording)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "9.900.000đ",
-            oldPrice: "12.500.000đ",
-            discountLabel: "-21%",
-            badge: "New 2026",
-        },
-        {
-            id: "p5",
-            name: "Vang Số JBL KX190 (Có Bluetooth, Cổng Quang, USB Recording)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "9.900.000đ",
-            oldPrice: "12.500.000đ",
-            discountLabel: "-21%",
-            badge: "New 2026",
-        },
-        {
-            id: "p6",
-            name: "Vang Số JBL KX190 (Có Bluetooth, Cổng Quang, USB Recording)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "9.900.000đ",
-            oldPrice: "12.500.000đ",
-            discountLabel: "-21%",
-            badge: "New 2026",
-        },
-        {
-            id: "p7",
-            name: "Vang Số JBL KX190 (Có Bluetooth, Cổng Quang, USB Recording)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "9.900.000đ",
-            oldPrice: "12.500.000đ",
-            discountLabel: "-21%",
-            badge: "New 2026",
-        },
-        {
-            id: "p8",
-            name: "Vang Số JBL KX190 (Có Bluetooth, Cổng Quang, USB Recording)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "9.900.000đ",
-            oldPrice: "12.500.000đ",
-            discountLabel: "-21%",
-            badge: "New 2026",
-        },
-        {
-            id: "p9",
-            name: "Vang Số JBL KX190 (Có Bluetooth, Cổng Quang, USB Recording)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "9.900.000đ",
-            oldPrice: "12.500.000đ",
-            discountLabel: "-21%",
-            badge: "New 2026",
-        },
-    ]
+    let trendingProducts: HomeProduct[] = []
+    try {
+        const trendingItems = await getTrending()
+        trendingProducts = trendingItems
+            .map((item) => item.product)
+            .filter((product) => Boolean(product) && !product.isDelete)
+            .map((product) => mapProductToHomeProduct(product))
+    } catch {
+        trendingProducts = []
+    }
 
     const hallSoundProducts: HomeProduct[] = [
         {

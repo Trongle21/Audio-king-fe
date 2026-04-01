@@ -1,11 +1,12 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 
 export interface CartItem {
-  id: string
+  productId: string
   name: string
-  price: number
+  thumbnail?: string
+  price?: number
+  sale?: number | null
   quantity: number
-  imageUrl?: string
 }
 
 interface CartState {
@@ -20,29 +21,33 @@ export const cartSlice = createSlice({
   name: "cart",
   initialState,
   reducers: {
-    addItem: (state, action: PayloadAction<Omit<CartItem, "quantity">>) => {
-      const existing = state.items.find((i) => i.id === action.payload.id)
+    addToCart: (
+      state,
+      action: PayloadAction<{
+        product: Omit<CartItem, "quantity">
+        quantity?: number
+      }>,
+    ) => {
+      const quantity = Math.max(1, Math.floor(action.payload.quantity ?? 1))
+      const product = action.payload.product
+      const existing = state.items.find((i) => i.productId === product.productId)
       if (existing) {
-        existing.quantity += 1
+        existing.quantity += quantity
         return
       }
 
-      state.items.push({ ...action.payload, quantity: 1 })
+      state.items.push({ ...product, quantity })
     },
-    removeItem: (state, action: PayloadAction<string>) => {
-      state.items = state.items.filter((i) => i.id !== action.payload)
+    removeFromCart: (state, action: PayloadAction<string>) => {
+      state.items = state.items.filter((i) => i.productId !== action.payload)
     },
     updateQuantity: (
       state,
-      action: PayloadAction<{ id: string; quantity: number }>,
+      action: PayloadAction<{ productId: string; quantity: number }>,
     ) => {
-      const item = state.items.find((i) => i.id === action.payload.id)
+      const item = state.items.find((i) => i.productId === action.payload.productId)
       if (!item) return
-      if (action.payload.quantity <= 0) {
-        state.items = state.items.filter((i) => i.id !== action.payload.id)
-        return
-      }
-      item.quantity = action.payload.quantity
+      item.quantity = Math.max(1, Math.floor(action.payload.quantity))
     },
     clearCart: (state) => {
       state.items = []
@@ -50,7 +55,7 @@ export const cartSlice = createSlice({
   },
 })
 
-export const { addItem, removeItem, updateQuantity, clearCart } =
+export const { addToCart, removeFromCart, updateQuantity, clearCart } =
   cartSlice.actions
 
 export default cartSlice.reducer

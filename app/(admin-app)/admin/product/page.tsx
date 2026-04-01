@@ -8,6 +8,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
 
+import type { Product, ProductOrder, ProductSortBy } from "@/api/product"
+
 import { Button, Input, Label } from "@/components/atoms"
 import {
   AdminEntityTable,
@@ -21,7 +23,6 @@ import {
 import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
 import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
 
-import type { Product, ProductOrder, ProductSortBy } from "@/api/product"
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) return error.message

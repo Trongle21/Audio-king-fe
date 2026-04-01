@@ -13,7 +13,12 @@ function buildTokenHeader(): Record<string, string> {
 }
 
 export async function getBanners() {
-  return apiGet<ApiSuccessResponse<Banner[]>>(BANNER_BASE_PATH, {}, { auth: false })
+  const response = await apiGet<ApiSuccessResponse<Banner[]>>(
+    BANNER_BASE_PATH,
+    {},
+    { auth: false },
+  )
+  return response.data
 }
 
 export async function createBanner(formData: FormData) {

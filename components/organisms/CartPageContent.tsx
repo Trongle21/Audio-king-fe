@@ -10,7 +10,7 @@ import { useCart } from "@/hooks/client-app/src/hooks/cart"
 
 
 export function CartPageContent() {
-  const { items, totalItems, totalPrice, updateQuantity, removeItem } = useCart()
+  const { items, totalItems, totalPrice, updateQuantity, removeFromCart } = useCart()
 
   return (
     <section className="mt-6 grid lg:flex gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr),360px]">
@@ -25,16 +25,16 @@ export function CartPageContent() {
         ) : (
           items.map((item) => (
             <article
-              key={item.id}
+              key={item.productId}
               className="flex flex-col gap-3 rounded-lg border bg-card p-3 sm:flex-row sm:items-center"
             >
               <Link
-                href={`/product/${item.id}`}
+                href={`/product/${item.productId}`}
                 className="relative h-20 w-full overflow-hidden rounded-md bg-muted sm:h-24 sm:w-24"
               >
-                {item.imageUrl ? (
+                {item.thumbnail ? (
                   <Image
-                    src={item.imageUrl}
+                    src={item.thumbnail}
                     alt={item.name}
                     fill
                     sizes="(max-width: 640px) 100vw, 96px"
@@ -47,33 +47,37 @@ export function CartPageContent() {
 
               <div className="min-w-0 flex-1 space-y-2">
                 <Link
-                  href={`/product/${item.id}`}
+                  href={`/product/${item.productId}`}
                   className="line-clamp-2 text-sm font-semibold hover:underline"
                 >
                   {item.name}
                 </Link>
-                <p className="text-sm font-bold text-destructive">{formatCurrency(item.price)}</p>
+                <p className="text-sm font-bold text-destructive">
+                  {formatCurrency(item.price ?? 0)}
+                </p>
               </div>
 
               <div className="flex items-end justify-between gap-3 sm:block sm:w-32">
-                <Label htmlFor={`qty-${item.id}`} className="text-sm font-bold">
+                <Label htmlFor={`qty-${item.productId}`} className="text-sm font-bold">
                   Số lượng
                 </Label>
                 <div className="flex items-center gap-1 mt-2">
                   <div className="space-y-1">
                     <Input
-                      id={`qty-${item.id}`}
+                      id={`qty-${item.productId}`}
                       type="number"
                       min={1}
                       value={item.quantity}
-                      onChange={(e) => updateQuantity(item.id, Number(e.target.value || 1))}
+                      onChange={(e) =>
+                        updateQuantity(item.productId, Number(e.target.value || 1))
+                      }
                       className="h-9 w-16"
                     />
                   </div>
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => removeItem(item.id)}
+                    onClick={() => removeFromCart(item.productId)}
                     className="h-9 cursor-pointer"
                   >
                     Xóa

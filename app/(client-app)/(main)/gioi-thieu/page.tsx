@@ -1,7 +1,7 @@
 import { Building2, MapPin, ShieldCheck, Speaker } from "lucide-react"
 import Link from "next/link"
 
-import { InstallationGallery } from "@/components/organisms/InstallationGallery"
+import { AboutGallery } from "@/components/organisms/AboutGallery"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
 import type { Metadata } from "next"
@@ -12,20 +12,6 @@ export const metadata: Metadata = genMetadata({
     "Giới thiệu FE-Audio và các công trình karaoke đã thi công, lắp đặt thực tế trên toàn quốc.",
   canonical: "/gioi-thieu",
 })
-
-const localFallbackImages = [
-  "/next.svg",
-  "/vercel.svg",
-  "/file.svg",
-  "/globe.svg",
-  "/window.svg",
-  "/Icon_of_Zalo.svg.png",
-]
-
-const installationImages = Array.from(
-  { length: 30 },
-  (_, i) => localFallbackImages[i % localFallbackImages.length],
-)
 
 export default function AboutPage() {
   return (
@@ -104,7 +90,7 @@ export default function AboutPage() {
         <p className="text-sm text-muted-foreground">
           Một số hình ảnh thực tế các dự án karaoke FE-Audio đã thi công.
         </p>
-        <InstallationGallery images={installationImages} itemsPerPage={12} />
+        <AboutGallery initialPage={1} initialLimit={12} />
       </section>
     </main>
   )

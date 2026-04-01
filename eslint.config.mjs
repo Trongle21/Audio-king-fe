@@ -1,6 +1,5 @@
 import typescriptEslint from "@typescript-eslint/eslint-plugin"
 import nextVitals from "eslint-config-next/core-web-vitals"
-import nextTs from "eslint-config-next/typescript"
 import importPlugin from "eslint-plugin-import"
 import react from "eslint-plugin-react"
 import reactHooks from "eslint-plugin-react-hooks"
@@ -9,7 +8,6 @@ import { defineConfig, globalIgnores } from "eslint/config"
 
 const eslintConfig = defineConfig([
   ...nextVitals,
-  ...nextTs,
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
@@ -20,6 +18,12 @@ const eslintConfig = defineConfig([
   ]),
   {
     files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    settings: {
+      // Force eslint-plugin-import to use the node resolver only.
+      // NOTE: Using a string here (not an object) intentionally overrides settings coming from
+      // eslint-config-next that would otherwise deep-merge and keep the TypeScript resolver.
+      "import/resolver": "node",
+    },
     plugins: {
       react,
       "react-refresh": reactRefresh,

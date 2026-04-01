@@ -18,7 +18,6 @@ export function useBanners() {
   return useQuery({
     queryKey: bannerQueryKeys.list(),
     queryFn: getBanners,
-    select: (response) => response.data,
   })
 }
 

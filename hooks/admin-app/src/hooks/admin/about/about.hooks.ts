@@ -23,7 +23,6 @@ export function useAboutImages(params: AboutImagesParams) {
   return useQuery({
     queryKey: aboutQueryKeys.list({ page, limit }),
     queryFn: () => getAboutImages({ page, limit }),
-    select: (response) => response.data,
   })
 }
 

@@ -15,7 +15,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
-import { useCategories } from "@/hooks/admin-app/src/hooks/admin/category"
+import { useCategories } from "@/hooks/client-app/src/hooks/category/useCategories"
 import {
   buildProductListHref,
   normalizeMinMaxPrice,

@@ -29,8 +29,12 @@ function buildAboutImagesQuery(params: AboutImagesParams = {}) {
 
 export async function getAboutImages(params: AboutImagesParams = {}) {
   const query = buildAboutImagesQuery(params)
-
-  return apiGet<ApiSuccessResponse<AboutImagesData>>(`${ABOUT_BASE_PATH}${query}`, {}, { auth: false })
+  const response = await apiGet<ApiSuccessResponse<AboutImagesData>>(
+    `${ABOUT_BASE_PATH}${query}`,
+    {},
+    { auth: false },
+  )
+  return response.data
 }
 
 export async function createAbout(formData: FormData) {

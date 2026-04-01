@@ -8,36 +8,109 @@ import {
   closestCenter,
   useSensor,
   useSensors,
+  type DragEndEvent,
 } from "@dnd-kit/core"
 import {
   SortableContext,
+  arrayMove,
   useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
+import { zodResolver } from "@hookform/resolvers/zod"
+import { useMutation, useQuery } from "@tanstack/react-query"
 import { GripVertical, Plus, Trash2 } from "lucide-react"
+import { useForm } from "react-hook-form"
+import { toast } from "sonner"
 
+import { getProducts, type GetProductsParams, type Product } from "@/api/product"
+import {
+  getTrending,
+  updateTrending,
+  type TrendingItem,
+} from "@/api/trending"
 import { Badge, Button, Input } from "@/components/atoms"
-import { useTrendingProductsManager } from "@/hooks/admin-app/src/hooks/admin/useTrendingProductsManager"
+import {
+  productFilterSchema,
+  type ProductFilterFormData,
+  type ProductFilterSchemaInput,
+} from "@/lib/schemas/product-filter.schema"
+
+type SelectedTrendingItem = {
+  productId: string
+  product: Product
+}
+
+const PRODUCTS_LIMIT = 10
+
+const defaultFilterValues: ProductFilterFormData = {
+  q: "",
+  status: "",
+  categoryId: "",
+  minPrice: "",
+  maxPrice: "",
+  sortBy: "createdAt",
+  order: "desc",
+}
+
+function mapStatus(status?: number): "Visible" | "Hidden" {
+  return status === 1 ? "Visible" : "Hidden"
+}
+
+function formatCurrency(price: number): string {
+  return `${new Intl.NumberFormat("vi-VN").format(price)}đ`
+}
+
+function toCategoryText(product: Product): string {
+  if (!Array.isArray(product.categories) || product.categories.length === 0) return "N/A"
+  const first = product.categories[0]
+  if (typeof first === "string") return first
+  return first.name
+}
+
+function toRequestParams(values: ProductFilterFormData, page: number): GetProductsParams {
+  const minPrice = values.minPrice?.trim() ? Number(values.minPrice) : undefined
+  const maxPrice = values.maxPrice?.trim() ? Number(values.maxPrice) : undefined
+
+  return {
+    q: values.q?.trim() || undefined,
+    status: values.status ? Number(values.status) : undefined,
+    categoryId: values.categoryId?.trim() || undefined,
+    minPrice: Number.isFinite(minPrice) ? minPrice : undefined,
+    maxPrice: Number.isFinite(maxPrice) ? maxPrice : undefined,
+    sortBy: values.sortBy,
+    order: values.order,
+    page,
+    limit: PRODUCTS_LIMIT,
+  }
+}
+
+function normalizeTrending(items: TrendingItem[]): SelectedTrendingItem[] {
+  return [...items]
+    .sort((a, b) => a.priority - b.priority)
+    .map((item) => ({ productId: item.productId, product: item.product }))
+}
+
+function isSameTrending(
+  a: SelectedTrendingItem[],
+  b: SelectedTrendingItem[],
+): boolean {
+  if (a.length !== b.length) return false
+  return a.every((item, index) => item.productId === b[index]?.productId)
+}
 
 function SortableTrendingItem({
   item,
   index,
-  onRemove,
+  onRemove
 }: {
-  item: {
-    id: string
-    name: string
-    sku: string
-    category: string
-    price: string
-    status: "Visible" | "Hidden"
-  }
+  item: SelectedTrendingItem
   index: number
-  onRemove: (id: string) => void
+  onRemove: (productId: string) => void
 }) {
+  const product = item.product
   const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: item.id })
+    useSortable({ id: item.productId })
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -53,7 +126,7 @@ function SortableTrendingItem({
       <button
         type="button"
         className="inline-flex cursor-grab items-center justify-center rounded-md border p-2 active:cursor-grabbing"
-        aria-label={`Kéo thả thay đổi thứ tự ${item.name}`}
+        aria-label={`Kéo thả thay đổi thứ tự ${product.name}`}
         {...attributes}
         {...listeners}
       >
@@ -62,22 +135,22 @@ function SortableTrendingItem({
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-slate-900">
-          {index + 1}. {item.name}
+          {index}. {product.name}
         </p>
         <p className="text-xs text-slate-500">
-          {item.sku} • {item.category} • {item.price}
+          {product.sku} • {toCategoryText(product)} • {formatCurrency(product.price)}
         </p>
       </div>
 
-      <Badge variant={item.status === "Visible" ? "default" : "outline"}>
-        {item.status}
+      <Badge variant={mapStatus(product.status) === "Visible" ? "default" : "outline"}>
+        {mapStatus(product.status)}
       </Badge>
 
       <Button
         variant="destructive"
         size="icon-sm"
-        onClick={() => onRemove(item.id)}
-        aria-label={`Bỏ ${item.name} khỏi thịnh hành`}
+        onClick={() => onRemove(item.productId)}
+        aria-label={`Bỏ ${product.name} khỏi thịnh hành`}
       >
         <Trash2 className="h-4 w-4" />
       </Button>
@@ -86,17 +159,124 @@ function SortableTrendingItem({
 }
 
 export default function AdminTrendingProductsPage() {
-  const {
-    search,
-    setSearch,
-    trendingProducts,
-    nonTrendingProducts,
-    addTrending,
-    removeTrending,
-    reorderTrending,
-  } = useTrendingProductsManager()
-
+  const [page, setPage] = useState(1)
   const [activeId, setActiveId] = useState<string | null>(null)
+  const [localTrending, setLocalTrending] = useState<SelectedTrendingItem[] | null>(null)
+  const [appliedFilters, setAppliedFilters] =
+    useState<ProductFilterFormData>(defaultFilterValues)
+
+  const form = useForm<ProductFilterSchemaInput, unknown, ProductFilterFormData>({
+    resolver: zodResolver(productFilterSchema),
+    defaultValues: defaultFilterValues,
+  })
+  const requestParams = useMemo(
+    () => toRequestParams(appliedFilters, page),
+    [appliedFilters, page],
+  )
+
+  const {
+    data: productsRes,
+    isLoading: productsLoading,
+    error: productsError,
+    refetch: refetchProducts,
+  } = useQuery({
+    queryKey: ["admin-trending-products", requestParams],
+    queryFn: () => getProducts(requestParams),
+  })
+
+  const {
+    data: trendingData,
+    isLoading: trendingLoading,
+    error: trendingError,
+    refetch: refetchTrending,
+  } = useQuery({
+    queryKey: ["admin-trending-list"],
+    queryFn: getTrending,
+  })
+
+  const serverTrending = useMemo(
+    () => normalizeTrending(trendingData ?? []),
+    [trendingData],
+  )
+  const selectedTrending = localTrending ?? serverTrending
+
+  const saveMutation = useMutation({
+    mutationFn: () =>
+      updateTrending({
+        items: selectedTrending.map((item, index) => ({
+          productId: item.productId,
+          priority: index,
+        })),
+      }),
+    onSuccess: async () => {
+      await refetchTrending()
+      setLocalTrending(null)
+      toast.success("Cap nhat trending thanh cong.")
+    },
+    onError: (error) => {
+      const message =
+        error instanceof Error && error.message.trim()
+          ? error.message
+          : "Cap nhat trending that bai."
+      toast.error(message)
+    },
+  })
+
+  const selectedIds = useMemo(
+    () => new Set(selectedTrending.map((item) => item.productId)),
+    [selectedTrending],
+  )
+
+  const sourceProducts = useMemo(
+    () =>
+      (productsRes?.data.items ?? []).filter((product) => !selectedIds.has(product._id)),
+    [productsRes?.data.items, selectedIds],
+  )
+
+  const isDirty = useMemo(
+    () => !isSameTrending(selectedTrending, serverTrending),
+    [selectedTrending, serverTrending],
+  )
+
+  const addTrending = (product: Product) => {
+    if (selectedIds.has(product._id)) {
+      toast.info("San pham da co trong trending.")
+      return
+    }
+    setLocalTrending((prev) => [...(prev ?? serverTrending), { productId: product._id, product }])
+  }
+
+  const removeTrending = (productId: string) => {
+    setLocalTrending((prev) =>
+      (prev ?? serverTrending).filter((item) => item.productId !== productId),
+    )
+  }
+
+  const reorderTrending = (fromIndex: number, toIndex: number) => {
+    setLocalTrending((prev) => arrayMove(prev ?? serverTrending, fromIndex, toIndex))
+  }
+
+  const onDragEnd = ({ active, over }: DragEndEvent) => {
+    setActiveId(null)
+    if (!over || active.id === over.id) return
+    const oldIndex = selectedTrending.findIndex((item) => item.productId === String(active.id))
+    const newIndex = selectedTrending.findIndex((item) => item.productId === String(over.id))
+    if (oldIndex < 0 || newIndex < 0) return
+    reorderTrending(oldIndex, newIndex)
+  }
+
+  const submitFilters = form.handleSubmit((values) => {
+    setAppliedFilters(values)
+    setPage(1)
+  })
+
+  const resetFilters = () => {
+    form.reset(defaultFilterValues)
+    setAppliedFilters(defaultFilterValues)
+    setPage(1)
+  }
+
+  const pagination = productsRes?.data.pagination
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -105,8 +285,8 @@ export default function AdminTrendingProductsPage() {
   )
 
   const trendingIds = useMemo(
-    () => trendingProducts.map((item) => item.id),
-    [trendingProducts],
+    () => selectedTrending.map((item) => item.productId),
+    [selectedTrending],
   )
 
   return (
@@ -122,40 +302,109 @@ export default function AdminTrendingProductsPage() {
         <div className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-3">
             <h2 className="text-base font-semibold text-slate-900">Danh sách sản phẩm</h2>
-            <Input
-              placeholder="Tìm theo tên, SKU hoặc danh mục..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="max-w-md"
-            />
+            <form onSubmit={submitFilters} className="grid gap-2 md:grid-cols-2">
+              <Input placeholder="Search name" {...form.register("q")} />
+              <Input placeholder="Category ID" {...form.register("categoryId")} />
+              <Input placeholder="Min price" {...form.register("minPrice")} />
+              <Input placeholder="Max price" {...form.register("maxPrice")} />
+              <select
+                className="h-9 rounded-md border bg-background px-3 text-sm"
+                {...form.register("status")}
+              >
+                <option value="">All status</option>
+                <option value="0">0</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+              </select>
+              <div className="grid grid-cols-2 gap-2">
+                <select
+                  className="h-9 rounded-md border bg-background px-3 text-sm"
+                  {...form.register("sortBy")}
+                >
+                  <option value="createdAt">createdAt</option>
+                  <option value="name">name</option>
+                  <option value="price">price</option>
+                </select>
+                <select
+                  className="h-9 rounded-md border bg-background px-3 text-sm"
+                  {...form.register("order")}
+                >
+                  <option value="desc">desc</option>
+                  <option value="asc">asc</option>
+                </select>
+              </div>
+              <div className="md:col-span-2 flex gap-2">
+                <Button type="submit">Apply</Button>
+                <Button type="button" variant="outline" onClick={resetFilters}>
+                  Reset
+                </Button>
+              </div>
+            </form>
 
             <div className="space-y-2 rounded-xl border bg-slate-50 p-3">
-              {nonTrendingProducts.length === 0 && (
+              {(productsLoading || trendingLoading) && (
+                <p className="text-sm text-slate-500">Dang tai du lieu...</p>
+              )}
+              {productsError && (
+                <p className="text-sm text-destructive">
+                  {productsError instanceof Error
+                    ? productsError.message
+                    : "Khong tai duoc danh sach san pham."}
+                </p>
+              )}
+
+              {!productsLoading && sourceProducts.length === 0 && (
                 <p className="text-sm text-slate-500">Không còn sản phẩm để thêm.</p>
               )}
 
-              {nonTrendingProducts.map((item) => (
+              {sourceProducts.map((item) => (
                 <div
-                  key={item.id}
+                  key={item._id}
                   className="flex items-center justify-between rounded-lg border bg-white p-3"
                 >
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
                     <p className="text-xs text-slate-500">
-                      {item.sku} • {item.category} • {item.price}
+                      {item.sku} • {toCategoryText(item)} • {formatCurrency(item.price)}
                     </p>
                   </div>
 
                   <Button
                     size="sm"
                     className="bg-destructive text-white hover:bg-destructive/90"
-                    onClick={() => addTrending(item.id)}
+                    onClick={() => addTrending(item)}
                   >
                     <Plus className="mr-1 h-4 w-4" />
-                    Chọn
+                    Add
                   </Button>
                 </div>
               ))}
+
+              {pagination && (
+                <div className="flex items-center justify-between border-t pt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    type="button"
+                    onClick={() => setPage((prev) => Math.max(1, prev - 1))}
+                    disabled={pagination.page <= 1}
+                  >
+                    Prev
+                  </Button>
+                  <p className="text-xs text-slate-500">
+                    Trang {pagination.page} / {pagination.totalPages}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    type="button"
+                    onClick={() => setPage((prev) => prev + 1)}
+                    disabled={pagination.page >= pagination.totalPages}
+                  >
+                    Next
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -165,20 +414,18 @@ export default function AdminTrendingProductsPage() {
             </h2>
 
             <div className="space-y-2 rounded-xl border bg-slate-50 p-3">
+              {trendingError && (
+                <p className="text-sm text-destructive">
+                  {trendingError instanceof Error
+                    ? trendingError.message
+                    : "Khong tai duoc danh sach trending."}
+                </p>
+              )}
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
-                onDragStart={({ active }: { active: any }) => setActiveId(String(active.id))}
-                onDragEnd={({ active, over }: { active: any, over: any }) => {
-                  setActiveId(null)
-                  if (!over || active.id === over.id) return
-
-                  const oldIndex = trendingIds.indexOf(String(active.id))
-                  const newIndex = trendingIds.indexOf(String(over.id))
-                  if (oldIndex < 0 || newIndex < 0) return
-
-                  reorderTrending(oldIndex, newIndex)
-                }}
+                onDragStart={({ active }) => setActiveId(String(active.id))}
+                onDragEnd={onDragEnd}
                 onDragCancel={() => setActiveId(null)}
               >
                 <SortableContext
@@ -186,11 +433,11 @@ export default function AdminTrendingProductsPage() {
                   strategy={verticalListSortingStrategy}
                 >
                   <div className="space-y-2">
-                    {trendingProducts.map((item, index) => (
+                    {selectedTrending.map((item, index) => (
                       <SortableTrendingItem
-                        key={item.id}
+                        key={item.productId}
                         item={item}
-                        index={index}
+                        index={index + 1}
                         onRemove={removeTrending}
                       />
                     ))}
@@ -198,7 +445,7 @@ export default function AdminTrendingProductsPage() {
                 </SortableContext>
               </DndContext>
 
-              {trendingProducts.length === 0 && (
+              {selectedTrending.length === 0 && (
                 <p className="text-sm text-slate-500">Chưa có sản phẩm thịnh hành.</p>
               )}
 
@@ -207,6 +454,35 @@ export default function AdminTrendingProductsPage() {
                   Đang kéo sản phẩm: {activeId}
                 </p>
               )}
+
+              <div className="flex gap-2 border-t pt-3">
+                <Button
+                  type="button"
+                  className="bg-destructive text-white hover:bg-destructive/90"
+                  disabled={!isDirty || selectedTrending.length === 0 || saveMutation.isPending}
+                  onClick={() => saveMutation.mutate()}
+                >
+                  {saveMutation.isPending ? "Dang luu..." : "Save Trending"}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  disabled={!isDirty}
+                  onClick={() => setLocalTrending(null)}
+                >
+                  Discard changes
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => {
+                    void refetchTrending()
+                    void refetchProducts()
+                  }}
+                >
+                  Reload
+                </Button>
+              </div>
             </div>
           </div>
         </div>

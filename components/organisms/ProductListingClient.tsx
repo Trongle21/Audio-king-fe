@@ -6,11 +6,12 @@ import { ChevronLeft, ChevronRight } from "lucide-react"
 import Link from "next/link"
 import { usePathname, useSearchParams } from "next/navigation"
 
+import type { ProductListPagination } from "@/api/product/product.types"
+
 import { Button } from "@/components/atoms"
 import { ProductCard } from "@/components/organisms/ProductCard"
 import {
-  ProductFiltersDrawer,
-  ProductFiltersSidebar,
+  ProductFiltersDrawer
 } from "@/components/organisms/ProductFilters"
 import { ProductSearchBar } from "@/components/organisms/ProductSearchBar"
 import {
@@ -18,7 +19,6 @@ import {
   useProducts,
 } from "@/hooks/client-app/src/hooks/product/useProducts"
 import { mapProductToHomeProduct } from "@/lib/product-list/map-product-to-card"
-import type { ProductListPagination } from "@/api/product/product.types"
 import {
   buildProductListHref,
   parseProductListSearchParams,
@@ -114,7 +114,8 @@ export function ProductListingClient() {
 
   const { data, isLoading, isError, error, isFetching } = useProducts(listParams)
 
-  const items = data?.items ?? []
+  const items = useMemo(() => data?.items ?? [], [data?.items])
+
   const mapped = useMemo(
     () => items.map((p) => mapProductToHomeProduct(p)),
     [items],

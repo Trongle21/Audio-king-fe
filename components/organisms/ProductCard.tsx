@@ -5,9 +5,7 @@ import * as React from "react"
 
 import { ShoppingCart } from "lucide-react"
 import Link from "next/link"
-import "swiper/css"
-import { Autoplay } from "swiper/modules"
-import { Swiper, SwiperSlide } from "swiper/react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/atoms"
 import { Card, CardContent } from "@/components/molecules"
@@ -27,24 +25,31 @@ export type HomeProduct = {
 
 export function ProductCard({ product }: { product: HomeProduct }) {
   const imageContainerRef = React.useRef<HTMLAnchorElement | null>(null)
-  const { addItem } = useCart()
+  const { addToCart } = useCart()
 
-  const images =
-    product.images && product.images.length > 0
-      ? product.images
-      : [product.imageUrl]
+  const thumbnailUrl = product.imageUrl || product.images?.[0] || ""
 
   const detailHref = `/product/${product.id}`
 
   const handleAddToCart = () => {
+    if (!product.id?.trim()) {
+      toast.error("Khong the them san pham nay vao gio hang.")
+      return
+    }
+
     const numericPrice = Number(product.price.replace(/[^\d]/g, "")) || 0
 
-    addItem({
-      id: product.id,
-      name: product.name,
-      price: numericPrice,
-      imageUrl: product.imageUrl,
+    addToCart({
+      product: {
+        productId: product.id,
+        name: product.name,
+        thumbnail: thumbnailUrl,
+        price: numericPrice,
+        sale: null,
+      },
+      quantity: 1,
     })
+    toast.success(`Da them ${product.name} vao gio hang.`)
 
     if (typeof document === "undefined") return
 
@@ -105,24 +110,17 @@ export function ProductCard({ product }: { product: HomeProduct }) {
         aria-label={product.name}
         className="relative aspect-4/3 w-full bg-muted overflow-hidden cursor-pointer"
       >
-        <Swiper
-          modules={[Autoplay]}
-          autoplay={{ delay: 4000, disableOnInteraction: false }}
-          loop={images.length > 1}
-          className="h-full w-full"
-        >
-          {images.map((src, index) => (
-            <SwiperSlide key={index}>
-              <img
-                src={src}
-                alt={product.name}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 cursor-pointer"
-                itemProp="image"
-              />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+        {thumbnailUrl ? (
+          <img
+            src={thumbnailUrl}
+            alt={product.name}
+            loading="lazy"
+            className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 cursor-pointer"
+            itemProp="image"
+          />
+        ) : (
+          <div className="h-full w-full" aria-hidden="true" />
+        )}
         {product.badge && (
           <span className="absolute left-2 top-2 rounded-md bg-destructive px-2 py-1 text-xs font-semibold text-white">
             {product.badge}

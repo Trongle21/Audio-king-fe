@@ -148,14 +148,14 @@ export default function Header() {
                       <div className="max-h-72 overflow-y-auto px-2 py-2 space-y-2">
                         {items.map((item) => (
                           <Link
-                            key={item.id}
-                            href={`/product/${item.id}`}
+                            key={item.productId}
+                            href={`/product/${item.productId}`}
                             className="group flex gap-2 rounded-md bg-muted/60 p-2 hover:bg-muted cursor-pointer transition-colors"
                           >
                             <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded">
-                              {item.imageUrl ? (
+                              {item.thumbnail ? (
                                 <Image
-                                  src={item.imageUrl}
+                                  src={item.thumbnail}
                                   alt={item.name}
                                   fill
                                   sizes="56px"
@@ -171,7 +171,7 @@ export default function Header() {
                               </p>
                               <div className="mt-1 flex items-center justify-between text-xs">
                                 <span className="font-semibold text-destructive">
-                                  {formatCurrency(item.price)}
+                                  {formatCurrency(item.price ?? 0)}
                                 </span>
                                 <span className="text-muted-foreground">
                                   x{item.quantity}

@@ -1,5 +1,7 @@
 "use client"
 
+import * as React from "react"
+
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -9,21 +11,63 @@ import { formatCurrency } from "@/lib"
 import { AppInput, Button } from "@/components/atoms"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
 import { useCheckoutForm } from "@/hooks/client-app/src/hooks/checkout"
+import { useCreateOrder } from "@/hooks/client-app/src/hooks/order"
+
+const LAST_ORDER_STORAGE_KEY = "ak_last_order"
+
+function getErrorMessage(error: unknown): string {
+  if (error instanceof Error && error.message.trim()) return error.message.trim()
+  return "Có lỗi xảy ra, vui lòng thử lại."
+}
 
 
 export function CheckoutPageContent() {
   const router = useRouter()
   const { items, totalItems, totalPrice, clearCart } = useCart()
+  const createOrderMutation = useCreateOrder()
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
   } = useCheckoutForm()
 
-  const onSubmit = handleSubmit(async (_data) => {
-    await new Promise((resolve) => setTimeout(resolve, 500))
-    clearCart()
-    router.push("/checkout/success")
+  React.useEffect(() => {
+    if (items.length === 0) {
+      router.replace("/cart")
+    }
+  }, [items.length, router])
+
+  const [submitError, setSubmitError] = React.useState<string | null>(null)
+
+  const onSubmit = handleSubmit(async (data) => {
+    setSubmitError(null)
+
+    if (items.length === 0) {
+      setSubmitError("Giỏ hàng trống. Vui lòng thêm sản phẩm trước khi thanh toán.")
+      return
+    }
+
+    const payload = {
+      customerName: data.customerName,
+      phone: data.phone,
+      address: data.address,
+      note: data.note?.trim() ? data.note.trim() : undefined,
+      items: items.map((i) => ({
+        productId: i.productId,
+        quantity: i.quantity,
+      })),
+    }
+
+    try {
+      const res = await createOrderMutation.mutateAsync(payload)
+      if (typeof window !== "undefined") {
+        window.sessionStorage.setItem(LAST_ORDER_STORAGE_KEY, JSON.stringify(res))
+      }
+      clearCart()
+      router.push("/checkout/success")
+    } catch (err) {
+      setSubmitError(getErrorMessage(err))
+    }
   })
 
   return (
@@ -33,27 +77,21 @@ export function CheckoutPageContent() {
         className="space-y-4 flex-1"
         aria-label="Form thanh toán"
       >
+        {submitError && (
+          <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
+            {submitError}
+          </div>
+        )}
         <div className="rounded-lg border bg-card p-4 sm:p-5">
           <h2 className="text-base font-semibold">Thông tin khách hàng</h2>
 
-          <div className="mt-4 flex gap-4 text-sm">
-            <label className="inline-flex items-center gap-2">
-              <input type="radio" value="anh" {...register("customerType")} />
-              Anh
-            </label>
-            <label className="inline-flex items-center gap-2">
-              <input type="radio" value="chi" {...register("customerType")} />
-              Chị
-            </label>
-          </div>
-
           <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <AppInput
-              id="fullName"
+              id="customerName"
               label="Họ và tên"
               placeholder="Nguyễn Văn A"
-              {...register("fullName")}
-              error={errors.fullName?.message}
+              {...register("customerName")}
+              error={errors.customerName?.message}
             />
             <AppInput
               id="phone"
@@ -70,11 +108,11 @@ export function CheckoutPageContent() {
 
           <AppInput
             className="mt-2"
-            id="addressLine"
+            id="address"
             label="Địa chỉ"
-            placeholder="Địa chỉ"
-            {...register("addressLine")}
-            error={errors.addressLine?.message}
+            placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành"
+            {...register("address")}
+            error={errors.address?.message}
           />
 
           <AppInput
@@ -89,29 +127,14 @@ export function CheckoutPageContent() {
 
 
         <div className="rounded-lg border bg-card p-4 sm:p-5">
-          <h2 className="text-base font-semibold">Phương thức thanh toán</h2>
-
-          <div className="mt-3 space-y-2 text-sm">
-            <label className="inline-flex items-center gap-2">
-              <input type="radio" value="cod" {...register("paymentMethod")} />
-              Thanh toán khi nhận hàng
-            </label>
-          </div>
-
-          <label className="mt-4 inline-flex items-center gap-2 text-sm">
-            <input type="checkbox" {...register("agreeTerms")} />
-            Tôi đồng ý với điều khoản sử dụng
-          </label>
-          {errors.agreeTerms && (
-            <p className="mt-1 text-xs text-destructive">{errors.agreeTerms.message}</p>
-          )}
+          <h2 className="text-base font-semibold">Xác nhận đặt hàng</h2>
 
           <Button
             type="submit"
             className="mt-4 w-full bg-destructive text-white hover:bg-destructive/90 cursor-pointer"
-            disabled={items.length === 0 || isSubmitting}
+            disabled={items.length === 0 || isSubmitting || createOrderMutation.isPending}
           >
-            {isSubmitting ? "Đang xử lý..." : "Đặt hàng"}
+            {isSubmitting || createOrderMutation.isPending ? "Đang xử lý..." : "Đặt hàng"}
           </Button>
         </div>
       </form>
@@ -121,11 +144,11 @@ export function CheckoutPageContent() {
 
         <div className="max-h-60 space-y-2 overflow-y-auto pr-1">
           {items.map((item) => (
-            <div key={item.id} className="flex gap-2 rounded-md bg-muted/50 p-2">
+            <div key={item.productId} className="flex gap-2 rounded-md bg-muted/50 p-2">
               <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded">
-                {item.imageUrl ? (
+                {item.thumbnail ? (
                   <Image
-                    src={item.imageUrl}
+                    src={item.thumbnail}
                     alt={item.name}
                     fill
                     sizes="56px"
@@ -137,13 +160,15 @@ export function CheckoutPageContent() {
               </div>
               <div className="min-w-0 flex-1">
                 <Link
-                  href={`/product/${item.id}`}
+                  href={`/product/${item.productId}`}
                   className="line-clamp-2 text-xs font-medium hover:underline"
                 >
                   {item.name}
                 </Link>
                 <div className="mt-1 flex items-center justify-between text-xs">
-                  <span className="font-semibold text-destructive">{formatCurrency(item.price)}</span>
+                  <span className="font-semibold text-destructive">
+                    {formatCurrency(item.price ?? 0)}
+                  </span>
                   <span className="text-muted-foreground">x{item.quantity}</span>
                 </div>
               </div>

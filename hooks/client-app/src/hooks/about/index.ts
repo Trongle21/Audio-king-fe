@@ -1,0 +1,2 @@
+export { useAboutImages } from "./useAboutImages"
+

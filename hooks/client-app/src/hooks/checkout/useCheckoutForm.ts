@@ -9,13 +9,10 @@ import {
 } from "@/lib/schemas/checkout.schema"
 
 const defaultValues: CheckoutFormData = {
-  customerType: "anh",
-  fullName: "",
+  customerName: "",
   phone: "",
-  addressLine: "",
-  note: "",
-  paymentMethod: "cod",
-  agreeTerms: false,
+  address: "",
+  note: undefined,
 }
 
 export function useCheckoutForm() {

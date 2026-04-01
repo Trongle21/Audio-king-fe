@@ -8,8 +8,19 @@ import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
 import { useCartsTable } from "@/hooks/admin-app/src/hooks/admin/useCartsTable"
 
 export default function AdminCartsPage() {
-  const { filteredData, columns, search, setSearch, resetFilters, onDelete } =
-    useCartsTable()
+  const {
+    filteredData,
+    columns,
+    search,
+    setSearch,
+    resetFilters,
+    onDelete,
+    isLoading,
+    isFetching,
+    isError,
+    error,
+    isDeleting,
+  } = useCartsTable()
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
@@ -52,6 +63,22 @@ export default function AdminCartsPage() {
           </Button>
         </div>
 
+        {isError && (
+          <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+            {error instanceof Error && error.message.trim()
+              ? error.message
+              : "Khong tai duoc danh sach gio hang."}
+          </p>
+        )}
+
+        {(isLoading || isFetching) && (
+          <p className="text-sm text-slate-500">Dang tai du lieu gio hang...</p>
+        )}
+
+        {!isLoading && !isError && filteredData.length === 0 && (
+          <p className="text-sm text-slate-500">Khong co gio hang nao.</p>
+        )}
+
         <AdminEntityTable
           table={table}
           renderActions={(row) => (
@@ -59,6 +86,7 @@ export default function AdminCartsPage() {
               <Button
                 variant="destructive"
                 size="sm"
+                disabled={isDeleting}
                 onClick={() => openDeleteModal(row.id)}
               >
                 Delete
@@ -86,6 +114,7 @@ export default function AdminCartsPage() {
             </Button>
             <Button
               className="bg-destructive text-white hover:bg-destructive/90"
+              disabled={isDeleting}
               onClick={confirmDelete}
             >
               Delete

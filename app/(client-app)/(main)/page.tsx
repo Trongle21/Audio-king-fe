@@ -7,11 +7,14 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/molecules"
+import { HomeBanner } from "@/components/organisms/HomeBanner"
 
 export default function HomePage() {
   return (
     <div className="container py-12">
       <div className="space-y-8">
+        <HomeBanner />
+
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold">Trang chủ</h1>
           <p className="text-muted-foreground text-lg">

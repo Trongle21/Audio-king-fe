@@ -4,9 +4,9 @@ import { useMemo } from "react"
 
 import { useAppDispatch, useAppSelector } from "@/lib/store/hooks"
 import {
-  addItem as addItemAction,
+  addToCart as addToCartAction,
   clearCart as clearCartAction,
-  removeItem as removeItemAction,
+  removeFromCart as removeFromCartAction,
   updateQuantity as updateQuantityAction,
 } from "@/lib/store/slices/cartSlice"
 
@@ -20,25 +20,29 @@ export function useCart() {
   )
 
   const totalPrice = useMemo(
-    () => items.reduce((sum, item) => sum + item.price * item.quantity, 0),
+    () => items.reduce((sum, item) => sum + (item.price ?? 0) * item.quantity, 0),
     [items],
   )
 
-  const addItem = (item: {
-    id: string
-    name: string
-    price: number
-    imageUrl?: string
+  const addToCart = (payload: {
+    product: {
+      productId: string
+      name: string
+      thumbnail?: string
+      price?: number
+      sale?: number | null
+    }
+    quantity?: number
   }) => {
-    dispatch(addItemAction(item))
+    dispatch(addToCartAction(payload))
   }
 
-  const removeItem = (id: string) => {
-    dispatch(removeItemAction(id))
+  const removeFromCart = (productId: string) => {
+    dispatch(removeFromCartAction(productId))
   }
 
-  const updateQuantity = (id: string, quantity: number) => {
-    dispatch(updateQuantityAction({ id, quantity }))
+  const updateQuantity = (productId: string, quantity: number) => {
+    dispatch(updateQuantityAction({ productId, quantity }))
   }
 
   const clearCart = () => {
@@ -50,8 +54,8 @@ export function useCart() {
     totalItems,
     totalPrice,
     isLoading: false,
-    addItem,
-    removeItem,
+    addToCart,
+    removeFromCart,
     updateQuantity,
     clearCart,
   }
