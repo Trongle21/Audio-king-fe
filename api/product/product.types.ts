@@ -46,6 +46,9 @@ export interface Product {
   updatedAt?: string
 }
 
+/** Alias theo domain backend — một bản ghi sản phẩm trong danh sách / chi tiết */
+export type ProductItem = Product
+
 export interface UploadFileResponse {
   url: string
   publicId: string
@@ -74,6 +77,9 @@ export interface ProductListData {
   pagination: ProductListPagination
   filter: ProductListFilter
 }
+
+/** Response list (items + pagination + filter) — tương đương `data` từ API */
+export type ProductListResponse = ProductListData
 
 export interface GetProductsParams {
   q?: string

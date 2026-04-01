@@ -1,57 +1,28 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useQuery } from "@tanstack/react-query"
 
-interface Product {
-  id: number
-  name: string
-  price: string
-  status: string
+import {
+  getProducts,
+  normalizeGetProductsParamsForRequest,
+} from "@/api/product"
+import type { GetProductsParams, ProductListData } from "@/api/product/product.types"
+
+export const PRODUCT_QUERY_FALLBACK_MESSAGE =
+  "Có lỗi xảy ra, vui lòng thử lại."
+
+export function productListQueryKey(params: GetProductsParams) {
+  return ["products", normalizeGetProductsParamsForRequest(params)] as const
 }
 
-export function useProducts() {
-  const [products, setProducts] = useState<Product[]>([])
-  const [isLoading, setIsLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
+export function useProducts(params: GetProductsParams) {
+  const stable = normalizeGetProductsParamsForRequest(params)
 
-  useEffect(() => {
-    // TODO: Fetch products from API
-    const fetchProducts = async () => {
-      try {
-        setIsLoading(true)
-        // Simulate API call
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        setProducts([
-          {
-            id: 1,
-            name: "Audio Premium",
-            price: "999,000đ",
-            status: "Còn hàng",
-          },
-          {
-            id: 2,
-            name: "Audio Standard",
-            price: "599,000đ",
-            status: "Còn hàng",
-          },
-          { id: 3, name: "Audio Basic", price: "299,000đ", status: "Hết hàng" },
-        ])
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Lỗi khi tải sản phẩm")
-      } finally {
-        setIsLoading(false)
-      }
-    }
-
-    fetchProducts()
-  }, [])
-
-  return {
-    products,
-    isLoading,
-    error,
-    refetch: () => {
-      // TODO: Implement refetch logic
+  return useQuery({
+    queryKey: productListQueryKey(params),
+    queryFn: async (): Promise<ProductListData> => {
+      const res = await getProducts(stable)
+      return res.data
     },
-  }
+  })
 }

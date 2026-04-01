@@ -3,13 +3,9 @@
 import * as React from "react"
 
 import { SlidersHorizontal } from "lucide-react"
-import {
-  type ReadonlyURLSearchParams,
-  usePathname,
-  useRouter,
-  useSearchParams,
-} from "next/navigation"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
+import type { GetProductsParams } from "@/api/product/product.types"
 import { Button, Input, Label } from "@/components/atoms"
 import {
   Sheet,
@@ -19,78 +15,82 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet"
+import { useCategories } from "@/hooks/admin-app/src/hooks/admin/category"
+import {
+  buildProductListHref,
+  normalizeMinMaxPrice,
+  parseProductListSearchParams,
+} from "@/lib/product-list/product-list-params"
 
-type FilterState = {
-  category: string
-  priceMin: string
-  priceMax: string
-  sort: string
+type FilterFormState = {
+  categoryId: string
+  status: string
+  minPrice: string
+  maxPrice: string
 }
 
-function getInitialState(searchParams: URLSearchParams): FilterState {
+function stateFromUrl(searchParams: URLSearchParams): FilterFormState {
+  const p = parseProductListSearchParams(searchParams)
   return {
-    category: searchParams.get("category") ?? "",
-    priceMin: searchParams.get("priceMin") ?? "",
-    priceMax: searchParams.get("priceMax") ?? "",
-    sort: searchParams.get("sort") ?? "",
+    categoryId: p.categoryId ?? "",
+    status: p.status !== undefined ? String(p.status) : "",
+    minPrice: p.minPrice !== undefined ? String(Math.round(p.minPrice)) : "",
+    maxPrice: p.maxPrice !== undefined ? String(Math.round(p.maxPrice)) : "",
   }
 }
 
-function setOrDelete(
-  params: URLSearchParams,
-  key: string,
-  value: string | undefined
-) {
-  const v = (value ?? "").trim()
-  if (!v) params.delete(key)
-  else params.set(key, v)
-}
-
-function buildNextUrl(
-  pathname: string,
-  searchParams: ReadonlyURLSearchParams,
-  next: FilterState
-) {
-  const params = new URLSearchParams(searchParams.toString())
-  setOrDelete(params, "category", next.category)
-  setOrDelete(params, "priceMin", next.priceMin)
-  setOrDelete(params, "priceMax", next.priceMax)
-  setOrDelete(params, "sort", next.sort)
-  const qs = params.toString()
-  return qs ? `${pathname}?${qs}` : pathname
+function parseOptionalNumber(raw: string): number | undefined {
+  const t = raw.trim()
+  if (!t) return undefined
+  const n = Number(t)
+  return Number.isFinite(n) ? n : undefined
 }
 
 function FilterFields({
   state,
   setState,
+  categories,
 }: {
-  state: FilterState
-  setState: React.Dispatch<React.SetStateAction<FilterState>>
+  state: FilterFormState
+  setState: React.Dispatch<React.SetStateAction<FilterFormState>>
+  categories: { _id: string; name: string }[]
 }) {
   return (
     <div className="space-y-4">
-
-
       <div className="space-y-2">
-        <Label htmlFor="category">Loại sản phẩm</Label>
+        <Label htmlFor="categoryId">Danh mục</Label>
         <select
-          id="category"
-          name="category"
+          id="categoryId"
+          name="categoryId"
           className="w-full rounded-md border bg-background px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          value={state.category}
+          value={state.categoryId}
           onChange={(e) =>
-            setState((s) => ({
-              ...s,
-              category: e.target.value,
-            }))
+            setState((s) => ({ ...s, categoryId: e.target.value }))
           }
         >
-          <option value="">Tất cả loại</option>
-          <option value="karaoke">Loa karaoke</option>
-          <option value="hall">Dàn hội trường / sân khấu</option>
-          <option value="combo">Combo dàn karaoke</option>
-          <option value="micro">Micro</option>
-          <option value="processor">Vang số / DSP</option>
+          <option value="">Tất cả danh mục</option>
+          {categories.map((c) => (
+            <option key={c._id} value={c._id}>
+              {c.name}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      <div className="space-y-2">
+        <Label htmlFor="status">Trạng thái</Label>
+        <select
+          id="status"
+          name="status"
+          className="w-full rounded-md border bg-background px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          value={state.status}
+          onChange={(e) =>
+            setState((s) => ({ ...s, status: e.target.value }))
+          }
+        >
+          <option value="">Tất cả</option>
+          <option value="1">Đang bán</option>
+          <option value="0">Ngừng bán</option>
         </select>
       </div>
 
@@ -98,41 +98,43 @@ function FilterFields({
         <legend className="text-sm font-medium">Khoảng giá (VND)</legend>
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1">
-            <Label htmlFor="priceMin" className="text-xs">
+            <Label htmlFor="minPrice" className="text-xs">
               Từ
             </Label>
             <Input
-              id="priceMin"
-              name="priceMin"
+              id="minPrice"
+              name="minPrice"
               type="number"
-              placeholder="1.000.000"
+              min={0}
+              placeholder="0"
               inputMode="numeric"
               className="h-9"
-              value={state.priceMin}
+              value={state.minPrice}
               onChange={(e) =>
                 setState((s) => ({
                   ...s,
-                  priceMin: e.target.value,
+                  minPrice: e.target.value,
                 }))
               }
             />
           </div>
           <div className="space-y-1">
-            <Label htmlFor="priceMax" className="text-xs">
+            <Label htmlFor="maxPrice" className="text-xs">
               Đến
             </Label>
             <Input
-              id="priceMax"
-              name="priceMax"
+              id="maxPrice"
+              name="maxPrice"
               type="number"
-              placeholder="50.000.000"
+              min={0}
+              placeholder="Không giới hạn"
               inputMode="numeric"
               className="h-9"
-              value={state.priceMax}
+              value={state.maxPrice}
               onChange={(e) =>
                 setState((s) => ({
                   ...s,
-                  priceMax: e.target.value,
+                  maxPrice: e.target.value,
                 }))
               }
             />
@@ -147,25 +149,71 @@ export function ProductFiltersSidebar() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [state, setState] = React.useState<FilterState>(() =>
-    getInitialState(new URLSearchParams(searchParams.toString()))
+  const [state, setState] = React.useState<FilterFormState>(() =>
+    stateFromUrl(new URLSearchParams(searchParams.toString())),
   )
 
+  const { data: catData } = useCategories({ page: 1, limit: 200 })
+  const categories =
+    catData?.items?.filter((c) => !c.isDelete) ?? []
+
   React.useEffect(() => {
-    setState(getInitialState(new URLSearchParams(searchParams.toString())))
+    setState(stateFromUrl(new URLSearchParams(searchParams.toString())))
   }, [searchParams])
 
   const apply = () => {
-    router.push(buildNextUrl(pathname, searchParams, state))
+    const base = parseProductListSearchParams(
+      new URLSearchParams(searchParams.toString()),
+    )
+    let minP = parseOptionalNumber(state.minPrice)
+    let maxP = parseOptionalNumber(state.maxPrice)
+    const fixed = normalizeMinMaxPrice(minP, maxP)
+    minP = fixed.minPrice
+    maxP = fixed.maxPrice
+
+    const statusParsed =
+      state.status === ""
+        ? undefined
+        : Number.parseInt(state.status, 10)
+    const status =
+      statusParsed !== undefined && !Number.isNaN(statusParsed)
+        ? statusParsed
+        : undefined
+
+    const next: GetProductsParams = {
+      ...base,
+      categoryId: state.categoryId.trim() || undefined,
+      status,
+      minPrice: minP,
+      maxPrice: maxP,
+      page: 1,
+    }
+
+    router.push(buildProductListHref(pathname, next))
   }
 
   const clear = () => {
-    router.push(pathname)
+    const base = parseProductListSearchParams(
+      new URLSearchParams(searchParams.toString()),
+    )
+    router.push(
+      buildProductListHref(pathname, {
+        q: base.q,
+        sortBy: base.sortBy,
+        order: base.order,
+        page: 1,
+        limit: base.limit,
+      }),
+    )
   }
 
   return (
     <div className="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
-      <FilterFields state={state} setState={setState} />
+      <FilterFields
+        state={state}
+        setState={setState}
+        categories={categories}
+      />
 
       <div className="flex flex-wrap gap-2 pt-1">
         <Button
@@ -176,7 +224,7 @@ export function ProductFiltersSidebar() {
           Áp dụng
         </Button>
         <Button type="button" variant="outline" size="sm" onClick={clear}>
-          Xoá
+          Xoá lọc
         </Button>
       </div>
     </div>
@@ -188,21 +236,63 @@ export function ProductFiltersDrawer() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const [open, setOpen] = React.useState(false)
-  const [state, setState] = React.useState<FilterState>(() =>
-    getInitialState(new URLSearchParams(searchParams.toString()))
+  const [state, setState] = React.useState<FilterFormState>(() =>
+    stateFromUrl(new URLSearchParams(searchParams.toString())),
   )
 
+  const { data: catData } = useCategories({ page: 1, limit: 200 })
+  const categories =
+    catData?.items?.filter((c) => !c.isDelete) ?? []
+
   React.useEffect(() => {
-    setState(getInitialState(new URLSearchParams(searchParams.toString())))
+    setState(stateFromUrl(new URLSearchParams(searchParams.toString())))
   }, [searchParams])
 
   const apply = () => {
-    router.push(buildNextUrl(pathname, searchParams, state))
+    const base = parseProductListSearchParams(
+      new URLSearchParams(searchParams.toString()),
+    )
+    let minP = parseOptionalNumber(state.minPrice)
+    let maxP = parseOptionalNumber(state.maxPrice)
+    const fixed = normalizeMinMaxPrice(minP, maxP)
+    minP = fixed.minPrice
+    maxP = fixed.maxPrice
+
+    const statusParsed =
+      state.status === ""
+        ? undefined
+        : Number.parseInt(state.status, 10)
+    const status =
+      statusParsed !== undefined && !Number.isNaN(statusParsed)
+        ? statusParsed
+        : undefined
+
+    const next: GetProductsParams = {
+      ...base,
+      categoryId: state.categoryId.trim() || undefined,
+      status,
+      minPrice: minP,
+      maxPrice: maxP,
+      page: 1,
+    }
+
+    router.push(buildProductListHref(pathname, next))
     setOpen(false)
   }
 
   const clear = () => {
-    router.push(pathname)
+    const base = parseProductListSearchParams(
+      new URLSearchParams(searchParams.toString()),
+    )
+    router.push(
+      buildProductListHref(pathname, {
+        q: base.q,
+        sortBy: base.sortBy,
+        order: base.order,
+        page: 1,
+        limit: base.limit,
+      }),
+    )
     setOpen(false)
   }
 
@@ -221,14 +311,18 @@ export function ProductFiltersDrawer() {
       </SheetTrigger>
       <SheetContent side="right" className="w-[92vw] sm:max-w-md">
         <SheetHeader>
-          <SheetTitle>Bộ sản phẩm</SheetTitle>
+          <SheetTitle>Bộ lọc sản phẩm</SheetTitle>
           <SheetDescription>
-            Lọc sản phẩm ở đây
+            Chọn danh mục, trạng thái và khoảng giá, sau đó nhấn Áp dụng.
           </SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-5">
-          <FilterFields state={state} setState={setState} />
+          <FilterFields
+            state={state}
+            setState={setState}
+            categories={categories}
+          />
           <div className="flex flex-wrap gap-2 pt-1">
             <Button
               type="button"
@@ -238,7 +332,7 @@ export function ProductFiltersDrawer() {
               Áp dụng
             </Button>
             <Button type="button" variant="outline" onClick={clear}>
-              Xoá
+              Xoá lọc
             </Button>
           </div>
         </div>
@@ -246,4 +340,3 @@ export function ProductFiltersDrawer() {
     </Sheet>
   )
 }
-

@@ -12,6 +12,51 @@ import type {
 
 const PRODUCT_BASE_PATH = "/products"
 
+export const DEFAULT_PRODUCT_LIST_PAGE = 1
+export const DEFAULT_PRODUCT_LIST_LIMIT = 12
+
+/** Loại bỏ param rỗng / không hợp lệ trước khi gọi API (giữ contract query backend). */
+export function sanitizeGetProductsParams(params: GetProductsParams): GetProductsParams {
+  const out: GetProductsParams = {}
+
+  const q = params.q?.trim()
+  if (q) out.q = q
+
+  if (params.status !== undefined && params.status !== null) {
+    out.status = params.status
+  }
+
+  const categoryId = params.categoryId?.trim()
+  if (categoryId) out.categoryId = categoryId
+
+  if (params.minPrice !== undefined && Number.isFinite(params.minPrice)) {
+    out.minPrice = params.minPrice
+  }
+  if (params.maxPrice !== undefined && Number.isFinite(params.maxPrice)) {
+    out.maxPrice = params.maxPrice
+  }
+
+  if (params.sortBy) out.sortBy = params.sortBy
+  if (params.order) out.order = params.order
+
+  if (params.page !== undefined) out.page = params.page
+  if (params.limit !== undefined) out.limit = params.limit
+
+  return out
+}
+
+/** Chuẩn hoá page/limit mặc định cho request + cache key ổn định. */
+export function normalizeGetProductsParamsForRequest(
+  params: GetProductsParams,
+): GetProductsParams {
+  const s = sanitizeGetProductsParams(params)
+  return {
+    ...s,
+    page: s.page ?? DEFAULT_PRODUCT_LIST_PAGE,
+    limit: s.limit ?? DEFAULT_PRODUCT_LIST_LIMIT,
+  }
+}
+
 function buildTokenHeader(): Record<string, string> {
   const accessToken = getAccessToken()
 
@@ -69,16 +114,17 @@ function buildCreateProductFormData(payload: CreateProductPayload) {
 
 function buildProductsQueryString(params: GetProductsParams = {}) {
   const searchParams = new URLSearchParams()
+  const p = normalizeGetProductsParamsForRequest(params)
 
-  if (params.q) searchParams.set("q", params.q)
-  if (params.status !== undefined) searchParams.set("status", String(params.status))
-  if (params.categoryId) searchParams.set("categoryId", params.categoryId)
-  if (params.minPrice !== undefined) searchParams.set("minPrice", String(params.minPrice))
-  if (params.maxPrice !== undefined) searchParams.set("maxPrice", String(params.maxPrice))
-  if (params.sortBy) searchParams.set("sortBy", params.sortBy)
-  if (params.order) searchParams.set("order", params.order)
-  if (params.page !== undefined) searchParams.set("page", String(params.page))
-  if (params.limit !== undefined) searchParams.set("limit", String(params.limit))
+  if (p.q) searchParams.set("q", p.q)
+  if (p.status !== undefined) searchParams.set("status", String(p.status))
+  if (p.categoryId) searchParams.set("categoryId", p.categoryId)
+  if (p.minPrice !== undefined) searchParams.set("minPrice", String(p.minPrice))
+  if (p.maxPrice !== undefined) searchParams.set("maxPrice", String(p.maxPrice))
+  if (p.sortBy) searchParams.set("sortBy", p.sortBy)
+  if (p.order) searchParams.set("order", p.order)
+  searchParams.set("page", String(p.page ?? DEFAULT_PRODUCT_LIST_PAGE))
+  searchParams.set("limit", String(p.limit ?? DEFAULT_PRODUCT_LIST_LIMIT))
 
   const query = searchParams.toString()
   return query ? `?${query}` : ""

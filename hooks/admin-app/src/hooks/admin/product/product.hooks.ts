@@ -6,6 +6,7 @@ import {
   createProduct,
   getProductById,
   getProducts,
+  normalizeGetProductsParamsForRequest,
   restoreProduct,
   softDeleteProduct,
   updateProduct,
@@ -17,14 +18,16 @@ import {
 
 export const productQueryKeys = {
   all: ["products"] as const,
-  list: (params: GetProductsParams) => ["products", params] as const,
+  list: (params: GetProductsParams) =>
+    ["products", normalizeGetProductsParamsForRequest(params)] as const,
   detail: (id: string) => ["product", id] as const,
 }
 
 export function useProducts(params: GetProductsParams) {
+  const stable = normalizeGetProductsParamsForRequest(params)
   return useQuery({
     queryKey: productQueryKeys.list(params),
-    queryFn: () => getProducts(params),
+    queryFn: () => getProducts(stable),
     select: (response) => response.data,
   })
 }

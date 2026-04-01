@@ -5,73 +5,138 @@ import * as React from "react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import { Button, Input } from "@/components/atoms"
+import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
+import type { ProductOrder, ProductSortBy } from "@/api/product/product.types"
+import {
+  buildProductListHref,
+  parseProductListSearchParams,
+} from "@/lib/product-list/product-list-params"
 
-function setOrDelete(params: URLSearchParams, key: string, value: string) {
-  const v = value.trim()
-  if (!v) params.delete(key)
-  else params.set(key, v)
+const SORT_OPTIONS: { value: string; label: string }[] = [
+  { value: "", label: "Mặc định" },
+  { value: "price:asc", label: "Giá thấp → cao" },
+  { value: "price:desc", label: "Giá cao → thấp" },
+  { value: "createdAt:desc", label: "Mới nhất" },
+  { value: "name:asc", label: "Tên A → Z" },
+]
+
+function parseSortValue(
+  v: string,
+): { sortBy?: ProductSortBy; order?: ProductOrder } {
+  if (!v) return {}
+  const [sortBy, order] = v.split(":") as [ProductSortBy, ProductOrder]
+  if (!sortBy || !order) return {}
+  return { sortBy, order }
 }
 
 export function ProductSearchBar() {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
-  const [q, setQ] = React.useState(searchParams.get("q") ?? "")
+  const searchString = searchParams.toString()
+
+  const params = React.useMemo(
+    () => parseProductListSearchParams(new URLSearchParams(searchString)),
+    [searchString],
+  )
+
+  const [qInput, setQInput] = React.useState(params.q ?? "")
 
   React.useEffect(() => {
-    setQ(searchParams.get("q") ?? "")
-  }, [searchParams])
+    setQInput(params.q ?? "")
+  }, [params.q])
 
-  const onSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    const params = new URLSearchParams(searchParams.toString())
-    setOrDelete(params, "q", q)
-    const qs = params.toString()
-    router.push(qs ? `${pathname}?${qs}` : pathname)
+  const debouncedQ = useDebounce(qInput, 400)
+
+  React.useEffect(() => {
+    const fromUrl = (
+      new URLSearchParams(searchString).get("q") ?? ""
+    ).trim()
+    const next = debouncedQ.trim()
+    if (next === fromUrl) return
+
+    const base = parseProductListSearchParams(new URLSearchParams(searchString))
+    router.replace(
+      buildProductListHref(pathname, {
+        ...base,
+        q: next || undefined,
+        page: 1,
+      }),
+    )
+  }, [debouncedQ, pathname, router, searchString])
+
+  const sortValue =
+    params.sortBy && params.order
+      ? `${params.sortBy}:${params.order}`
+      : ""
+
+  const onSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const v = e.target.value
+    const { sortBy, order } = parseSortValue(v)
+    const base = parseProductListSearchParams(new URLSearchParams(searchString))
+    router.replace(
+      buildProductListHref(pathname, {
+        ...base,
+        sortBy,
+        order,
+        page: 1,
+      }),
+    )
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex w-full justify-between">
-      <div className="flex items-center gap-2 min-w-0 max-w-md  md:min-w-120">
+    <div className="flex w-full flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+      <form
+        className="flex min-w-0 flex-1 items-center gap-2 md:max-w-md"
+        onSubmit={(e) => {
+          e.preventDefault()
+          const base = parseProductListSearchParams(
+            new URLSearchParams(searchString),
+          )
+          router.replace(
+            buildProductListHref(pathname, {
+              ...base,
+              q: qInput.trim() || undefined,
+              page: 1,
+            }),
+          )
+        }}
+      >
         <Input
           id="q"
           name="q"
           placeholder="Tìm sản phẩm..."
-          className="h-10 w-full"
+          className="h-10 w-full min-w-0"
           aria-label="Tìm kiếm sản phẩm"
-          value={q}
-          onChange={(e) => setQ(e.target.value)}
+          value={qInput}
+          onChange={(e) => setQInput(e.target.value)}
         />
         <Button
           type="submit"
-          className="h-10 bg-destructive text-white hover:bg-destructive/90"
+          className="h-10 shrink-0 bg-destructive text-white hover:bg-destructive/90"
         >
           Tìm
         </Button>
+      </form>
 
+      <div className="min-w-[180px] space-y-1 sm:shrink-0">
+        <label htmlFor="sort" className="sr-only">
+          Sắp xếp
+        </label>
+        <select
+          id="sort"
+          name="sort"
+          className="h-10 w-full rounded-md border bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          value={sortValue}
+          onChange={onSortChange}
+        >
+          {SORT_OPTIONS.map((o) => (
+            <option key={o.value || "default"} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
       </div>
-      <div className="flex items-start justify-between gap-3">
-        <div className="min-w-[160px] space-y-1">
-          <select
-            id="sort"
-            name="sort"
-            className="w-full rounded-md border bg-background px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          // value={state.sort}
-          // onChange={(e) =>
-          //   setState((s) => ({
-          //     ...s,
-          //     sort: e.target.value,
-          //   }))
-          // }
-          >
-            <option value="">Mặc định</option>
-            <option value="price_desc">Giá cao → thấp</option>
-            <option value="price_asc">Giá thấp → cao</option>
-          </select>
-        </div>
-      </div>
-
-    </form>
+    </div>
   )
 }
-
