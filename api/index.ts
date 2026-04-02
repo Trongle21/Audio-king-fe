@@ -310,6 +310,21 @@ export async function apiDelete<T>(
     )
 }
 
-export * from "./carts"
-export * from "./orders"
-export * from "./trending"
+export * from "./carts/carts.api"
+export type {
+    Cart, ApiSuccessResponse as CartApiSuccessResponse, CartCustomer,
+    CartItem
+} from "./carts/carts.types"
+
+export * from "./orders/orders.api"
+export type {
+    CreateOrderBody, Order,
+    OrderItemSnapshot, ApiSuccessResponse as OrdersApiSuccessResponse
+} from "./orders/orders.types"
+
+export * from "./trending/trending.api"
+export type {
+    ApiSuccessResponse as TrendingApiSuccessResponse, TrendingItem,
+    UpdateTrendingBody
+} from "./trending/trending.types"
+

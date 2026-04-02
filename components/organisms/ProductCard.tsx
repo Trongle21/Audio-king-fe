@@ -33,7 +33,7 @@ export function ProductCard({ product }: { product: HomeProduct }) {
 
   const handleAddToCart = () => {
     if (!product.id?.trim()) {
-      toast.error("Khong the them san pham nay vao gio hang.")
+      toast.error("Không thể thêm sản phẩm này vào giỏ hàng.")
       return
     }
 
@@ -49,7 +49,6 @@ export function ProductCard({ product }: { product: HomeProduct }) {
       },
       quantity: 1,
     })
-    toast.success(`Da them ${product.name} vao gio hang.`)
 
     if (typeof document === "undefined") return
 

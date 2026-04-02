@@ -2,7 +2,7 @@ import { apiDelete, apiGet } from "@/api"
 
 import type { ApiSuccessResponse, Cart } from "./carts.types"
 
-const CARTS_BASE_PATH = "/carts"
+const CARTS_BASE_PATH = "/orders"
 
 export async function getCarts() {
   return apiGet<ApiSuccessResponse<Cart[]>>(CARTS_BASE_PATH)

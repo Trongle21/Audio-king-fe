@@ -67,16 +67,16 @@ export default function AdminCartsPage() {
           <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
             {error instanceof Error && error.message.trim()
               ? error.message
-              : "Khong tai duoc danh sach gio hang."}
+              : "Không tải được danh sách giỏ hàng."}
           </p>
         )}
 
         {(isLoading || isFetching) && (
-          <p className="text-sm text-slate-500">Dang tai du lieu gio hang...</p>
+          <p className="text-sm text-slate-500">Đang tải dữ liệu giỏ hàng...</p>
         )}
 
         {!isLoading && !isError && filteredData.length === 0 && (
-          <p className="text-sm text-slate-500">Khong co gio hang nao.</p>
+          <p className="text-sm text-slate-500">Không có giỏ hàng nào.</p>
         )}
 
         <AdminEntityTable
@@ -89,7 +89,7 @@ export default function AdminCartsPage() {
                 disabled={isDeleting}
                 onClick={() => openDeleteModal(row.id)}
               >
-                Delete
+                Xóa
               </Button>
             </div>
           )}
@@ -117,7 +117,7 @@ export default function AdminCartsPage() {
               disabled={isDeleting}
               onClick={confirmDelete}
             >
-              Delete
+              Xóa
             </Button>
           </>
         }

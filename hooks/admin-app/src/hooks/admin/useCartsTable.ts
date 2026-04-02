@@ -6,17 +6,23 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { type ColumnDef } from "@tanstack/react-table"
 import { toast } from "sonner"
 
-import { deleteCart, getCarts, type Cart, type CartCustomer } from "@/api/carts"
+import {
+  deleteOrder,
+  getOrders,
+  type AdminOrderStatus,
+  type Order,
+} from "@/api/orders"
 
 export type CartRow = {
   id: string
   customer: string
   items: number
   total: string
+  status: string
   updatedAt: string
 }
 
-const cartsQueryKey = ["admin-carts"] as const
+const cartsQueryKey = ["admin-orders"] as const
 
 function formatCurrency(n: number): string {
   return `${new Intl.NumberFormat("vi-VN").format(n)}đ`
@@ -36,82 +42,89 @@ function formatDateTime(value?: string): string {
   }).format(date)
 }
 
-function resolveCustomerName(customer?: string | CartCustomer, fallback?: string) {
-  if (fallback?.trim()) return fallback.trim()
-  if (typeof customer === "string" && customer.trim()) return customer.trim()
-  if (!customer || typeof customer !== "object") return "Khách lẻ"
-
-  return (
-    customer.fullName?.trim() ||
-    customer.name?.trim() ||
-    customer.username?.trim() ||
-    customer.email?.trim() ||
-    customer._id?.trim() ||
-    "Khách lẻ"
-  )
-}
-
-function normalizeCartRow(cart: Cart): CartRow {
-  const totalFromItems = (cart.items ?? []).reduce((sum, item) => {
-    const lineTotal = item.lineTotal
-    if (typeof lineTotal === "number") return sum + lineTotal
-    const qty = item.quantity ?? 0
-    const price = item.finalPrice ?? item.unitPrice ?? item.price ?? 0
-    return sum + qty * price
-  }, 0)
-
-  const total = cart.totalAmount ?? cart.subtotal ?? totalFromItems
+function normalizeCartRow(order: Order): CartRow {
+  const itemsCount = order.items?.reduce((sum, item) => sum + (item.quantity ?? 0), 0) ?? 0
 
   return {
-    id: cart._id,
-    customer: resolveCustomerName(cart.customer, cart.customerName),
-    items: cart.items?.reduce((sum, item) => sum + (item.quantity ?? 0), 0) ?? 0,
-    total: formatCurrency(total),
-    updatedAt: formatDateTime(cart.updatedAt ?? cart.createdAt),
+    id: order._id,
+    customer: order.customerName?.trim() || "Khách lẻ",
+    items: itemsCount,
+    total: formatCurrency(order.totalAmount ?? order.subtotal ?? 0),
+    status: order.status ?? "-",
+    updatedAt: formatDateTime(order.updatedAt ?? order.createdAt),
   }
+}
+
+function extractOrderItems(payload: unknown): Order[] {
+  if (!payload || typeof payload !== "object") return []
+
+  const top = payload as Record<string, unknown>
+  const topData = top.data
+
+  if (topData && typeof topData === "object") {
+    const dataObject = topData as Record<string, unknown>
+
+    const directItems = dataObject.items
+    if (Array.isArray(directItems)) return directItems as Order[]
+
+    const nestedData = dataObject.data
+    if (nestedData && typeof nestedData === "object") {
+      const nestedItems = (nestedData as Record<string, unknown>).items
+      if (Array.isArray(nestedItems)) return nestedItems as Order[]
+    }
+
+    if (Array.isArray(topData)) return topData as Order[]
+  }
+
+  return []
 }
 
 export function useCartsTable() {
   const queryClient = useQueryClient()
   const [search, setSearch] = React.useState("")
+  const [statusFilter, setStatusFilter] = React.useState<AdminOrderStatus | undefined>(undefined)
 
   const {
-    data: cartsResponse,
+    data: ordersResponse,
     isLoading,
     isFetching,
     isError,
     error,
   } = useQuery({
-    queryKey: cartsQueryKey,
-    queryFn: getCarts,
+    queryKey: [...cartsQueryKey, statusFilter],
+    queryFn: () => getOrders({ page: 1, limit: 12, status: statusFilter }),
   })
 
   const deleteMutation = useMutation({
-    mutationFn: (id: string) => deleteCart(id),
+    mutationFn: (id: string) => deleteOrder(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: cartsQueryKey })
-      toast.success("Da xoa gio hang thanh cong.")
+      toast.success("Xóa đơn hàng thành công.")
     },
     onError: (err) => {
-      const message =
-        err instanceof Error && err.message.trim()
-          ? err.message
-          : "Xoa gio hang that bai. Vui long thu lai."
-      toast.error(message)
+      const message = err instanceof Error ? err.message.trim() : ""
+      if (message.includes("404")) {
+        toast.error("Đơn hàng không tồn tại hoặc đã bị xóa.")
+        return
+      }
+      if (message.includes("401") || message.includes("403")) {
+        toast.error("Bạn không có quyền thao tác đơn hàng.")
+        return
+      }
+      toast.error(message || "Xóa đơn hàng thất bại. Vui lòng thử lại.")
     },
   })
 
-  const data = React.useMemo(
-    () => (cartsResponse?.data ?? []).map(normalizeCartRow),
-    [cartsResponse?.data],
-  )
+  const rawOrders = React.useMemo(() => extractOrderItems(ordersResponse), [ordersResponse])
+  const data = React.useMemo(() => rawOrders.map(normalizeCartRow), [rawOrders])
 
   const columns = React.useMemo<ColumnDef<CartRow>[]>(
     () => [
-      { accessorKey: "id", header: "Mã giỏ" },
+      { accessorKey: "id", header: "Mã đơn" },
       { accessorKey: "customer", header: "Khách hàng" },
       { accessorKey: "items", header: "Số món" },
       { accessorKey: "total", header: "Tổng tiền" },
+      { accessorKey: "status", header: "Trạng thái" },
       { accessorKey: "updatedAt", header: "Cập nhật" },
     ],
     [],
@@ -125,7 +138,8 @@ export function useCartsTable() {
       (item) =>
         item.id.toLowerCase().includes(q) ||
         item.customer.toLowerCase().includes(q) ||
-        item.total.toLowerCase().includes(q),
+        item.total.toLowerCase().includes(q) ||
+        item.status.toLowerCase().includes(q),
     )
   }, [data, search])
 
@@ -135,6 +149,7 @@ export function useCartsTable() {
 
   const resetFilters = React.useCallback(() => {
     setSearch("")
+    setStatusFilter(undefined)
   }, [])
 
   return {

@@ -20,7 +20,7 @@ function formatPrice(value: number) {
 
 // removed unused formatDate
 
-function renderCategories(categories: string[] | ProductCategoryRef[]) {
+function renderCategories(categories?: string[] | ProductCategoryRef[]) {
     if (!categories || categories.length === 0) return "Không có danh mục"
     if (typeof categories[0] === "string") return (categories as string[]).join(", ")
     return (categories as ProductCategoryRef[]).map((c) => c.name).join(", ")
