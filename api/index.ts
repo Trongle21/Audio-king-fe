@@ -1,6 +1,6 @@
 import { AUTH_ENDPOINTS } from "@/api/auth/authEndPoint"
 
-const DEFAULT_API_URL = "https://audio-king-be.vercel.app/api"
+const DEFAULT_API_URL = "/api/proxy"
 const ACCESS_TOKEN_STORAGE_KEY = "auth_access_token"
 const REFRESH_TOKEN_STORAGE_KEY = "auth_refresh_token"
 
@@ -327,4 +327,3 @@ export type {
     ApiSuccessResponse as TrendingApiSuccessResponse, TrendingItem,
     UpdateTrendingBody
 } from "./trending/trending.types"
-
