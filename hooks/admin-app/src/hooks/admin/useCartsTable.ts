@@ -19,6 +19,7 @@ export type CartRow = {
   items: number
   total: string
   status: string
+  productImages: string[]
   updatedAt: string
 }
 
@@ -44,6 +45,13 @@ function formatDateTime(value?: string): string {
 
 function normalizeCartRow(order: Order): CartRow {
   const itemsCount = order.items?.reduce((sum, item) => sum + (item.quantity ?? 0), 0) ?? 0
+  const productImages = Array.from(
+    new Set(
+      (order.items ?? [])
+        .map((item) => item.thumbnail)
+        .filter((url): url is string => typeof url === "string" && url.trim().length > 0),
+    ),
+  )
 
   return {
     id: order._id,
@@ -51,6 +59,7 @@ function normalizeCartRow(order: Order): CartRow {
     items: itemsCount,
     total: formatCurrency(order.totalAmount ?? order.subtotal ?? 0),
     status: order.status ?? "-",
+    productImages,
     updatedAt: formatDateTime(order.updatedAt ?? order.createdAt),
   }
 }
@@ -121,6 +130,34 @@ export function useCartsTable() {
   const columns = React.useMemo<ColumnDef<CartRow>[]>(
     () => [
       { accessorKey: "id", header: "Mã đơn" },
+      {
+        id: "productImages",
+        header: "Ảnh sản phẩm",
+        cell: ({ row }) => {
+          const images = row.original.productImages
+          if (!images.length) return "Không có ảnh"
+
+          return React.createElement(
+            "div",
+            { className: "flex items-center gap-1" },
+            ...images.slice(0, 4).map((src, index) =>
+              React.createElement("img", {
+                key: `${src}-${index}`,
+                src,
+                alt: `Product ${index + 1}`,
+                className: "h-8 w-8 rounded object-cover border",
+              }),
+            ),
+            images.length > 4
+              ? React.createElement(
+                "span",
+                { className: "text-xs text-slate-500" },
+                `+${images.length - 4}`,
+              )
+              : null,
+          )
+        },
+      },
       { accessorKey: "customer", header: "Khách hàng" },
       { accessorKey: "items", header: "Số món" },
       { accessorKey: "total", header: "Tổng tiền" },
