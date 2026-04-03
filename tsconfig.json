@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "@/*": ["./*"]
+      "@/*": ["./*"],
+      "@/api": ["./lib/api-client/index.ts"],
+      "@/api/*": ["./lib/api-client/*"]
     }
   },
   "include": [
