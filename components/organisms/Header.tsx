@@ -18,7 +18,6 @@ import { formatCurrency } from "@/lib"
 
 import { Button } from "@/components/atoms/button"
 import { IconButton } from "@/components/atoms/icon-button"
-import { SearchInput } from "@/components/atoms/search-input"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -27,8 +26,8 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/organisms/dropdown-menu"
+import { ProductHeaderSearch } from "@/components/organisms/ProductHeaderSearch"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
-import { useSearch } from "@/hooks/client-app/src/hooks/search"
 import { useAuth } from "@/hooks/client-app/src/hooks/useAuth"
 
 
@@ -52,7 +51,6 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [cartOpen, setCartOpen] = React.useState(false)
   const { items, totalItems, totalPrice } = useCart()
-  const { handleSearch } = useSearch()
   const { isAuthenticated, logout } = useAuth()
   const router = useRouter()
 
@@ -85,8 +83,7 @@ export default function Header() {
               {/* Desktop/Tablet: Category + Search inline */}
               <div className="hidden md:flex items-center gap-2 flex-1 min-w-0">
                 <div className="flex-1 min-w-0 max-w-3xl">
-                  <SearchInput
-                    onSearch={handleSearch}
+                  <ProductHeaderSearch
                     placeholder="Bạn tìm thiết bị âm thanh gì?"
                     className="w-full"
                     inputClassName="bg-white text-black placeholder:text-muted-foreground border-0 rounded-md rounded-r-none focus-visible:ring-0"
@@ -275,8 +272,7 @@ export default function Header() {
 
             {/* Mobile: Search row full width */}
             <div className="md:hidden pb-3 w-full">
-              <SearchInput
-                onSearch={handleSearch}
+              <ProductHeaderSearch
                 placeholder="Bạn tìm thiết bị âm thanh gì?"
                 className="w-full"
                 inputClassName="w-full bg-white text-black placeholder:text-muted-foreground border-0 rounded-md rounded-r-none focus-visible:ring-0"
