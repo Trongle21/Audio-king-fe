@@ -4,9 +4,10 @@ import * as React from "react"
 
 import Link from "next/link"
 
+import { Button, type ButtonProps } from "./button"
+
 import { cn } from "@/lib/utils"
 
-import { Button, type ButtonProps } from "./button"
 
 interface IconButtonProps extends Omit<ButtonProps, "children"> {
   icon: React.ReactNode

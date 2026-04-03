@@ -6,9 +6,10 @@ import {
     setAuthTokens,
 } from "@/api"
 
+import type { LoginFormData, RegisterFormData } from "@/lib/schemas/auth.schema"
+
 import { AUTH_ENDPOINTS } from "@/api/auth/authEndPoint"
 
-import type { LoginFormData, RegisterFormData } from "@/lib/schemas/auth.schema"
 
 type ApiPayload = Record<string, unknown>
 

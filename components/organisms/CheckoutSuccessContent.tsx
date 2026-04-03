@@ -5,9 +5,11 @@ import * as React from "react"
 import { CheckCircle2, Home, ShoppingBag } from "lucide-react"
 import Link from "next/link"
 
-import type { Order } from "@/api/orders"
-import { Button } from "@/components/atoms"
 import { formatCurrency } from "@/lib"
+
+import type { Order } from "@/api/orders"
+
+import { Button } from "@/components/atoms"
 
 const LAST_ORDER_STORAGE_KEY = "ak_last_order"
 

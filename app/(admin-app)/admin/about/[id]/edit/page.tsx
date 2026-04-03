@@ -4,11 +4,12 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 
+import type { AboutFormData } from "@/lib/schemas/about.schema"
+
 import { Button } from "@/components/atoms"
 import { AboutForm } from "@/components/organisms/admin-about"
 import { useUpdateAbout } from "@/hooks/admin-app/src/hooks/admin/about"
 
-import type { AboutFormData } from "@/lib/schemas/about.schema"
 
 function getErrorMessage(error: unknown) {
     if (error instanceof Error && error.message) return error.message

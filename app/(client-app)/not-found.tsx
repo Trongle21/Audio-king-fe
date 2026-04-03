@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+import type { Metadata } from "next"
+
 import { Button } from "@/components/atoms"
 import {
   Card,
@@ -9,7 +11,6 @@ import {
 } from "@/components/molecules"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
-import type { Metadata } from "next"
 
 export const metadata: Metadata = genMetadata({
   title: "Không tìm thấy trang",

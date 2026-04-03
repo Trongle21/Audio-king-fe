@@ -4,10 +4,11 @@ import * as React from "react"
 
 import { Search } from "lucide-react"
 
-import { cn } from "@/lib/utils"
 
 import { Button } from "./button"
 import { Input } from "./input"
+
+import { cn } from "@/lib/utils"
 
 interface SearchInputProps extends React.ComponentProps<"input"> {
   onSearch?: (value: string) => void

@@ -2,11 +2,12 @@
 
 import { useQuery } from "@tanstack/react-query"
 
+import type { GetProductsParams, ProductListData } from "@/api/product/product.types"
+
 import {
   getProducts,
   normalizeGetProductsParamsForRequest,
 } from "@/api/product"
-import type { GetProductsParams, ProductListData } from "@/api/product/product.types"
 
 export const PRODUCT_QUERY_FALLBACK_MESSAGE =
   "Có lỗi xảy ra, vui lòng thử lại."

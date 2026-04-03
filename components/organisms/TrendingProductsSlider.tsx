@@ -5,12 +5,13 @@ import * as React from "react"
 import { Autoplay } from "swiper/modules"
 import { Swiper, SwiperSlide } from "swiper/react"
 
+import type { Swiper as SwiperInstance } from "swiper"
+
 import {
   ProductCard,
   type HomeProduct,
 } from "@/components/organisms/ProductCard"
 
-import type { Swiper as SwiperInstance } from "swiper"
 
 import "swiper/css"
 

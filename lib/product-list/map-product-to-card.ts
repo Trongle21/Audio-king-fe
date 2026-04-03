@@ -1,5 +1,4 @@
 import type { Product } from "@/api/product/product.types"
-
 import type { HomeProduct } from "@/components/organisms/ProductCard"
 
 function pickThumbnailUrl(product: Product): string {

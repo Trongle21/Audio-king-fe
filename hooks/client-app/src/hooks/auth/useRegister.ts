@@ -1,8 +1,9 @@
 "use client"
 
+import type { RegisterFormData } from "@/lib/schemas/auth.schema"
+
 import { useRegisterMutate } from "@/services/auth"
 
-import type { RegisterFormData } from "@/lib/schemas/auth.schema"
 
 export function useRegister() {
   const registerMutate = useRegisterMutate()

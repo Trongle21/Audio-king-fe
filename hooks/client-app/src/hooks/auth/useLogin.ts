@@ -1,8 +1,9 @@
 "use client"
 
+import type { LoginFormData } from "@/lib/schemas/auth.schema"
+
 import { useLoginMutate } from "@/services/auth"
 
-import type { LoginFormData } from "@/lib/schemas/auth.schema"
 
 export function useLogin() {
   const loginMutate = useLoginMutate()

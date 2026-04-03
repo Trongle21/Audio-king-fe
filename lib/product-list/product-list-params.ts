@@ -1,3 +1,8 @@
+import type {
+  GetProductsParams,
+  ProductOrder,
+  ProductSortBy,
+} from "@/api/product/product.types"
 import type { ReadonlyURLSearchParams } from "next/navigation"
 
 import {
@@ -5,11 +10,6 @@ import {
   DEFAULT_PRODUCT_LIST_PAGE,
   sanitizeGetProductsParams,
 } from "@/api/product/product.api"
-import type {
-  GetProductsParams,
-  ProductOrder,
-  ProductSortBy,
-} from "@/api/product/product.types"
 
 const SORT_BY_VALUES: readonly ProductSortBy[] = ["name", "price", "createdAt"]
 const ORDER_VALUES: readonly ProductOrder[] = ["asc", "desc"]

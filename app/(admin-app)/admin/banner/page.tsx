@@ -7,12 +7,13 @@ import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
 
+import type { Banner } from "@/api/banner"
+
 import { Button } from "@/components/atoms"
 import { AdminEntityTable, DeleteBannerModal } from "@/components/organisms"
 import { useDeleteBanner, useBanners } from "@/hooks/admin-app/src/hooks/admin/banner"
 import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
 
-import type { Banner } from "@/api/banner"
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) return error.message

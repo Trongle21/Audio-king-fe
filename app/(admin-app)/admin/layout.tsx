@@ -1,12 +1,14 @@
 import Link from "next/link"
 
+import { AdminAuthGate } from "./AdminAuthGate"
+
+import type { Metadata } from "next"
+
 import { Button } from "@/components/atoms"
 import { AdminSidebarNav } from "@/components/organisms/admin-sidebar-nav"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
-import { AdminAuthGate } from "./AdminAuthGate"
 
-import type { Metadata } from "next"
 
 export const metadata: Metadata = genMetadata({
   title: "Admin Dashboard",

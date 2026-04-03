@@ -1,10 +1,11 @@
 import { Building2, MapPin, ShieldCheck, Speaker } from "lucide-react"
 import Link from "next/link"
 
+import type { Metadata } from "next"
+
 import { AboutGallery } from "@/components/organisms/AboutGallery"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
-import type { Metadata } from "next"
 
 export const metadata: Metadata = genMetadata({
   title: "Giới thiệu",

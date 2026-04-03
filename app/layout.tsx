@@ -3,11 +3,12 @@ import "./globals.css"
 import { Geist, Geist_Mono } from "next/font/google"
 import { Toaster } from "sonner"
 
+import type { Metadata } from "next"
+
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 import ReactQueryProvider from "@/lib/ReactQueryProvider"
 import ReduxProvider from "@/lib/store/ReduxProvider"
 
-import type { Metadata } from "next"
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

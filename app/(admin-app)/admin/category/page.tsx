@@ -7,6 +7,9 @@ import { Filter } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
+import type { Category } from "@/api/category"
+import type { CategoryNameFormData } from "@/lib/schemas/category.schema"
+
 import { Button, Input } from "@/components/atoms"
 import {
   AdminEntityTable,
@@ -23,8 +26,6 @@ import {
 import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
 import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
 
-import type { Category } from "@/api/category"
-import type { CategoryNameFormData } from "@/lib/schemas/category.schema"
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) return error.message

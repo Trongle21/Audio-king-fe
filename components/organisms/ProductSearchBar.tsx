@@ -4,9 +4,10 @@ import * as React from "react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
+import type { ProductOrder, ProductSortBy } from "@/api/product/product.types"
+
 import { Button, Input } from "@/components/atoms"
 import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
-import type { ProductOrder, ProductSortBy } from "@/api/product/product.types"
 import {
   buildProductListHref,
   parseProductListSearchParams,

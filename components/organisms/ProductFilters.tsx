@@ -6,6 +6,7 @@ import { SlidersHorizontal } from "lucide-react"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 import type { GetProductsParams } from "@/api/product/product.types"
+
 import { Button, Input, Label } from "@/components/atoms"
 import {
   Sheet,

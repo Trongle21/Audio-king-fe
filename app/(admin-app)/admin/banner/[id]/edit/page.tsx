@@ -6,11 +6,12 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 
+import type { BannerFormData } from "@/lib/schemas/banner.schema"
+
 import { Button } from "@/components/atoms"
 import { BannerForm } from "@/components/organisms/admin-banner/banner-form"
 import { useBanners, useUpdateBanner } from "@/hooks/admin-app/src/hooks/admin/banner"
 
-import type { BannerFormData } from "@/lib/schemas/banner.schema"
 
 function getErrorMessage(error: unknown) {
   if (error instanceof Error && error.message) return error.message

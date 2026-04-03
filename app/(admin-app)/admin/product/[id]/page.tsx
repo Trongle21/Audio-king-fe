@@ -4,10 +4,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
+import type { ProductCategoryRef } from "@/api/product"
+
 import { Button } from "@/components/atoms"
 import { useProductDetail } from "@/hooks/admin-app/src/hooks/admin/product"
 
-import type { ProductCategoryRef } from "@/api/product"
 
 function getErrorMessage(error: unknown) {
     if (error instanceof Error && error.message) return error.message
