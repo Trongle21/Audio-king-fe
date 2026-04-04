@@ -4,6 +4,12 @@ import { useMemo, useState } from "react"
 
 import { toast } from "sonner"
 
+import type {
+    AdminUserItem,
+    AdminUserRole,
+    AdminUsersQueryParams,
+} from "@/services/adminUser.service"
+
 import { Badge, Button, Input, Label } from "@/components/atoms"
 import {
     Dialog,
@@ -19,11 +25,6 @@ import {
     useSoftDeleteAdminUser,
     useUpdateAdminUser,
 } from "@/hooks/admin-app/src/hooks/admin/user/useAdminUsers"
-import type {
-    AdminUserItem,
-    AdminUserRole,
-    AdminUsersQueryParams,
-} from "@/services/adminUser.service"
 
 function getErrorMessage(error: unknown) {
     if (error instanceof Error && error.message) {
