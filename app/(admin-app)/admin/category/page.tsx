@@ -147,9 +147,6 @@ export default function AdminCategoriesPage() {
         <header className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Category Management</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Quản lý category theo đúng API backend.
-            </p>
           </div>
 
           <div className="flex items-center gap-2">

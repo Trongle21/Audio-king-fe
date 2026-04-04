@@ -8,6 +8,7 @@ export { useCategoriesTable } from "./useCategoriesTable"
 export { useDashboard } from "./useDashboard"
 export { useProductsTable } from "./useProductsTable"
 export { useUsersTable } from "./useUsersTable"
+export * from "./user/useAdminUsers"
 
 export * from "./category"
 export * from "./product"

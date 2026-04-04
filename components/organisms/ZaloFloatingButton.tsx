@@ -3,7 +3,7 @@
 import Image from "next/image"
 import Link from "next/link"
 
-const ZALO_CONTACT_URL = "https://zalo.me/1721348802370464937"
+const ZALO_CONTACT_URL = "https://zalo.me/0986344085"
 
 const ZALO_IMAGE_URL = "/Icon_of_Zalo.svg.png"
 

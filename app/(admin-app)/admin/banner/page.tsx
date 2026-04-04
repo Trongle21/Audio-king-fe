@@ -11,7 +11,7 @@ import type { Banner } from "@/api/banner"
 
 import { Button } from "@/components/atoms"
 import { AdminEntityTable, DeleteBannerModal } from "@/components/organisms"
-import { useDeleteBanner, useBanners } from "@/hooks/admin-app/src/hooks/admin/banner"
+import { useBanners, useDeleteBanner } from "@/hooks/admin-app/src/hooks/admin/banner"
 import { useAdminTable } from "@/hooks/admin-app/src/hooks/admin/useAdminTable"
 
 
@@ -107,7 +107,6 @@ export default function AdminBannerPage() {
         <header className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Quản lý Banner</h1>
-            <p className="mt-1 text-sm text-slate-500">Danh sách banner theo đúng API backend.</p>
           </div>
 
           <Link href="/admin/banner/create">

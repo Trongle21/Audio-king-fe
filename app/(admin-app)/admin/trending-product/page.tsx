@@ -20,6 +20,7 @@ import { CSS } from "@dnd-kit/utilities"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useMutation, useQuery } from "@tanstack/react-query"
 import { GripVertical, Plus, Trash2 } from "lucide-react"
+import Image from "next/image"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
 
@@ -66,6 +67,15 @@ function toCategoryText(product: Product): string {
   const first = product.categories[0]
   if (typeof first === "string") return first
   return first.name
+}
+
+function toProductThumbnailSrc(product: Product): string | null {
+  const thumb = product.thumbnail
+  if (typeof thumb === "string" && thumb.trim()) return thumb
+  if (thumb && typeof thumb === "object" && thumb.url?.trim()) return thumb.url
+
+  const fallback = product.images?.[0]?.url
+  return fallback?.trim() ? fallback : null
 }
 
 function toRequestParams(values: ProductFilterFormData, page: number): GetProductsParams {
@@ -117,6 +127,8 @@ function SortableTrendingItem({
     transition,
   }
 
+  const thumbnailSrc = toProductThumbnailSrc(product)
+
   return (
     <div
       ref={setNodeRef}
@@ -132,6 +144,21 @@ function SortableTrendingItem({
       >
         <GripVertical className="h-4 w-4" />
       </button>
+
+      {thumbnailSrc ? (
+        <Image
+          src={thumbnailSrc}
+          alt={product.name}
+          width={48}
+          height={48}
+          unoptimized
+          className="h-12 w-12 rounded-md border object-cover"
+        />
+      ) : (
+        <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-slate-100 text-[10px] text-slate-400">
+          No image
+        </div>
+      )}
 
       <div className="min-w-0 flex-1">
         <p className="truncate text-sm font-semibold text-slate-900">
@@ -357,28 +384,49 @@ export default function AdminTrendingProductsPage() {
                 <p className="text-sm text-slate-500">Không còn sản phẩm để thêm.</p>
               )}
 
-              {sourceProducts.map((item) => (
-                <div
-                  key={item._id}
-                  className="flex items-center justify-between rounded-lg border bg-white p-3"
-                >
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
-                    <p className="text-xs text-slate-500">
-                      {item.sku} • {toCategoryText(item)} • {formatCurrency(item.price)}
-                    </p>
-                  </div>
+              {sourceProducts.map((item) => {
+                const thumbnailSrc = toProductThumbnailSrc(item)
 
-                  <Button
-                    size="sm"
-                    className="bg-destructive text-white hover:bg-destructive/90"
-                    onClick={() => addTrending(item)}
+                return (
+                  <div
+                    key={item._id}
+                    className="flex items-center justify-between rounded-lg border bg-white p-3"
                   >
-                    <Plus className="mr-1 h-4 w-4" />
-                    Add
-                  </Button>
-                </div>
-              ))}
+                    <div className="flex min-w-0 items-center gap-3">
+                      {thumbnailSrc ? (
+                        <Image
+                          src={thumbnailSrc}
+                          alt={item.name}
+                          width={48}
+                          height={48}
+                          unoptimized
+                          className="h-12 w-12 rounded-md border object-cover"
+                        />
+                      ) : (
+                        <div className="flex h-12 w-12 items-center justify-center rounded-md border bg-slate-100 text-[10px] text-slate-400">
+                          No image
+                        </div>
+                      )}
+
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-medium text-slate-900">{item.name}</p>
+                        <p className="text-xs text-slate-500">
+                          {item.sku} • {toCategoryText(item)} • {formatCurrency(item.price)}
+                        </p>
+                      </div>
+                    </div>
+
+                    <Button
+                      size="sm"
+                      className="bg-destructive text-white hover:bg-destructive/90"
+                      onClick={() => addTrending(item)}
+                    >
+                      <Plus className="mr-1 h-4 w-4" />
+                      Add
+                    </Button>
+                  </div>
+                )
+              })}
 
               {pagination && (
                 <div className="flex items-center justify-between border-t pt-2">
