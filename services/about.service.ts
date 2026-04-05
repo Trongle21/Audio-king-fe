@@ -29,39 +29,39 @@ export async function uploadAboutImagesToCloudinary({
   if (!files.length) return []
 
   const signature = await getAboutUploadSignature()
-  const uploadedImages: AboutImage[] = []
 
-  for (const file of files) {
-    onFileProgress?.({ fileName: file.name, progress: 0, status: "uploading" })
+  const results = await Promise.all(
+    files.map(async (file): Promise<AboutImage> => {
+      onFileProgress?.({ fileName: file.name, progress: 0, status: "uploading" })
 
-    try {
-      const secureUrl = await uploadFileToCloudinary({
-        file,
-        config: signature,
-        onProgress: (progress) => {
-          onFileProgress?.({ fileName: file.name, progress, status: "uploading" })
-        },
-      })
+      try {
+        const secureUrl = await uploadFileToCloudinary({
+          file,
+          config: signature,
+          onProgress: (progress) => {
+            onFileProgress?.({ fileName: file.name, progress, status: "uploading" })
+          },
+        })
 
-      uploadedImages.push({
-        url: secureUrl,
-        alt: buildAboutImageAlt(file.name),
-      })
+        onFileProgress?.({ fileName: file.name, progress: 100, status: "success" })
+        return {
+          url: secureUrl,
+          alt: buildAboutImageAlt(file.name),
+        }
+      } catch (error) {
+        const message = error instanceof Error ? error.message : "Upload thất bại"
+        onFileProgress?.({
+          fileName: file.name,
+          progress: 0,
+          status: "error",
+          error: message,
+        })
+        throw error
+      }
+    }),
+  )
 
-      onFileProgress?.({ fileName: file.name, progress: 100, status: "success" })
-    } catch (error) {
-      const message = error instanceof Error ? error.message : "Upload thất bại"
-      onFileProgress?.({
-        fileName: file.name,
-        progress: 0,
-        status: "error",
-        error: message,
-      })
-      throw error
-    }
-  }
-
-  return uploadedImages
+  return results
 }
 
 export function buildAboutPayload(images: AboutImage[]): AboutPayload {

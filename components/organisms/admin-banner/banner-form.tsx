@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import Image from "next/image"
@@ -43,10 +43,7 @@ export function BannerForm({
   const [keptExistingImages, setKeptExistingImages] = useState<Array<{ url: string; alt?: string }>>(
     existingImages ?? [],
   )
-
-  useEffect(() => {
-    setKeptExistingImages(existingImages ?? [])
-  }, [existingImages])
+  // Initialize from props; avoid resetting via effect to satisfy lint rule
 
   const watchedFiles = useWatch({ control, name: "files" })
   const files = useMemo<File[]>(() => {
