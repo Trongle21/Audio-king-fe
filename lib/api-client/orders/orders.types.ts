@@ -25,6 +25,8 @@ export type OrderItemSnapshot = {
   lineTotal: number
 }
 
+export type PaymentStatus = "unpaid" | "paid"
+
 export type Order = {
   _id: string
   customerName: string
@@ -36,6 +38,7 @@ export type Order = {
   shippingFee: number
   totalAmount: number
   status: "pending" | "confirmed" | "shipping" | "delivered" | "cancelled" | string
+  paymentStatus?: PaymentStatus
   createdAt?: string
   updatedAt?: string
 }

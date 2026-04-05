@@ -1,5 +1,7 @@
 "use client"
 
+import { useState } from "react"
+
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
@@ -8,8 +10,14 @@ import type { AboutFormData } from "@/lib/schemas/about.schema"
 
 import { Button } from "@/components/atoms"
 import { AboutForm } from "@/components/organisms/admin-about"
-import { useCreateAbout } from "@/hooks/admin-app/src/hooks/admin/about"
-
+import {
+    useAboutCloudinaryUpload,
+    useCreateAbout,
+} from "@/hooks/admin-app/src/hooks/admin/about"
+import {
+    buildAboutPayload,
+    type UploadProgressItem,
+} from "@/services/about.service"
 
 function getErrorMessage(error: unknown) {
     if (error instanceof Error && error.message) return error.message
@@ -19,15 +27,38 @@ function getErrorMessage(error: unknown) {
 export default function AdminCreateAboutPage() {
     const router = useRouter()
     const createMutation = useCreateAbout()
+    const uploadMutation = useAboutCloudinaryUpload()
+
+    const [uploadProgress, setUploadProgress] = useState<UploadProgressItem[]>([])
 
     const handleSubmit = async (payload: AboutFormData) => {
         try {
-            const formData = new FormData()
-            payload.files.forEach((file) => {
-                formData.append("files", file)
+            setUploadProgress(
+                payload.files.map((file) => ({
+                    fileName: file.name,
+                    progress: 0,
+                    status: "pending" as const,
+                })),
+            )
+
+            const images = await uploadMutation.mutateAsync({
+                files: payload.files,
+                onFileProgress: (progressItem) => {
+                    setUploadProgress((prev) => {
+                        const existingIndex = prev.findIndex((item) => item.fileName === progressItem.fileName)
+
+                        if (existingIndex >= 0) {
+                            const next = [...prev]
+                            next[existingIndex] = { ...next[existingIndex], ...progressItem }
+                            return next
+                        }
+
+                        return [...prev, progressItem]
+                    })
+                },
             })
 
-            const res = await createMutation.mutateAsync(formData)
+            const res = await createMutation.mutateAsync(buildAboutPayload(images))
             toast.success(res.message)
             router.push("/admin/about")
         } catch (err) {
@@ -41,7 +72,6 @@ export default function AdminCreateAboutPage() {
                 <div className="flex items-center justify-between">
                     <div>
                         <h1 className="text-2xl font-bold text-slate-900">Tạo about</h1>
-                        <p className="mt-1 text-sm text-slate-500">Tạo document about mới với mảng images.</p>
                     </div>
 
                     <Link href="/admin/about">
@@ -49,7 +79,13 @@ export default function AdminCreateAboutPage() {
                     </Link>
                 </div>
 
-                <AboutForm isSubmitting={createMutation.isPending} submitLabel="Tạo about" onSubmit={handleSubmit} />
+                <AboutForm
+                    isSubmitting={createMutation.isPending}
+                    isUploading={uploadMutation.isPending}
+                    uploadProgress={uploadProgress}
+                    submitLabel="Tạo about"
+                    onSubmit={handleSubmit}
+                />
             </section>
         </main>
     )

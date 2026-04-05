@@ -3,7 +3,6 @@
 import * as React from "react"
 
 import { useQuery } from "@tanstack/react-query"
-import { Search } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -11,7 +10,7 @@ import { useRouter } from "next/navigation"
 import type { Product } from "@/api/product/product.types"
 
 import { getProducts } from "@/api/product"
-import { Button, Input } from "@/components/atoms"
+import { Input } from "@/components/atoms"
 import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
 import { mapProductToHomeProduct } from "@/lib/product-list/map-product-to-card"
 import { buildProductListHref } from "@/lib/product-list/product-list-params"
@@ -130,14 +129,6 @@ export function ProductHeaderSearch({
           aria-label="Tìm kiếm sản phẩm"
           className={cn("flex-1 min-w-0", inputClassName)}
         />
-        <Button
-          type="button"
-          onClick={submit}
-          className={cn("shrink-0", searchButtonClassName)}
-          aria-label="Tìm kiếm"
-        >
-          <Search className="size-4" />
-        </Button>
 
         {showDropdown && (
           <div

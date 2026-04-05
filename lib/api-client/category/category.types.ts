@@ -15,7 +15,10 @@ export interface CategoryProduct {
   slug: string
   price: number
   description?: string
-  thumbnail?: string
+  thumbnail?: {
+    url: string
+    alt: string
+  }
 }
 
 export interface Category {

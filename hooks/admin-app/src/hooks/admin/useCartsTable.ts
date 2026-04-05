@@ -9,8 +9,10 @@ import { toast } from "sonner"
 import {
   deleteOrder,
   getOrders,
+  updateOrderPaymentStatus,
   type AdminOrderStatus,
   type Order,
+  type PaymentStatus,
 } from "@/api/orders"
 
 export type CartRow = {
@@ -19,6 +21,7 @@ export type CartRow = {
   items: number
   total: string
   status: string
+  paymentStatus: PaymentStatus
   productImages: string[]
   updatedAt: string
 }
@@ -59,6 +62,7 @@ function normalizeCartRow(order: Order): CartRow {
     items: itemsCount,
     total: formatCurrency(order.totalAmount ?? order.subtotal ?? 0),
     status: order.status ?? "-",
+    paymentStatus: order.paymentStatus === "paid" ? "paid" : "unpaid",
     productImages,
     updatedAt: formatDateTime(order.updatedAt ?? order.createdAt),
   }
@@ -88,10 +92,20 @@ function extractOrderItems(payload: unknown): Order[] {
   return []
 }
 
+function toFriendlyError(error: unknown, fallback: string) {
+  const message = error instanceof Error ? error.message.trim() : ""
+  if (message.includes("401") || message.includes("403")) {
+    return "Bạn không có quyền thao tác đơn hàng. Vui lòng đăng nhập lại tài khoản admin."
+  }
+  return message || fallback
+}
+
 export function useCartsTable() {
   const queryClient = useQueryClient()
   const [search, setSearch] = React.useState("")
   const [statusFilter, setStatusFilter] = React.useState<AdminOrderStatus | undefined>(undefined)
+  const [paymentStatusFilter, setPaymentStatusFilter] = React.useState<PaymentStatus | undefined>(undefined)
+  const [updatingPaymentId, setUpdatingPaymentId] = React.useState<string | null>(null)
 
   const {
     data: ordersResponse,
@@ -100,8 +114,14 @@ export function useCartsTable() {
     isError,
     error,
   } = useQuery({
-    queryKey: [...cartsQueryKey, statusFilter],
-    queryFn: () => getOrders({ page: 1, limit: 12, status: statusFilter }),
+    queryKey: [...cartsQueryKey, statusFilter, paymentStatusFilter],
+    queryFn: () =>
+      getOrders({
+        page: 1,
+        limit: 12,
+        status: statusFilter,
+        paymentStatus: paymentStatusFilter,
+      }),
   })
 
   const deleteMutation = useMutation({
@@ -116,11 +136,25 @@ export function useCartsTable() {
         toast.error("Đơn hàng không tồn tại hoặc đã bị xóa.")
         return
       }
-      if (message.includes("401") || message.includes("403")) {
-        toast.error("Bạn không có quyền thao tác đơn hàng.")
-        return
-      }
-      toast.error(message || "Xóa đơn hàng thất bại. Vui lòng thử lại.")
+      toast.error(toFriendlyError(err, "Xóa đơn hàng thất bại. Vui lòng thử lại."))
+    },
+  })
+
+  const paymentMutation = useMutation({
+    mutationFn: ({ id, paymentStatus }: { id: string; paymentStatus: PaymentStatus }) =>
+      updateOrderPaymentStatus(id, paymentStatus),
+    onMutate: ({ id }) => {
+      setUpdatingPaymentId(id)
+    },
+    onSuccess: () => {
+      toast.success("Cập nhật trạng thái thanh toán thành công.")
+      queryClient.invalidateQueries({ queryKey: cartsQueryKey })
+    },
+    onError: (err) => {
+      toast.error(toFriendlyError(err, "Cập nhật trạng thái thanh toán thất bại."))
+    },
+    onSettled: () => {
+      setUpdatingPaymentId(null)
     },
   })
 
@@ -129,7 +163,6 @@ export function useCartsTable() {
 
   const columns = React.useMemo<ColumnDef<CartRow>[]>(
     () => [
-      { accessorKey: "id", header: "Mã đơn" },
       {
         id: "productImages",
         header: "Ảnh sản phẩm",
@@ -150,10 +183,10 @@ export function useCartsTable() {
             ),
             images.length > 4
               ? React.createElement(
-                "span",
-                { className: "text-xs text-slate-500" },
-                `+${images.length - 4}`,
-              )
+                  "span",
+                  { className: "text-xs text-slate-500" },
+                  `+${images.length - 4}`,
+                )
               : null,
           )
         },
@@ -161,7 +194,23 @@ export function useCartsTable() {
       { accessorKey: "customer", header: "Khách hàng" },
       { accessorKey: "items", header: "Số món" },
       { accessorKey: "total", header: "Tổng tiền" },
-      { accessorKey: "status", header: "Trạng thái" },
+      { accessorKey: "status", header: "Trạng thái đơn" },
+      {
+        accessorKey: "paymentStatus",
+        header: "Thanh toán",
+        cell: ({ row }) => {
+          const paid = row.original.paymentStatus === "paid"
+          return React.createElement(
+            "span",
+            {
+              className: paid
+                ? "inline-flex rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700"
+                : "inline-flex rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700",
+            },
+            paid ? "Đã thanh toán" : "Chưa thanh toán",
+          )
+        },
+      },
       { accessorKey: "updatedAt", header: "Cập nhật" },
     ],
     [],
@@ -173,20 +222,38 @@ export function useCartsTable() {
 
     return data.filter(
       (item) =>
-        item.id.toLowerCase().includes(q) ||
         item.customer.toLowerCase().includes(q) ||
         item.total.toLowerCase().includes(q) ||
         item.status.toLowerCase().includes(q),
     )
   }, [data, search])
 
-  const onDelete = React.useCallback((id: string) => {
-    deleteMutation.mutate(id)
-  }, [deleteMutation])
+  const onDelete = React.useCallback(
+    (id: string) => {
+      deleteMutation.mutate(id)
+    },
+    [deleteMutation],
+  )
+
+  const onTogglePaymentStatus = React.useCallback(
+    (id: string, currentStatus: PaymentStatus) => {
+      const nextStatus: PaymentStatus = currentStatus === "paid" ? "unpaid" : "paid"
+      const confirmed = window.confirm(
+        `Xác nhận chuyển trạng thái thanh toán sang ${
+          nextStatus === "paid" ? "Đã thanh toán" : "Chưa thanh toán"
+        }?`,
+      )
+      if (!confirmed) return
+
+      paymentMutation.mutate({ id, paymentStatus: nextStatus })
+    },
+    [paymentMutation],
+  )
 
   const resetFilters = React.useCallback(() => {
     setSearch("")
     setStatusFilter(undefined)
+    setPaymentStatusFilter(undefined)
   }, [])
 
   return {
@@ -198,9 +265,16 @@ export function useCartsTable() {
     isError,
     error,
     isDeleting: deleteMutation.isPending,
+    isUpdatingPaymentStatus: paymentMutation.isPending,
+    updatingPaymentId,
     search,
     setSearch,
+    statusFilter,
+    setStatusFilter,
+    paymentStatusFilter,
+    setPaymentStatusFilter,
     resetFilters,
     onDelete,
+    onTogglePaymentStatus,
   }
 }

@@ -1,9 +1,12 @@
-import { apiDelete, apiGet, apiPatch, apiPost, getAccessToken } from "@/api"
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut, getAccessToken } from "@/api"
 
 import type {
   AboutDocument,
+  AboutImageMutationPayload,
   AboutImagesData,
   AboutImagesParams,
+  AboutMutationPayload,
+  AboutUploadSignatureData,
   ApiSuccessResponse,
 } from "./about.types"
 
@@ -34,25 +37,42 @@ export async function getAboutImages(params: AboutImagesParams = {}) {
     {},
     { auth: false },
   )
+
   return response.data
 }
 
-export async function createAbout(formData: FormData) {
-  return apiPost<ApiSuccessResponse<AboutDocument>, FormData>(
+export async function getAboutById(id: string) {
+  return apiGet<ApiSuccessResponse<AboutDocument>>(`${ABOUT_BASE_PATH}/${id}`, {}, { auth: false })
+}
+
+export async function getAboutUploadSignature() {
+  const response = await apiGet<ApiSuccessResponse<AboutUploadSignatureData>>(
+    `${ABOUT_BASE_PATH}/upload-signature`,
+    {
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+
+  return response.data
+}
+
+export async function createAbout(payload: AboutMutationPayload) {
+  return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
     ABOUT_BASE_PATH,
     {
-      body: formData,
+      body: payload,
       headers: buildTokenHeader(),
     },
     { auth: false },
   )
 }
 
-export async function updateAbout(id: string, formData: FormData) {
-  return apiPatch<ApiSuccessResponse<AboutDocument>, FormData>(
+export async function updateAbout(id: string, payload: AboutMutationPayload) {
+  return apiPut<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
     `${ABOUT_BASE_PATH}/${id}`,
     {
-      body: formData,
+      body: payload,
       headers: buildTokenHeader(),
     },
     { auth: false },
@@ -62,6 +82,42 @@ export async function updateAbout(id: string, formData: FormData) {
 export async function deleteAbout(id: string) {
   return apiDelete<ApiSuccessResponse<AboutDocument>>(
     `${ABOUT_BASE_PATH}/${id}`,
+    {
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+}
+
+export async function addAboutImages(id: string, payload: AboutMutationPayload) {
+  return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
+    `${ABOUT_BASE_PATH}/${id}/images`,
+    {
+      body: payload,
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+}
+
+export async function updateAboutImage(
+  id: string,
+  imageIndex: number,
+  payload: AboutImageMutationPayload,
+) {
+  return apiPatch<ApiSuccessResponse<AboutDocument>, AboutImageMutationPayload>(
+    `${ABOUT_BASE_PATH}/${id}/images/${imageIndex}`,
+    {
+      body: payload,
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+}
+
+export async function deleteAboutImage(id: string, imageIndex: number) {
+  return apiDelete<ApiSuccessResponse<AboutDocument>>(
+    `${ABOUT_BASE_PATH}/${id}/images/${imageIndex}`,
     {
       headers: buildTokenHeader(),
     },

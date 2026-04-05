@@ -238,13 +238,13 @@ export default function AdminTrendingProductsPage() {
     onSuccess: async () => {
       await refetchTrending()
       setLocalTrending(null)
-      toast.success("Cap nhat trending thanh cong.")
+      toast.success("Cập nhật thịnh hành thành công.")
     },
     onError: (error) => {
       const message =
         error instanceof Error && error.message.trim()
           ? error.message
-          : "Cap nhat trending that bai."
+          : "Cập nhật thịnh hành thất bại."
       toast.error(message)
     },
   })
@@ -267,7 +267,7 @@ export default function AdminTrendingProductsPage() {
 
   const addTrending = (product: Product) => {
     if (selectedIds.has(product._id)) {
-      toast.info("San pham da co trong trending.")
+      toast.info("Sản phẩm đã có trong thịnh hành.")
       return
     }
     setLocalTrending((prev) => [...(prev ?? serverTrending), { productId: product._id, product }])
@@ -370,18 +370,18 @@ export default function AdminTrendingProductsPage() {
 
             <div className="space-y-2 rounded-xl border bg-slate-50 p-3">
               {(productsLoading || trendingLoading) && (
-                <p className="text-sm text-slate-500">Dang tai du lieu...</p>
+                <p className="text-sm text-slate-500">Đang tải dữ liệu...</p>
               )}
               {productsError && (
                 <p className="text-sm text-destructive">
                   {productsError instanceof Error
                     ? productsError.message
-                    : "Khong tai duoc danh sach san pham."}
+                    : "Không tải được danh sách sản phẩm."}
                 </p>
               )}
 
               {!productsLoading && sourceProducts.length === 0 && (
-                <p className="text-sm text-slate-500">Không còn sản phẩm để thêm.</p>
+                <p className="text-sm text-slate-500">Không có sản phẩm để thêm.</p>
               )}
 
               {sourceProducts.map((item) => {
@@ -510,7 +510,7 @@ export default function AdminTrendingProductsPage() {
                   disabled={!isDirty || selectedTrending.length === 0 || saveMutation.isPending}
                   onClick={() => saveMutation.mutate()}
                 >
-                  {saveMutation.isPending ? "Dang luu..." : "Save Trending"}
+                  {saveMutation.isPending ? "Đang lưu..." : "Lưu thịnh hành"}
                 </Button>
                 <Button
                   type="button"
@@ -518,7 +518,7 @@ export default function AdminTrendingProductsPage() {
                   disabled={!isDirty}
                   onClick={() => setLocalTrending(null)}
                 >
-                  Discard changes
+                  Bỏ thay đổi
                 </Button>
                 <Button
                   type="button"
@@ -528,7 +528,7 @@ export default function AdminTrendingProductsPage() {
                     void refetchProducts()
                   }}
                 >
-                  Reload
+                  Tải lại
                 </Button>
               </div>
             </div>

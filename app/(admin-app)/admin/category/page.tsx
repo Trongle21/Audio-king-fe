@@ -160,7 +160,7 @@ export default function AdminCategoriesPage() {
 
         <div className="flex items-center gap-3">
           <Input
-            placeholder="Tìm theo tên hoặc slug..."
+            placeholder="Tìm theo tên"
             value={search}
             onChange={(e) => {
               setSearch(e.target.value)

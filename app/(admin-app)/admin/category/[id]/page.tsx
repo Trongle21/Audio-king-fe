@@ -47,11 +47,12 @@ export default function AdminCategoryDetailPage() {
         )
     }
 
+    console.log(data.products, 'products')
+
     return (
         <main className="min-h-screen bg-slate-100 p-6 space-y-4">
             <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-2">
                 <h1 className="text-2xl font-bold text-slate-900">Category Detail</h1>
-                <p><strong>ID:</strong> {data._id}</p>
                 <p><strong>Name:</strong> {data.name}</p>
                 <p><strong>Slug:</strong> {data.slug}</p>
                 <p><strong>isDelete:</strong> {String(data.isDelete)}</p>
@@ -74,8 +75,8 @@ export default function AdminCategoryDetailPage() {
                                 {product.description && <p><strong>Description:</strong> {product.description}</p>}
                                 {product.thumbnail && (
                                     <Image
-                                        src={product.thumbnail}
-                                        alt={product.name}
+                                        src={product.thumbnail.url}
+                                        alt={product.thumbnail.alt}
                                         width={112}
                                         height={112}
                                         unoptimized

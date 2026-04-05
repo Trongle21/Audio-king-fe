@@ -1,19 +1,25 @@
 "use client"
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
+  addAboutImages,
   createAbout,
   deleteAbout,
+  deleteAboutImage,
+  getAboutById,
   getAboutImages,
   updateAbout,
+  updateAboutImage,
+  type AboutImageMutationPayload,
   type AboutImagesParams,
-} from "@/api/about"
+  type AboutMutationPayload,
+} from "@/api/about";
 
 export const aboutQueryKeys = {
-  all: ["about-images"] as const,
-  list: (params: { page: number; limit: number }) => ["about-images", params] as const,
-  detail: (id: string) => ["about", id] as const,
+  all: ["about-list"] as const,
+  list: (params: { page: number; limit: number }) => ["about-list", params] as const,
+  detail: (id: string) => ["about-detail", id] as const,
 }
 
 export function useAboutImages(params: AboutImagesParams) {
@@ -26,11 +32,22 @@ export function useAboutImages(params: AboutImagesParams) {
   })
 }
 
+export function useAboutDetail(id?: string) {
+  return useQuery({
+    queryKey: aboutQueryKeys.detail(id ?? ""),
+    queryFn: async () => {
+      const response = await getAboutById(id ?? "")
+      return response.data
+    },
+    enabled: Boolean(id),
+  })
+}
+
 export function useCreateAbout() {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: (formData: FormData) => createAbout(formData),
+    mutationFn: (payload: AboutMutationPayload) => createAbout(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
     },
@@ -43,11 +60,11 @@ export function useUpdateAbout() {
   return useMutation({
     mutationFn: ({
       id,
-      formData,
+      payload,
     }: {
       id: string
-      formData: FormData
-    }) => updateAbout(id, formData),
+      payload: AboutMutationPayload
+    }) => updateAbout(id, payload),
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.detail(variables.id) })
@@ -63,6 +80,52 @@ export function useDeleteAbout() {
     onSuccess: (_, id) => {
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
       queryClient.invalidateQueries({ queryKey: aboutQueryKeys.detail(id) })
+    },
+  })
+}
+
+export function useAddAboutImages() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: AboutMutationPayload }) =>
+      addAboutImages(id, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: aboutQueryKeys.detail(variables.id) })
+    },
+  })
+}
+
+export function useUpdateAboutImage() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      imageIndex,
+      payload,
+    }: {
+      id: string
+      imageIndex: number
+      payload: AboutImageMutationPayload
+    }) => updateAboutImage(id, imageIndex, payload),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: aboutQueryKeys.detail(variables.id) })
+    },
+  })
+}
+
+export function useDeleteAboutImage() {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, imageIndex }: { id: string; imageIndex: number }) =>
+      deleteAboutImage(id, imageIndex),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: aboutQueryKeys.all })
+      queryClient.invalidateQueries({ queryKey: aboutQueryKeys.detail(variables.id) })
     },
   })
 }

@@ -6,7 +6,7 @@ import Link from "next/link"
 import { useParams, useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-import type { BannerFormData } from "@/lib/schemas/banner.schema"
+import type { BannerEditFormData } from "@/lib/schemas/banner.schema"
 
 import { Button } from "@/components/atoms"
 import { BannerForm } from "@/components/organisms/admin-banner/banner-form"
@@ -31,11 +31,16 @@ export default function AdminEditBannerPage() {
     [banners, bannerId],
   )
 
-  const handleSubmit = async (payload: BannerFormData) => {
+  const handleSubmit = async (payload: BannerEditFormData) => {
     try {
       const formData = new FormData()
+
       payload.files.forEach((file) => {
         formData.append("files", file)
+      })
+
+      payload.keptExistingImageUrls.forEach((url) => {
+        formData.append("keptExistingImageUrls", url)
       })
 
       const response = await updateMutation.mutateAsync({
@@ -55,7 +60,6 @@ export default function AdminEditBannerPage() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Cập nhật banner</h1>
-            <p className="mt-1 text-sm text-slate-500">Upload ảnh mới để replace toàn bộ banner images.</p>
           </div>
 
           <Link href="/admin/banner">

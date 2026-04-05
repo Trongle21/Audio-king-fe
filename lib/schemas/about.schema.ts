@@ -13,6 +13,9 @@ const isFileArray = (value: unknown): value is File[] =>
   Array.isArray(value) && value.every((item) => item instanceof File)
 
 // About create/update (upload như banner): upload nhiều ảnh, FE upload ảnh và gửi file lên BE.
+export const MAX_ABOUT_FILE_SIZE_MB = 10
+const MAX_ABOUT_FILE_SIZE_BYTES = MAX_ABOUT_FILE_SIZE_MB * 1024 * 1024
+
 export const aboutSchema = z.object({
   files: z
     .custom<File[] | FileList>((value) => isFileArray(value) || isFileList(value), {
@@ -20,7 +23,11 @@ export const aboutSchema = z.object({
     })
     .transform((value) => (Array.isArray(value) ? value : Array.from(value)))
     .refine((files) => files.length > 0, "About phải có ít nhất 1 ảnh upload")
-    .refine((files) => files.every((file) => file.type.startsWith("image/")), "Chỉ chấp nhận file ảnh"),
+    .refine((files) => files.every((file) => file.type.startsWith("image/")), "Chỉ chấp nhận file ảnh")
+    .refine(
+      (files) => files.every((file) => file.size <= MAX_ABOUT_FILE_SIZE_BYTES),
+      `Mỗi ảnh không vượt quá ${MAX_ABOUT_FILE_SIZE_MB}MB`,
+    ),
 })
 
 export type AboutFormData = z.infer<typeof aboutSchema>

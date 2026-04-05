@@ -222,7 +222,7 @@ export default async function ClientHomePage() {
                                     đám cưới, sự kiện.
                                 </p>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            {/* <div className="flex flex-wrap gap-2">
                                 <Button
                                     size="sm"
                                     className="bg-destructive text-white hover:bg-destructive/90"
@@ -238,7 +238,7 @@ export default async function ClientHomePage() {
                                 <Button size="sm" variant="outline">
                                     Dàn hội trường mini
                                 </Button>
-                            </div>
+                            </div> */}
                         </header>
 
                         <PaginatedProductGrid
@@ -280,7 +280,7 @@ export default async function ClientHomePage() {
                                     được đánh giá cao về chất lượng và độ bền.
                                 </p>
                             </div>
-                            <div className="flex flex-wrap gap-2">
+                            {/* <div className="flex flex-wrap gap-2">
                                 <Button
                                     size="sm"
                                     className="bg-destructive text-white hover:bg-destructive/90"
@@ -296,7 +296,7 @@ export default async function ClientHomePage() {
                                 <Button size="sm" variant="outline">
                                     Loa RCF
                                 </Button>
-                            </div>
+                            </div> */}
                         </header>
 
                         <PaginatedProductGrid

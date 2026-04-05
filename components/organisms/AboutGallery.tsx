@@ -31,7 +31,7 @@ export function AboutGallery({ initialPage = 1, initialLimit = 12 }: AboutGaller
             void refetch()
           }}
         >
-          Thu lai
+          Thử lại
         </Button>
       </section>
     )
@@ -40,7 +40,7 @@ export function AboutGallery({ initialPage = 1, initialLimit = 12 }: AboutGaller
   if (items.length === 0) {
     return (
       <section className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">
-        Chua co anh gioi thieu.
+        Chưa có hình ảnh giới thiệu.
       </section>
     )
   }

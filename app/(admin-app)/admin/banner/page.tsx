@@ -39,10 +39,6 @@ export default function AdminBannerPage() {
   const columns = useMemo<ColumnDef<Banner>[]>(
     () => [
       {
-        accessorKey: "_id",
-        header: "ID",
-      },
-      {
         id: "images",
         header: "Preview",
         cell: ({ row }) => {

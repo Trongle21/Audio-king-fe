@@ -29,7 +29,7 @@ export interface AboutImagesPagination {
 }
 
 export interface AboutImagesData {
-  items: AboutImage[]
+  items: AboutDocument[]
   pagination: AboutImagesPagination
 }
 
@@ -40,4 +40,21 @@ export interface AboutImagesParams {
 
 export interface AboutPayload {
   images: AboutImage[]
+}
+
+export type AboutMutationPayload = AboutPayload | FormData
+
+export interface AboutImagePayload {
+  url: string
+  alt?: string
+}
+
+export type AboutImageMutationPayload = AboutImagePayload | FormData
+
+export interface AboutUploadSignatureData {
+  timestamp: number
+  folder: string
+  signature: string
+  cloudName: string
+  apiKey: string
 }

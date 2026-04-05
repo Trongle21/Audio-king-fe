@@ -13,13 +13,18 @@ export default function AdminCartsPage() {
     columns,
     search,
     setSearch,
+    paymentStatusFilter,
+    setPaymentStatusFilter,
     resetFilters,
     onDelete,
+    onTogglePaymentStatus,
     isLoading,
     isFetching,
     isError,
     error,
     isDeleting,
+    isUpdatingPaymentStatus,
+    updatingPaymentId,
   } = useCartsTable()
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false)
@@ -44,20 +49,31 @@ export default function AdminCartsPage() {
       <section className="space-y-4 rounded-2xl border bg-white p-5 shadow-sm">
         <header className="flex items-center justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Cart Management</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Quản lý giỏ hàng của khách, hỗ trợ tìm kiếm và xoá giỏ hàng.
-            </p>
+            <h1 className="text-2xl font-bold text-slate-900">Orders Management</h1>
           </div>
         </header>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <Input
-            placeholder="Tìm theo mã giỏ, khách hàng hoặc tổng tiền..."
+            placeholder="Tìm theo khách hàng, trạng thái hoặc tổng tiền..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="max-w-md"
           />
+
+          <select
+            className="h-10 rounded-md border px-3 text-sm"
+            value={paymentStatusFilter ?? "all"}
+            onChange={(e) => {
+              const value = e.target.value
+              setPaymentStatusFilter(value === "all" ? undefined : (value as "paid" | "unpaid"))
+            }}
+          >
+            <option value="all">All payment</option>
+            <option value="paid">Paid</option>
+            <option value="unpaid">Unpaid</option>
+          </select>
+
           <Button variant="outline" onClick={resetFilters}>
             Reset
           </Button>
@@ -67,40 +83,52 @@ export default function AdminCartsPage() {
           <p className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm text-destructive">
             {error instanceof Error && error.message.trim()
               ? error.message
-              : "Không tải được danh sách giỏ hàng."}
+              : "Không tải được danh sách đơn hàng."}
           </p>
         )}
 
-        {(isLoading || isFetching) && (
-          <p className="text-sm text-slate-500">Đang tải dữ liệu giỏ hàng...</p>
-        )}
+        {(isLoading || isFetching) && <p className="text-sm text-slate-500">Đang tải dữ liệu đơn hàng...</p>}
 
         {!isLoading && !isError && filteredData.length === 0 && (
-          <p className="text-sm text-slate-500">Không có giỏ hàng nào.</p>
+          <p className="text-sm text-slate-500">Không có đơn hàng nào.</p>
         )}
 
         <AdminEntityTable
           table={table}
-          renderActions={(row) => (
-            <div className="flex gap-2">
-              <Button
-                variant="destructive"
-                size="sm"
-                disabled={isDeleting}
-                onClick={() => openDeleteModal(row.id)}
-              >
-                Xóa
-              </Button>
-            </div>
-          )}
+          renderActions={(row) => {
+            const isUpdatingThisRow = isUpdatingPaymentStatus && updatingPaymentId === row.id
+            const paymentStatusLabel = row.paymentStatus === "paid" ? "Đánh dấu chưa thanh toán" : "Đánh dấu đã thanh toán"
+
+            return (
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  disabled={isUpdatingThisRow}
+                  onClick={() => onTogglePaymentStatus(row.id, row.paymentStatus)}
+                >
+                  {isUpdatingThisRow ? "Đang cập nhật..." : paymentStatusLabel}
+                </Button>
+
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  disabled={isDeleting || isUpdatingThisRow}
+                  onClick={() => openDeleteModal(row.id)}
+                >
+                  Xóa
+                </Button>
+              </div>
+            )
+          }}
         />
       </section>
 
       <AppModal
         open={isDeleteModalOpen}
         onOpenChange={setIsDeleteModalOpen}
-        title="Delete Cart"
-        description="Bạn có chắc chắn muốn xoá giỏ hàng này không? Hành động này không thể hoàn tác."
+        title="Delete Order"
+        description="Bạn có chắc chắn muốn xoá đơn hàng này không? Hành động này không thể hoàn tác."
         footer={
           <>
             <Button
@@ -123,7 +151,7 @@ export default function AdminCartsPage() {
         }
       >
         <p className="text-sm text-slate-600">
-          Nhấn <strong>Delete</strong> để xác nhận xoá giỏ hàng đã chọn.
+          Nhấn <strong>Delete</strong> để xác nhận xoá đơn hàng đã chọn.
         </p>
       </AppModal>
     </main>

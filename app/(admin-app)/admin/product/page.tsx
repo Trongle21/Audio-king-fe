@@ -165,9 +165,6 @@ export default function AdminProductsPage() {
         <header className="flex items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-slate-900">Quản lý sản phẩm</h1>
-            <p className="mt-1 text-sm text-slate-500">
-              Danh sách sản phẩm với tìm kiếm, lọc, sắp xếp, phân trang.
-            </p>
           </div>
 
           <div className="flex items-center gap-2">

@@ -206,20 +206,6 @@ export default function AdminUsersPage() {
                     </div>
 
                     <div className="space-y-1">
-                        <Label htmlFor="isDelete">Deleted</Label>
-                        <select
-                            id="isDelete"
-                            className="border-input bg-background h-10 w-full rounded-md border px-3 text-sm"
-                            value={isDelete}
-                            onChange={(e) => setIsDelete(e.target.value as "all" | "false" | "true")}
-                        >
-                            <option value="all">All</option>
-                            <option value="false">Active</option>
-                            <option value="true">Deleted</option>
-                        </select>
-                    </div>
-
-                    <div className="space-y-1">
                         <Label htmlFor="sortBy">Sort by</Label>
                         <select
                             id="sortBy"

@@ -7,7 +7,6 @@ import {
   Menu,
   PhoneCall,
   ShoppingCart,
-  User,
   X
 } from "lucide-react"
 import Image from "next/image"
@@ -42,8 +41,7 @@ const primaryCategories = [
 
 
 const hotlines = [
-  { label: "Tư vấn mua hàng: 0818808808", href: "tel:0818808808" },
-  { label: "Kỹ thuật / bảo hành: 0987654321", href: "tel:0987654321" },
+  { label: "Tư vấn mua hàng: 0986344085", href: "tel:0986344085" },
 ] as const
 
 
@@ -190,43 +188,7 @@ export default function Header() {
                   </DropdownMenuContent>
                 </DropdownMenu>
 
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="cursor-pointer text-white transition-colors hover:bg-white/15 data-[state=open]:bg-white/15 focus-visible:ring-0 focus-visible:border-transparent"
-                      aria-label="Tài khoản"
-                    >
-                      <User className="size-5" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="min-w-40">
-                    <DropdownMenuLabel>Tài khoản</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    {!isAuthenticated ? (
-                      <DropdownMenuItem asChild>
-                        <Link href="/login">Đăng nhập</Link>
-                      </DropdownMenuItem>
-                    ) : (
-                      <>
-                        <DropdownMenuItem asChild>
-                          <Link href="/account/change-password">
-                            Đổi mật khẩu
-                          </Link>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem
-                          onSelect={(event) => {
-                            event.preventDefault()
-                            logout()
-                          }}
-                        >
-                          Đăng xuất
-                        </DropdownMenuItem>
-                      </>
-                    )}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -244,9 +206,9 @@ export default function Header() {
                     <DropdownMenuSeparator />
                     {hotlines.map((h) => (
                       <DropdownMenuItem key={h.href} asChild>
-                        <a href={h.href} className="cursor-pointer">
+                        <div className="cursor-pointer">
                           {h.label}
-                        </a>
+                        </div>
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
@@ -275,8 +237,8 @@ export default function Header() {
               <ProductHeaderSearch
                 placeholder="Bạn tìm thiết bị âm thanh gì?"
                 className="w-full"
-                inputClassName="w-full bg-white text-black placeholder:text-muted-foreground border-0 rounded-md rounded-r-none focus-visible:ring-0"
-                searchButtonClassName="bg-white text-destructive hover:bg-white/90 border border-white/20 rounded-md rounded-l-none"
+                inputClassName="w-full bg-white text-black placeholder:text-muted-foreground border-0 focus-visible:ring-0"
+                searchButtonClassName="bg-white text-destructive hover:bg-white/90 border border-white/20"
               />
             </div>
           </div>

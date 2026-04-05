@@ -6,9 +6,11 @@ import { useQuery } from "@tanstack/react-query"
 
 import {
   getAboutImages,
+  type AboutDocument,
   type AboutImage,
   type AboutImagesData,
   type AboutImagesPagination,
+  type ApiSuccessResponse,
 } from "@/api/about"
 
 const ABOUT_ERROR_MESSAGE = "Khong the tai anh gioi thieu"
@@ -30,19 +32,40 @@ type UseAboutImagesResult = {
   refetch: () => Promise<void>
 }
 
+type SanitizedData = {
+  items: AboutImage[]
+  pagination: AboutImagesPagination
+}
+
 function normalizeError(error: unknown): string {
   if (error instanceof Error && error.message.trim()) return error.message.trim()
   return ABOUT_ERROR_MESSAGE
 }
 
-function sanitizeData(data?: AboutImagesData): AboutImagesData {
-  if (!data) return { items: [], pagination: defaultPagination }
+function toAboutImagesData(
+  input?: ApiSuccessResponse<AboutImagesData> | AboutImagesData,
+): AboutImagesData {
+  if (!input) return { items: [], pagination: defaultPagination }
+  if ((input as ApiSuccessResponse<AboutImagesData>).data) {
+    return (input as ApiSuccessResponse<AboutImagesData>).data as AboutImagesData
+  }
+  return input as AboutImagesData
+}
 
-  const items = (data.items ?? [])
-    .filter((item) => Boolean(item?.url?.trim()))
-    .map((item) => ({
-      url: item.url.trim(),
-      alt: item.alt?.trim() || "about-image",
+function sanitizeData(
+  response?: ApiSuccessResponse<AboutImagesData> | AboutImagesData,
+): SanitizedData {
+  if (!response) return { items: [], pagination: defaultPagination }
+
+  const data = toAboutImagesData(response)
+  const documents: AboutDocument[] = data.items ?? []
+
+  const items: AboutImage[] = documents
+    .flatMap((doc) => doc.images ?? [])
+    .filter((img) => Boolean(img?.url?.trim()))
+    .map((img) => ({
+      url: img.url.trim(),
+      alt: img.alt?.trim() || "about-image",
     }))
 
   const pagination = {
@@ -61,7 +84,7 @@ export function useAboutImages(
 ): UseAboutImagesResult {
   const [page, setPage] = useState(Math.max(1, initialPage))
 
-  const { data, isLoading, error, refetch: queryRefetch } = useQuery({
+  const { data, isLoading, error, refetch: queryRefetch } = useQuery<AboutImagesData>({
     queryKey: ["client-about-images", page, initialLimit],
     queryFn: () => getAboutImages({ page, limit: initialLimit }),
   })
