@@ -7,13 +7,13 @@ import Image from "next/image"
 import { useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 
+import type { UploadProgressItem } from "@/services/about.service"
 import { Button, Input, Label } from "@/components/atoms"
 import {
   aboutSchema,
   MAX_ABOUT_FILE_SIZE_MB,
   type AboutFormData,
 } from "@/lib/schemas/about.schema"
-import type { UploadProgressItem } from "@/services/about.service"
 
 interface AboutFormProps {
   defaultValues?: AboutFormData

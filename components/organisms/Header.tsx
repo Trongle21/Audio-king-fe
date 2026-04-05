@@ -49,7 +49,7 @@ export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [cartOpen, setCartOpen] = React.useState(false)
   const { items, totalItems, totalPrice } = useCart()
-  const { isAuthenticated, logout } = useAuth()
+  const { isAuthenticated: _isAuthenticated, logout: _logout } = useAuth()
   const router = useRouter()
 
   return (

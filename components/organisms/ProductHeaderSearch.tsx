@@ -37,7 +37,7 @@ export function ProductHeaderSearch({
   placeholder = "Bạn tìm thiết bị âm thanh gì?",
   className,
   inputClassName,
-  searchButtonClassName,
+  searchButtonClassName: _searchButtonClassName,
   limit = 6,
   debounceMs = 400,
   minQueryLength = 1,
