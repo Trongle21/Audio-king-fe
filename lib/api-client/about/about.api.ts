@@ -9,6 +9,7 @@ import type {
   AboutUploadSignatureData,
   ApiSuccessResponse,
 } from "./about.types"
+import type { SingletonDoc } from "@/types/media"
 
 const ABOUT_BASE_PATH = "/about"
 
@@ -28,6 +29,12 @@ function buildAboutImagesQuery(params: AboutImagesParams = {}) {
 
   const query = searchParams.toString()
   return query ? `?${query}` : ""
+}
+
+function buildFilesFormData(files: File[]) {
+  const formData = new FormData()
+  files.forEach((file) => formData.append("files", file))
+  return formData
 }
 
 export async function getAboutImages(params: AboutImagesParams = {}) {
@@ -57,15 +64,93 @@ export async function getAboutUploadSignature() {
   return response.data
 }
 
-export async function createAbout(payload: AboutMutationPayload) {
-  return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
+export async function createAbout(payload: AboutMutationPayload | File[]) {
+  const requestBody = Array.isArray(payload) ? buildFilesFormData(payload) : payload
+
+  return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload | FormData>(
     ABOUT_BASE_PATH,
     {
-      body: payload,
+      body: requestBody,
       headers: buildTokenHeader(),
     },
     { auth: false },
   )
+}
+
+export async function getAboutSingleton(): Promise<SingletonDoc | null> {
+  const response = await apiGet<ApiSuccessResponse<SingletonDoc[]>>(ABOUT_BASE_PATH, {}, { auth: false })
+  return response.data[0] ?? null
+}
+
+export async function createAboutSingleton(files: File[]): Promise<SingletonDoc> {
+  const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
+    ABOUT_BASE_PATH,
+    {
+      body: buildFilesFormData(files),
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+
+  return response.data
+}
+
+export async function updateAboutById(id: string, files: File[]): Promise<SingletonDoc> {
+  const response = await apiPatch<ApiSuccessResponse<SingletonDoc>, FormData>(
+    `${ABOUT_BASE_PATH}/${id}`,
+    {
+      body: buildFilesFormData(files),
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+
+  return response.data
+}
+
+export async function addAboutSingletonImages(files: File[]): Promise<SingletonDoc> {
+  const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
+    `${ABOUT_BASE_PATH}/images`,
+    {
+      body: buildFilesFormData(files),
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+
+  return response.data
+}
+
+export async function replaceAboutImages(indices: number[], files: File[]): Promise<SingletonDoc> {
+  const formData = buildFilesFormData(files)
+  formData.append("indices", JSON.stringify(indices))
+
+  const response = await apiPatch<ApiSuccessResponse<SingletonDoc>, FormData>(
+    `${ABOUT_BASE_PATH}/images`,
+    {
+      body: formData,
+      headers: buildTokenHeader(),
+    },
+    { auth: false },
+  )
+
+  return response.data
+}
+
+export async function deleteAboutImages(payload: {
+  indices?: number[]
+  publicIds?: string[]
+}): Promise<SingletonDoc> {
+  const response = await apiDelete<ApiSuccessResponse<SingletonDoc>>(
+    `${ABOUT_BASE_PATH}/images`,
+    {
+      headers: buildTokenHeader(),
+      body: JSON.stringify(payload),
+    },
+    { auth: false },
+  )
+
+  return response.data
 }
 
 export async function updateAbout(id: string, payload: AboutMutationPayload) {
@@ -89,11 +174,24 @@ export async function deleteAbout(id: string) {
   )
 }
 
-export async function addAboutImages(id: string, payload: AboutMutationPayload) {
+export async function addAboutImages(idOrFiles: string | File[], payload?: AboutMutationPayload) {
+  if (Array.isArray(idOrFiles)) {
+    const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
+      `${ABOUT_BASE_PATH}/images`,
+      {
+        body: buildFilesFormData(idOrFiles),
+        headers: buildTokenHeader(),
+      },
+      { auth: false },
+    )
+
+    return response
+  }
+
   return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
-    `${ABOUT_BASE_PATH}/${id}/images`,
+    `${ABOUT_BASE_PATH}/${idOrFiles}/images`,
     {
-      body: payload,
+      body: payload as AboutMutationPayload,
       headers: buildTokenHeader(),
     },
     { auth: false },

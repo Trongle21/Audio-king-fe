@@ -12,6 +12,8 @@ export interface ApiErrorResponse {
 export interface AboutImage {
   url: string
   alt?: string
+  publicId?: string
+  resourceType?: string
 }
 
 export interface AboutDocument {
