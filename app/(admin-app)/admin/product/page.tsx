@@ -3,14 +3,14 @@
 import { useMemo, useState } from "react"
 
 import { type ColumnDef } from "@tanstack/react-table"
-import { Filter } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
 import { toast } from "sonner"
 
 import type { Product, ProductOrder, ProductSortBy } from "@/api/product"
 
-import { Button, Input, Label } from "@/components/atoms"
+import { ProductFilters } from "@/components/admin/products/ProductFilters"
+import { Button } from "@/components/atoms"
 import {
   AdminEntityTable,
   AdminFilterDrawer,
@@ -111,6 +111,16 @@ export default function AdminProductsPage() {
         header: "Tồn kho",
       },
       {
+        id: "categories",
+        header: "Danh mục",
+        cell: ({ row }) => {
+          const cats = row.original.categories
+          if (!cats || cats.length === 0) return <span className="text-xs text-slate-400">-</span>
+          const names = cats.map((c) => (typeof c === "string" ? c : c.name))
+          return <span className="text-sm">{names.join(", ")}</span>
+        },
+      },
+      {
         id: "detail",
         header: "Chi tiết",
         cell: ({ row }) => (
@@ -171,74 +181,39 @@ export default function AdminProductsPage() {
             <Link href="/admin/products/trash">
               <Button variant="outline">Thùng rác</Button>
             </Link>
-            <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
+            {/* <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />
               Bộ lọc
-            </Button>
+            </Button> */}
             <Link href="/admin/product/create">
               <Button>Thêm sản phẩm</Button>
             </Link>
           </div>
         </header>
 
-        <div className="flex flex-wrap items-end gap-3">
-          <div className="min-w-[280px] space-y-1">
-            <Label>Tìm kiếm</Label>
-            <Input
-              placeholder="Nhập tên sản phẩm..."
-              value={q}
-              onChange={(e) => {
-                setQ(e.target.value)
-                setPage(1)
-              }}
-            />
-          </div>
-
-          <div className="space-y-1">
-            <Label>Sắp xếp theo</Label>
-            <select
-              className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value as ProductSortBy)}
-            >
-              <option value="createdAt">Ngày tạo</option>
-              <option value="name">Tên</option>
-              <option value="price">Giá</option>
-            </select>
-          </div>
-
-          <div className="space-y-1">
-            <Label>Thứ tự</Label>
-            <select
-              className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-              value={order}
-              onChange={(e) => setOrder(e.target.value as ProductOrder)}
-            >
-              <option value="desc">Giảm dần</option>
-              <option value="asc">Tăng dần</option>
-            </select>
-          </div>
-
-          {/* <div className="space-y-1">
-            <Label>Limit</Label>
-            <select
-              className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-              value={limit}
-              onChange={(e) => {
-                setLimit(Number(e.target.value))
-                setPage(1)
-              }}
-            >
-              <option value={12}>12</option>
-              <option value={24}>24</option>
-              <option value={36}>36</option>
-            </select>
-          </div> */}
-
-          <Button variant="outline" onClick={resetFilters}>
-            Reset
-          </Button>
-        </div>
+        <ProductFilters
+          q={q}
+          categoryId={categoryId}
+          sortBy={sortBy}
+          order={order}
+          onChangeQ={(value) => {
+            setQ(value)
+            setPage(1)
+          }}
+          onChangeCategoryId={(value) => {
+            setCategoryId(value)
+            setPage(1)
+          }}
+          onChangeSortBy={(value) => {
+            setSortBy(value)
+            setPage(1)
+          }}
+          onChangeOrder={(value) => {
+            setOrder(value)
+            setPage(1)
+          }}
+          onReset={resetFilters}
+        />
 
         {/* <RestoreProductForm
           isSubmitting={restoreMutation.isPending}

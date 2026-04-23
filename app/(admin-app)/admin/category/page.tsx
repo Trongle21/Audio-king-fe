@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react"
 
 import { type ColumnDef } from "@tanstack/react-table"
-import { Filter } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
 
@@ -153,10 +152,10 @@ export default function AdminCategoriesPage() {
             <Link href="/admin/categories/trash">
               <Button variant="outline">Thùng rác</Button>
             </Link>
-            <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
+            {/* <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />
               Filter
-            </Button>
+            </Button> */}
             <Button onClick={openAddModal}>Add Category</Button>
           </div>
         </header>

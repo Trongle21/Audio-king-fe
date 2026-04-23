@@ -1,11 +1,11 @@
 "use client"
 
+
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 
-import type { Resolver } from "react-hook-form"
-
 import type { Category } from "@/api/category"
+import type { Resolver } from "react-hook-form"
 
 import { Button, Input, Label } from "@/components/atoms"
 import {
@@ -31,33 +31,50 @@ export function ProductTrashFilters({
     defaultValues,
   })
 
+  const { reset, getValues } = form
+
+  const handleFieldChange = (field: keyof ProductTrashFilterFormValues, value: unknown) => {
+    const currentValues = getValues()
+    onSubmit({ ...currentValues, [field]: value })
+  }
+
   return (
-    <form className="flex flex-wrap items-end gap-3" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="flex flex-wrap items-end gap-3">
       <div className="min-w-[260px] space-y-1">
         <Label htmlFor="trash-q">Tìm kiếm</Label>
-        <Input id="trash-q" placeholder="Nhập tên sản phẩm..." {...form.register("q")} />
+        <Input
+          id="trash-q"
+          placeholder="Nhập tên sản phẩm..."
+          {...form.register("q", {
+            onChange: (e) => handleFieldChange("q", e.target.value),
+          })}
+        />
       </div>
 
-      <div className="space-y-1">
+      {/* <div className="space-y-1">
         <Label htmlFor="trash-status">Trạng thái</Label>
         <select
           id="trash-status"
           className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-          {...form.register("status")}
+          {...form.register("status", {
+            onChange: (e) => handleFieldChange("status", e.target.value),
+          })}
         >
           <option value="">Tất cả</option>
           <option value="1">Hiển thị</option>
           <option value="2">Ẩn</option>
           <option value="0">Khác</option>
         </select>
-      </div>
+      </div> */}
 
       <div className="space-y-1">
         <Label htmlFor="trash-category">Danh mục</Label>
         <select
           id="trash-category"
           className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-          {...form.register("categoryId")}
+          {...form.register("categoryId", {
+            onChange: (e) => handleFieldChange("categoryId", e.target.value),
+          })}
         >
           <option value="">Tất cả</option>
           {categories.map((category) => (
@@ -73,7 +90,9 @@ export function ProductTrashFilters({
         <select
           id="trash-sortBy"
           className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-          {...form.register("sortBy")}
+          {...form.register("sortBy", {
+            onChange: (e) => handleFieldChange("sortBy", e.target.value),
+          })}
         >
           <option value="createdAt">Ngày tạo</option>
           <option value="name">Tên</option>
@@ -86,32 +105,21 @@ export function ProductTrashFilters({
         <select
           id="trash-order"
           className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-          {...form.register("order")}
+          {...form.register("order", {
+            onChange: (e) => handleFieldChange("order", e.target.value),
+          })}
         >
           <option value="desc">Giảm dần</option>
           <option value="asc">Tăng dần</option>
         </select>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="trash-limit">Số lượng/trang</Label>
-        <select
-          id="trash-limit"
-          className="border-input bg-background rounded-md border px-3 py-2 text-sm"
-          {...form.register("limit")}
-        >
-          <option value={12}>12</option>
-          <option value={24}>24</option>
-          <option value={36}>36</option>
-        </select>
-      </div>
-
-      <Button type="submit">Áp dụng</Button>
+      {/* <Button type="submit">Áp dụng</Button> */}
       <Button
         type="button"
         variant="outline"
         onClick={() => {
-          form.reset({
+          reset({
             q: "",
             status: "",
             categoryId: "",

@@ -27,17 +27,8 @@ import {
 } from "@/components/organisms/dropdown-menu"
 import { ProductHeaderSearch } from "@/components/organisms/ProductHeaderSearch"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
+import { useCategories } from "@/hooks/client-app/src/hooks/category"
 import { useAuth } from "@/hooks/client-app/src/hooks/useAuth"
-
-
-const primaryCategories = [
-  { key: "loa-keo", label: "Loa Kéo" },
-  { key: "loa-karaoke", label: "Loa Karaoke" },
-  { key: "dan-karaoke", label: "Dàn Karaoke" },
-  { key: "micro", label: "Micro" },
-  { key: "cuc-day", label: "Cục Đẩy" },
-  { key: "vang", label: "Vang" },
-] as const
 
 
 const hotlines = [
@@ -51,6 +42,9 @@ export default function Header() {
   const { items, totalItems, totalPrice } = useCart()
   const { isAuthenticated: _isAuthenticated, logout: _logout } = useAuth()
   const router = useRouter()
+
+  const { data: categoryData } = useCategories({ page: 1, limit: 100 })
+  const categories = categoryData?.items ?? []
 
   return (
     <>
@@ -244,7 +238,7 @@ export default function Header() {
           </div>
         </div>
 
-        {/* Row 2: Categories + Showroom (md+) */}
+        {/* Row 2: Categories (md+) */}
         <nav
           className="hidden md:block"
           role="navigation"
@@ -252,21 +246,27 @@ export default function Header() {
         >
           <div className="container">
             <div className="flex items-center gap-3">
-              <div
-                className="flex-1 min-w-0 flex items-center gap-1 overflow-x-auto whitespace-nowrap py-1.5
-                [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-              >
-                {primaryCategories.map((c) => (
-                  <Link
-                    key={c.key}
-                    href={`/product?category=${encodeURIComponent(c.key)}`}
-                    className="px-3 py-2 text-sm font-semibold hover:bg-white/10 rounded-md"
-                  >
-                    {c.label}
-                  </Link>
-                ))}
+              {/* Categories with horizontal scroll + fade gradient */}
+              <div className="relative flex-1 min-w-0">
+                <div
+                  className="flex items-center gap-1 overflow-x-auto whitespace-nowrap py-1.5 pr-10
+                  [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden]"
+                >
+                  {categories.map((c) => (
+                    <Link
+                      key={c.slug}
+                      href={`/product?category=${encodeURIComponent(c.slug)}`}
+                      className="flex-shrink-0 px-3 py-2 text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+                {/* Fade gradient on right edge */}
+                <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-destructive to-transparent pointer-events-none" />
               </div>
-              <div className="flex items-center gap-2">
+
+              <div className="flex items-center gap-2 shrink-0">
                 <Link href="/gioi-thieu">
                   Giới thiệu
                 </Link>
@@ -282,16 +282,16 @@ export default function Header() {
             role="navigation"
             aria-label="Danh mục"
           >
-            <div className="py-2">
-              <div className="grid grid-cols-2 gap-1">
-                {primaryCategories.map((c) => (
+            <div className="py-2 max-h-[50vh] overflow-y-auto">
+              <div className="grid grid-cols-3 gap-1 px-2">
+                {categories.map((c) => (
                   <Link
-                    key={c.key}
-                    href={`/product?category=${encodeURIComponent(c.key)}`}
-                    className="min-w-48 rounded-md px-3 py-2 text-sm font-medium hover:bg-white/10"
+                    key={c.slug}
+                    href={`/product?category=${encodeURIComponent(c.slug)}`}
+                    className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    {c.label}
+                    {c.name}
                   </Link>
                 ))}
               </div>

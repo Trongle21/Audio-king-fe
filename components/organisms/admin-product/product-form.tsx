@@ -82,6 +82,7 @@ export function ProductForm({
     getInitialExistingImages(defaultValues),
   )
   const [highlightsText, setHighlightsText] = useState((defaultValues?.highlights ?? []).join("\n"))
+  const [reviewsText, setReviewsText] = useState((defaultValues?.reviews ?? []).join("\n---\n"))
   const [specRows, setSpecRows] = useState<SpecificationRow[]>(
     mapSpecRecordToRows(defaultValues?.specifications),
   )
@@ -91,6 +92,7 @@ export function ProductForm({
       setExistingImages(getInitialExistingImages(defaultValues))
       setSelectedThumbnailUrl(getInitialThumbnailUrl(defaultValues))
       setHighlightsText((defaultValues?.highlights ?? []).join("\n"))
+      setReviewsText((defaultValues?.reviews ?? []).join("\n---\n"))
       setSpecRows(mapSpecRecordToRows(defaultValues?.specifications))
       setFiles([])
       setThumbnailFile(null)
@@ -129,6 +131,7 @@ export function ProductForm({
       thumbnail: defaultValues?.thumbnail,
       highlights: defaultValues?.highlights ?? [],
       specifications: defaultValues?.specifications ?? {},
+      reviews: defaultValues?.reviews ?? [],
     },
   })
 
@@ -206,10 +209,13 @@ export function ProductForm({
       .map((item) => item.trim())
       .filter((item) => item.length > 0)
 
+    const reviews = (values.reviews ?? []).filter((r) => r.comment.trim().length > 0)
+
     await onSubmit({
       ...values,
       specifications,
       highlights,
+      reviews,
       files: reorderedFiles,
       images: existingImages,
       thumbnail: selectedThumbnailUrl ? { url: selectedThumbnailUrl } : undefined,
@@ -272,6 +278,41 @@ export function ProductForm({
               .filter((line) => line.length > 0)
 
             setValue("highlights", values, { shouldValidate: true })
+          }}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="reviews">
+          Reviews (mỗi review cách nhau bằng dòng trống hoặc <code>---</code>)
+        </Label>
+        <p className="text-xs text-muted-foreground">
+          Format: <code>user | rating | comment</code>. Ví dụ: <code>Nguyễn Văn A | 5 | Sản phẩm rất tốt</code>
+        </p>
+        <textarea
+          id="reviews"
+          className="w-full rounded-md border p-2 text-sm"
+          rows={6}
+          placeholder={`Nguyễn Văn A | 5 | Sản phẩm rất tốt, âm thanh tuyệt vời\n---\nTrần Thị B | 4 | Hàng chất lượng, giao hàng nhanh`}
+          value={reviewsText}
+          onChange={(e) => {
+            const nextText = e.target.value
+            setReviewsText(nextText)
+
+            const reviews = nextText
+              .split(/\n---\n|\n\n/)
+              .map((block) => block.trim())
+              .filter((block) => block.length > 0)
+              .map((block) => {
+                const parts = block.split("|").map((p) => p.trim())
+                return {
+                  user: parts[0] || "",
+                  rating: Number(parts[1]) || 5,
+                  comment: parts.slice(2).join(" | "),
+                }
+              })
+
+            setValue("reviews", reviews, { shouldValidate: true })
           }}
         />
       </div>
