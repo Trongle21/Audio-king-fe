@@ -130,3 +130,34 @@ export interface UpdateProductPayload {
   specifications?: Record<string, string>
   highlights?: string[]
 }
+
+// ==================== Product Reviews ====================
+
+export interface ProductReview {
+  _id: string
+  rating: number
+  review: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ProductReviewsResponse {
+  productId: string
+  productName: string
+  reviews: ProductReview[]
+  totalReviews: number
+}
+
+export interface AddReviewsPayload {
+  reviews: Array<{
+    rating?: number
+    review?: string
+  }>
+}
+
+export interface ReplaceReviewsPayload {
+  reviews: Array<{
+    rating?: number
+    review?: string
+  }>
+}

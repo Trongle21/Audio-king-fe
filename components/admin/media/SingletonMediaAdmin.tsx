@@ -4,6 +4,8 @@ import { useMemo, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
+
+import type { Resolver } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -50,12 +52,12 @@ export function SingletonMediaAdmin({
   const [status, setStatus] = useState<string | null>(null)
 
   const replaceForm = useForm<ReplaceImagesForm>({
-    resolver: zodResolver(replaceImagesSchema),
+    resolver: zodResolver(replaceImagesSchema) as Resolver<ReplaceImagesForm>,
     defaultValues: { indices: [] },
   })
 
   const deleteForm = useForm<DeleteImagesForm>({
-    resolver: zodResolver(deleteImagesSchema),
+    resolver: zodResolver(deleteImagesSchema) as Resolver<DeleteImagesForm>,
     defaultValues: { indices: [], publicIds: [] },
   })
 

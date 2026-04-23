@@ -9,6 +9,7 @@ import type { Product, ProductCategoryRef } from "@/api/product"
 
 import { Button } from "@/components/atoms"
 import { ProductImageGallery } from "@/components/organisms/ProductImageGallery"
+import { ProductReviewsDisplay } from "@/components/organisms/ProductReviewsDisplay"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
 import { useProduct } from "@/hooks/client-app/src/hooks/product/useProduct"
 
@@ -223,6 +224,9 @@ export function ProductDetailClient({ id }: { id: string }) {
             {data.description?.trim() ? data.description : "Chưa có mô tả cho sản phẩm này."}
           </p>
         </section>
+
+        {/* Reviews Section */}
+        <ProductReviewsDisplay productId={data._id} />
       </div>
 
       <aside className="hidden lg:block">

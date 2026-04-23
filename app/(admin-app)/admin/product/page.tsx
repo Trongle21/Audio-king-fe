@@ -168,6 +168,9 @@ export default function AdminProductsPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link href="/admin/products/trash">
+              <Button variant="outline">Thùng rác</Button>
+            </Link>
             <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />
               Bộ lọc

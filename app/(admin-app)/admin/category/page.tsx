@@ -150,6 +150,9 @@ export default function AdminCategoriesPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link href="/admin/categories/trash">
+              <Button variant="outline">Thùng rác</Button>
+            </Link>
             <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
               <Filter className="mr-2 h-4 w-4" />
               Filter

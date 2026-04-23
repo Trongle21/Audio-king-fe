@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost, getAccessToken } from "@/api"
+import { apiDelete, apiGet, apiPatch, apiPost, apiPut, getAccessToken } from "@/api"
 
 import type {
   ApiSuccessResponse,
@@ -6,6 +6,9 @@ import type {
   GetProductsParams,
   Product,
   ProductListData,
+  ProductReview,
+  ProductReviewsResponse,
+  ReplaceReviewsPayload,
   UpdateProductPayload,
   UploadFileResponse,
 } from "./product.types"
@@ -200,4 +203,52 @@ export async function getProducts(params: GetProductsParams = {}) {
 
 export async function getProductById(id: string) {
   return apiGet<ApiSuccessResponse<Product>>(`${PRODUCT_BASE_PATH}/${id}`, {}, { auth: false })
+}
+
+// ==================== Product Reviews ====================
+
+export async function getProductReviews(productId: string) {
+  return apiGet<ApiSuccessResponse<ProductReviewsResponse>>(
+    `${PRODUCT_BASE_PATH}/${productId}/reviews`,
+    {},
+    { auth: false }
+  )
+}
+
+export async function addProductReviews(
+  productId: string,
+  payload: any
+) {
+  return apiPost<ApiSuccessResponse<ProductReview[]>, any>(
+    `${PRODUCT_BASE_PATH}/${productId}/reviews`,
+    {
+      body: payload,
+      headers: buildTokenHeader(),
+    },
+    { auth: false }
+  )
+}
+
+export async function replaceProductReviews(
+  productId: string,
+  payload: ReplaceReviewsPayload
+) {
+  return apiPut<ApiSuccessResponse<ProductReview[]>, ReplaceReviewsPayload>(
+    `${PRODUCT_BASE_PATH}/${productId}/reviews`,
+    {
+      body: payload,
+      headers: buildTokenHeader(),
+    },
+    { auth: false }
+  )
+}
+
+export async function deleteProductReview(productId: string, reviewId: string) {
+  return apiDelete<ApiSuccessResponse<{ message: string }>>(
+    `${PRODUCT_BASE_PATH}/${productId}/reviews/${reviewId}`,
+    {
+      headers: buildTokenHeader(),
+    },
+    { auth: false }
+  )
 }

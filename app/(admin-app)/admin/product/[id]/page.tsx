@@ -7,6 +7,7 @@ import { useParams } from "next/navigation"
 import type { ProductCategoryRef } from "@/api/product"
 
 import { Button } from "@/components/atoms"
+import { ProductReviewsManager } from "@/components/admin/products/ProductReviewsManager"
 import { useProductDetail } from "@/hooks/admin-app/src/hooks/admin/product"
 
 
@@ -152,6 +153,10 @@ export default function AdminProductDetailPage() {
                 ) : (
                     <p className="text-sm text-slate-500">Không có ảnh sản phẩm.</p>
                 )}
+            </section>
+
+            <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
+                <ProductReviewsManager productId={data._id} productName={data.name} />
             </section>
         </main>
     )
