@@ -2,6 +2,7 @@
 
 import * as React from "react"
 
+import { Heart, MessageCircle } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
@@ -9,7 +10,6 @@ import type { Product, ProductCategoryRef } from "@/api/product"
 
 import { Button } from "@/components/atoms"
 import { ProductImageGallery } from "@/components/organisms/ProductImageGallery"
-import { ProductReviewsDisplay } from "@/components/organisms/ProductReviewsDisplay"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
 import { useProduct } from "@/hooks/client-app/src/hooks/product/useProduct"
 
@@ -46,13 +46,9 @@ function renderCategories(categories: string[] | ProductCategoryRef[]): string {
 function BuyingInfo({ product }: { product: Product }) {
   const { addToCart } = useCart()
 
-  const hasDiscount =
-    product.sale !== undefined && product.sale < product.price && product.sale >= 0
-  const displayPrice = hasDiscount ? (product.sale as number) : product.price
-  const discountLabel =
-    hasDiscount && product.price > 0
-      ? `-${Math.round(((product.price - (product.sale ?? 0)) / product.price) * 100)}%`
-      : undefined
+  // Always show fake original price (10% higher) with strikethrough
+  const currentPrice = product.sale !== undefined && product.sale > 0 ? product.sale : product.price
+  const fakeOriginalPrice = Math.round(currentPrice * 1.1)
 
   const thumbnailUrl =
     typeof product.thumbnail === "string"
@@ -83,20 +79,14 @@ function BuyingInfo({ product }: { product: Product }) {
         <p className="text-xs font-medium uppercase text-emerald-600">Giá bán</p>
         <div className="flex flex-wrap items-baseline gap-2">
           <span className="text-2xl font-bold text-destructive">
-            {formatVnd(displayPrice)}
+            {formatVnd(currentPrice)}
           </span>
-          {hasDiscount && (
-            <>
-              <span className="text-sm text-muted-foreground line-through">
-                {formatVnd(product.price)}
-              </span>
-              {discountLabel && (
-                <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
-                  {discountLabel}
-                </span>
-              )}
-            </>
-          )}
+          <span className="text-sm text-muted-foreground line-through">
+            {formatVnd(fakeOriginalPrice)}
+          </span>
+          <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs font-semibold text-emerald-700">
+            -{Math.round(((fakeOriginalPrice - currentPrice) / fakeOriginalPrice) * 100)}%
+          </span>
         </div>
       </section>
 
@@ -111,8 +101,8 @@ function BuyingInfo({ product }: { product: Product }) {
                 productId: product._id,
                 name: product.name,
                 thumbnail: thumbnailUrl,
-                price: displayPrice,
-                sale: typeof product.sale === "number" ? product.sale : null,
+                price: currentPrice,
+                sale: fakeOriginalPrice,
               },
               quantity: 1,
             })
@@ -151,7 +141,147 @@ function BuyingInfo({ product }: { product: Product }) {
           </ul>
         </section>
       )}
+
+      {/* Comments Section */}
+      {product.comments && Object.keys(product.comments).length > 0 && (
+        <CommentsSection comments={product.comments} />
+      )}
     </div>
+  )
+}
+
+interface CommentItem {
+  user: string
+  content: string
+}
+
+function CommentsSection({ comments }: { comments: Record<string, string> }) {
+  const [hearts, setHearts] = React.useState<Array<{ id: number; x: number; y: number }>>([])
+
+  const commentEntries: CommentItem[] = React.useMemo(() => {
+    return Object.entries(comments)
+      .map(([user, content]) => ({ user, content }))
+      .sort((a, b) => {
+        const dateStrA = a.content.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "01/01/2000"
+        const dateStrB = b.content.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "01/01/2000"
+        const dateA = new Date(dateStrA).getTime()
+        const dateB = new Date(dateStrB).getTime()
+        return dateB - dateA
+      })
+  }, [comments])
+
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      const x = Math.random() * 80 + 10
+      const y = Math.random() * 80 + 10
+      const heartId = Date.now()
+
+      setHearts((prev) => [...prev, { id: heartId, x, y }])
+
+      setTimeout(() => {
+        setHearts((prev) => prev.filter((h) => h.id !== heartId))
+      }, 1000)
+    }, 5000)
+
+    return () => clearInterval(interval)
+  }, [])
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2)
+  }
+
+  const getAvatarColor = (name: string) => {
+    const colors = [
+      "bg-rose-500",
+      "bg-pink-500",
+      "bg-purple-500",
+      "bg-violet-500",
+      "bg-indigo-500",
+      "bg-blue-500",
+      "bg-cyan-500",
+      "bg-teal-500",
+      "bg-emerald-500",
+      "bg-green-500",
+      "bg-amber-500",
+      "bg-orange-500",
+    ]
+    const index = name.split("").reduce((acc, char) => acc + char.charCodeAt(0), 0)
+    return colors[index % colors.length]
+  }
+
+  const formatDate = (content: string) => {
+    const match = content.match(/\d{2}\/\d{2}\/\d{4}/)
+    if (match) {
+      return match[0]
+    }
+    return ""
+  }
+
+  const getContentOnly = (content: string) => {
+    return content.replace(/\d{2}\/\d{2}\/\d{4}\s*/, "").trim()
+  }
+
+  return (
+    <section className="relative space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
+      <div className="flex items-center gap-2">
+        <MessageCircle className="h-5 w-5 text-primary" />
+        <h2 className="text-base font-semibold">Bình luận</h2>
+        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
+          {commentEntries.length}
+        </span>
+      </div>
+
+      <div className="space-y-3">
+        {commentEntries.map((comment, index) => {
+          const initials = getInitials(comment.user)
+          const avatarColor = getAvatarColor(comment.user)
+          const date = formatDate(comment.content)
+          const contentOnly = getContentOnly(comment.content)
+
+          return (
+            <div
+              key={index}
+              className="flex gap-3 rounded-lg border bg-background/50 p-3 transition-all hover:bg-background"
+            >
+              <div
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold text-white ${avatarColor}`}
+              >
+                {initials}
+              </div>
+
+              <div className="min-w-0 flex-1 space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{comment.user}</span>
+                  {date && (
+                    <span className="text-xs text-muted-foreground">{date}</span>
+                  )}
+                </div>
+                <p className="text-muted-foreground">{contentOnly}</p>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+
+      {/* Floating hearts animation */}
+      {hearts.map((heart) => (
+        <div
+          key={heart.id}
+          className="pointer-events-none absolute animate-float-up text-rose-500"
+          style={{
+            left: `${heart.x}%`,
+            bottom: `${heart.y}%`,
+          }}
+        >
+          <Heart className="h-4 w-4 fill-rose-500" />
+        </div>
+      ))}
+    </section>
   )
 }
 
@@ -225,8 +355,6 @@ export function ProductDetailClient({ id }: { id: string }) {
           </p>
         </section>
 
-        {/* Reviews Section */}
-        <ProductReviewsDisplay productId={data._id} />
       </div>
 
       <aside className="hidden lg:block">

@@ -39,6 +39,7 @@ export interface Product {
   thumbnail?: ProductThumbnail
   images?: ProductImage[]
   specifications?: Record<string, string>
+  comments?: Record<string, string>
   highlights?: string[]
   categories: string[] | ProductCategoryRef[]
   isDelete: boolean
@@ -111,6 +112,7 @@ export interface CreateProductPayload {
   images?: ProductImageInput[]
   thumbnail?: ProductImage
   specifications?: Record<string, string>
+  comments?: Record<string, string>
   highlights?: string[]
   files?: File[]
 }
@@ -128,5 +130,23 @@ export interface UpdateProductPayload {
   images?: ProductImageInput[]
   thumbnail?: ProductImage
   specifications?: Record<string, string>
+  comments?: Record<string, string>
   highlights?: string[]
+}
+
+// ==================== Product Reviews ====================
+
+export interface ProductReview {
+  _id: string
+  rating: number
+  review: string
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface ProductReviewsResponse {
+  productId: string
+  productName: string
+  reviews: ProductReview[]
+  totalReviews: number
 }

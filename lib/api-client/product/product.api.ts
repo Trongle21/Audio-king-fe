@@ -1,4 +1,4 @@
-import { apiDelete, apiGet, apiPatch, apiPost, apiPut, getAccessToken } from "@/api"
+import { apiDelete, apiGet, apiPatch, apiPost, getAccessToken } from "@/api"
 
 import type {
   ApiSuccessResponse,
@@ -6,6 +6,7 @@ import type {
   GetProductsParams,
   Product,
   ProductListData,
+  ProductReviewsResponse,
   UpdateProductPayload,
   UploadFileResponse,
 } from "./product.types"
@@ -90,6 +91,10 @@ function buildCreateProductFormData(payload: CreateProductPayload) {
 
   if (payload.specifications && Object.keys(payload.specifications).length > 0) {
     formData.append("specifications", JSON.stringify(payload.specifications))
+  }
+
+  if (payload.comments && Object.keys(payload.comments).length > 0) {
+    formData.append("comments", JSON.stringify(payload.comments))
   }
 
   if (payload.highlights && payload.highlights.length > 0) {
@@ -200,4 +205,14 @@ export async function getProducts(params: GetProductsParams = {}) {
 
 export async function getProductById(id: string) {
   return apiGet<ApiSuccessResponse<Product>>(`${PRODUCT_BASE_PATH}/${id}`, {}, { auth: false })
+}
+
+// ==================== Product Reviews ====================
+
+export async function getProductReviews(productId: string) {
+  return apiGet<ApiSuccessResponse<ProductReviewsResponse>>(
+    `${PRODUCT_BASE_PATH}/${productId}/reviews`,
+    {},
+    { auth: false }
+  )
 }

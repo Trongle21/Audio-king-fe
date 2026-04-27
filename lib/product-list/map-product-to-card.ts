@@ -26,17 +26,9 @@ function formatVnd(n: number): string {
 
 /** Map `Product` (backend) → `HomeProduct` (ProductCard). */
 export function mapProductToHomeProduct(product: Product): HomeProduct {
-  const sale = product.sale
-  const priceNum = product.price
-  const hasDiscount =
-    sale !== undefined && sale < priceNum && sale >= 0
-
-  const displayPrice = hasDiscount ? sale : priceNum
-  const oldPrice = hasDiscount ? formatVnd(priceNum) : undefined
-  const discountLabel =
-    hasDiscount && priceNum > 0
-      ? `-${Math.round(((priceNum - (sale ?? 0)) / priceNum) * 100)}%`
-      : undefined
+  // Always show fake original price (10% higher) with strikethrough
+  const currentPrice = product.sale !== undefined && product.sale > 0 ? product.sale : product.price
+  const fakeOriginalPrice = Math.round(currentPrice * 1.1)
 
   const stock = product.stock
   const badge =
@@ -47,9 +39,9 @@ export function mapProductToHomeProduct(product: Product): HomeProduct {
     name: product.name,
     imageUrl: pickThumbnailUrl(product),
     images: collectImages(product),
-    price: formatVnd(displayPrice),
-    oldPrice,
-    discountLabel,
+    price: formatVnd(currentPrice),
+    oldPrice: formatVnd(fakeOriginalPrice),
+    discountLabel: `-${Math.round(((fakeOriginalPrice - currentPrice) / fakeOriginalPrice) * 100)}%`,
     badge,
     meta: product.description?.slice(0, 80),
   }

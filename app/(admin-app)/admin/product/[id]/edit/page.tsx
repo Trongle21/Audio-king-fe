@@ -55,6 +55,7 @@ export default function AdminEditProductPage() {
             categories: toCategoryIdArray(data.categories),
             images: data.images?.map((img) => ({ url: img.url, alt: img.alt || "" })) ?? [],
             specifications: data.specifications ?? {},
+            comments: data.comments ?? {},
             highlights: data.highlights ?? [],
         }
     }, [data])
@@ -115,6 +116,7 @@ export default function AdminEditProductPage() {
                     images: mergedImages,
                     thumbnail: nextThumbnail,
                     specifications: payload.specifications,
+                    comments: payload.comments,
                     highlights: payload.highlights,
                 },
             })

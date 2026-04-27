@@ -120,12 +120,12 @@ export default function Header() {
                         Giỏ hàng ({totalItems})
                       </p>
                       {totalItems > 0 && (
-                        <p className="text-xs text-muted-foreground">
-                          Tổng:{" "}
+                        <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                          <span className="line-through">{formatCurrency(totalPrice + Math.round(totalPrice * 0.1))}</span>
                           <span className="font-semibold text-destructive">
                             {formatCurrency(totalPrice)}
                           </span>
-                        </p>
+                        </div>
                       )}
                     </div>
 
@@ -159,9 +159,14 @@ export default function Header() {
                                 {item.name}
                               </p>
                               <div className="mt-1 flex items-center justify-between text-xs">
-                                <span className="font-semibold text-destructive">
-                                  {formatCurrency(item.price ?? 0)}
-                                </span>
+                                <div className="flex items-center gap-1">
+                                  <span className="font-semibold text-destructive">
+                                    {formatCurrency(item.price ?? 0)}
+                                  </span>
+                                  <span className="text-muted-foreground line-through text-[10px]">
+                                    {formatCurrency(Math.round((item.price ?? 0) * 1.1))}
+                                  </span>
+                                </div>
                                 <span className="text-muted-foreground">
                                   x{item.quantity}
                                 </span>

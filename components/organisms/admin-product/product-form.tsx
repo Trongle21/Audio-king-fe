@@ -30,6 +30,11 @@ interface SpecificationRow {
   value: string
 }
 
+interface CommentRow {
+  key: string
+  value: string
+}
+
 interface ExistingImage {
   url: string
   alt?: string
@@ -41,6 +46,20 @@ function mapSpecRecordToRows(specifications?: Record<string, unknown>): Specific
   const rows: SpecificationRow[] = []
 
   for (const [key, value] of Object.entries(specifications)) {
+    if (typeof value === "string") {
+      rows.push({ key, value })
+    }
+  }
+
+  return rows.length > 0 ? rows : [{ key: "", value: "" }]
+}
+
+function mapCommentRecordToRows(comments?: Record<string, unknown>): CommentRow[] {
+  if (!comments) return [{ key: "", value: "" }]
+
+  const rows: CommentRow[] = []
+
+  for (const [key, value] of Object.entries(comments)) {
     if (typeof value === "string") {
       rows.push({ key, value })
     }
@@ -85,6 +104,9 @@ export function ProductForm({
   const [specRows, setSpecRows] = useState<SpecificationRow[]>(
     mapSpecRecordToRows(defaultValues?.specifications),
   )
+  const [commentRows, setCommentRows] = useState<CommentRow[]>(
+    mapCommentRecordToRows(defaultValues?.comments),
+  )
 
   useEffect(() => {
     startTransition(() => {
@@ -92,6 +114,7 @@ export function ProductForm({
       setSelectedThumbnailUrl(getInitialThumbnailUrl(defaultValues))
       setHighlightsText((defaultValues?.highlights ?? []).join("\n"))
       setSpecRows(mapSpecRecordToRows(defaultValues?.specifications))
+      setCommentRows(mapCommentRecordToRows(defaultValues?.comments))
       setFiles([])
       setThumbnailFile(null)
       setThumbnailError(null)
@@ -129,6 +152,7 @@ export function ProductForm({
       thumbnail: defaultValues?.thumbnail,
       highlights: defaultValues?.highlights ?? [],
       specifications: defaultValues?.specifications ?? {},
+      comments: defaultValues?.comments ?? {},
     },
   })
 
@@ -153,6 +177,23 @@ export function ProductForm({
 
   const removeSpecRow = (index: number) => {
     setSpecRows((prev) => {
+      const next = prev.filter((_, i) => i !== index)
+      return next.length > 0 ? next : [{ key: "", value: "" }]
+    })
+  }
+
+  const setCommentAt = (index: number, field: keyof CommentRow, value: string) => {
+    setCommentRows((prev) =>
+      prev.map((row, rowIndex) => (rowIndex === index ? { ...row, [field]: value } : row)),
+    )
+  }
+
+  const addCommentRow = () => {
+    setCommentRows((prev) => [...prev, { key: "", value: "" }])
+  }
+
+  const removeCommentRow = (index: number) => {
+    setCommentRows((prev) => {
       const next = prev.filter((_, i) => i !== index)
       return next.length > 0 ? next : [{ key: "", value: "" }]
     })
@@ -202,6 +243,17 @@ export function ProductForm({
       return acc
     }, {})
 
+    const comments = commentRows.reduce<Record<string, string>>((acc, row) => {
+      const key = row.key.trim()
+      const value = row.value.trim()
+
+      if (key && value) {
+        acc[key] = value
+      }
+
+      return acc
+    }, {})
+
     const highlights = (values.highlights ?? [])
       .map((item) => item.trim())
       .filter((item) => item.length > 0)
@@ -209,6 +261,7 @@ export function ProductForm({
     await onSubmit({
       ...values,
       specifications,
+      comments,
       highlights,
       files: reorderedFiles,
       images: existingImages,
@@ -299,6 +352,36 @@ export function ProductForm({
                 onChange={(e) => setSpecificationAt(index, "value", e.target.value)}
               />
               <Button type="button" variant="ghost" onClick={() => removeSpecRow(index)}>
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="space-y-2 rounded-lg border p-3">
+        <div className="flex items-center justify-between">
+          <Label>Comments</Label>
+          <Button type="button" variant="outline" size="sm" onClick={addCommentRow}>
+            <Plus className="mr-1 h-4 w-4" />
+            Thêm dòng
+          </Button>
+        </div>
+
+        <div className="space-y-2">
+          {commentRows.map((row, index) => (
+            <div key={`comment-${index}`} className="grid gap-2 md:grid-cols-[1fr_1fr_auto]">
+              <Input
+                placeholder="Tên thuộc tính"
+                value={row.key}
+                onChange={(e) => setCommentAt(index, "key", e.target.value)}
+              />
+              <Input
+                placeholder="Giá trị"
+                value={row.value}
+                onChange={(e) => setCommentAt(index, "value", e.target.value)}
+              />
+              <Button type="button" variant="ghost" onClick={() => removeCommentRow(index)}>
                 <Trash2 className="h-4 w-4" />
               </Button>
             </div>

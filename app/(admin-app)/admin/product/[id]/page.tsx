@@ -102,6 +102,21 @@ export default function AdminProductDetailPage() {
             </section>
 
             <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
+                <h2 className="text-lg font-semibold">Comments</h2>
+                {data.comments && Object.keys(data.comments).length > 0 ? (
+                    <div className="grid gap-2 text-sm md:grid-cols-2">
+                        {Object.entries(data.comments).map(([key, value]) => (
+                            <p key={key}>
+                                <strong>{key}:</strong> {value}
+                            </p>
+                        ))}
+                    </div>
+                ) : (
+                    <p className="text-sm text-slate-500">Không có comments.</p>
+                )}
+            </section>
+
+            <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
                 <h2 className="text-lg font-semibold">Highlights</h2>
                 {data.highlights && data.highlights.length > 0 ? (
                     <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">

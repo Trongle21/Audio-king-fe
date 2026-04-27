@@ -31,3 +31,7 @@ export { AdminSidebarNav } from "./admin-sidebar-nav"
 export * from "./admin-category"
 export * from "./admin-product"
 export * from "./admin-about"
+
+export { ProductReviewsDisplay } from "./ProductReviewsDisplay"
+export { ProductDetailClient } from "./ProductDetailClient"
+export { ProductListingClient } from "./ProductListingClient"

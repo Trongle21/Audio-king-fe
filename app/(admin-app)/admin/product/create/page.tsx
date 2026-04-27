@@ -48,6 +48,7 @@ export default function AdminCreateProductPage() {
                 ...(payload.description !== undefined ? { description: payload.description } : {}),
                 ...(payload.rating !== undefined ? { rating: payload.rating } : {}),
                 ...(payload.specifications !== undefined ? { specifications: payload.specifications } : {}),
+                ...(payload.comments !== undefined ? { comments: payload.comments } : {}),
                 ...(payload.highlights !== undefined ? { highlights: payload.highlights } : {}),
             })
 

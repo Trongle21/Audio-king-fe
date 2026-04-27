@@ -1,30 +1,33 @@
 import { z } from "zod"
 
 export const productImageSchema = z.object({
-  url: z.string().trim().url("URL ảnh không hợp lệ"),
-  alt: z.string().trim().optional(),
+    url: z.string().trim().url("URL ảnh không hợp lệ"),
+    alt: z.string().trim().optional(),
 })
 
 export const productCreateSchema = z.object({
-  name: z.string().trim().min(1, "Tên sản phẩm là bắt buộc"),
-  sku: z.string().trim().optional(),
-  price: z.coerce.number().min(0, "Giá không hợp lệ"),
-  sale: z.coerce.number().min(0).optional(),
-  stock: z.coerce.number().min(0, "Tồn kho không hợp lệ"),
-  status: z.coerce.number().optional(),
-  description: z.string().optional(),
-  rating: z.coerce.number().min(0).max(5).optional(),
-  thumbnail: productImageSchema,
-  categories: z.array(z.string().trim().min(1)).min(1, "Chọn ít nhất 1 danh mục"),
-  images: z.array(productImageSchema).optional(),
-  specifications: z.record(z.string(), z.string().trim()).optional(),
-  highlights: z.array(z.string().trim().min(1)).optional(),
+    name: z.string().trim().min(1, "Tên sản phẩm là bắt buộc"),
+    sku: z.string().trim().optional(),
+    price: z.coerce.number().min(0, "Giá không hợp lệ"),
+    sale: z.coerce.number().min(0).optional(),
+    stock: z.coerce.number().min(0, "Tồn kho không hợp lệ"),
+    status: z.coerce.number().optional(),
+    description: z.string().optional(),
+    rating: z.coerce.number().min(0).max(5).optional(),
+    thumbnail: productImageSchema,
+    categories: z
+        .array(z.string().trim().min(1))
+        .min(1, "Chọn ít nhất 1 danh mục"),
+    images: z.array(productImageSchema).optional(),
+    specifications: z.record(z.string(), z.string().trim()).optional(),
+    comments: z.record(z.string(), z.string().trim()).optional(),
+    highlights: z.array(z.string().trim().min(1)).optional(),
 })
 
 export const productUpdateSchema = productCreateSchema.partial()
 
 export const productRestoreSchema = z.object({
-  id: z.string().trim().min(1, "ID sản phẩm là bắt buộc"),
+    id: z.string().trim().min(1, "ID sản phẩm là bắt buộc"),
 })
 
 export type ProductCreateFormData = z.infer<typeof productCreateSchema>

@@ -12,6 +12,13 @@ import { useCart } from "@/hooks/client-app/src/hooks/cart"
 export function CartPageContent() {
   const { items, totalItems, totalPrice, updateQuantity, removeFromCart } = useCart()
 
+  // Calculate fake original total (price * 1.1 for each item)
+  const fakeOriginalTotal = items.reduce((sum, item) => {
+    const currentPrice = item.price ?? 0
+    return sum + Math.round(currentPrice * 1.1) * item.quantity
+  }, 0)
+  const savings = fakeOriginalTotal - totalPrice
+
   return (
     <section className="mt-6 grid lg:flex gap-6 lg:mt-8 lg:grid-cols-[minmax(0,1fr),360px]">
       <div className="space-y-4 flex-1">
@@ -23,69 +30,81 @@ export function CartPageContent() {
             </Link>
           </div>
         ) : (
-          items.map((item) => (
-            <article
-              key={item.productId}
-              className="flex flex-col gap-3 rounded-lg border bg-card p-3 sm:flex-row sm:items-center"
-            >
-              <Link
-                href={`/product/${item.productId}`}
-                className="relative h-20 w-full overflow-hidden rounded-md bg-muted sm:h-24 sm:w-24"
+          items.map((item) => {
+            const currentPrice = item.price ?? 0
+            const fakePrice = Math.round(currentPrice * 1.1)
+            return (
+              <article
+                key={item.productId}
+                className="flex flex-col gap-3 rounded-lg border bg-card p-3 sm:flex-row sm:items-center"
               >
-                {item.thumbnail ? (
-                  <Image
-                    src={item.thumbnail}
-                    alt={item.name}
-                    fill
-                    sizes="(max-width: 640px) 100vw, 96px"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="h-full w-full bg-slate-200" />
-                )}
-              </Link>
-
-              <div className="min-w-0 flex-1 space-y-2">
                 <Link
                   href={`/product/${item.productId}`}
-                  className="line-clamp-2 text-sm font-semibold hover:underline"
+                  className="relative h-20 w-full overflow-hidden rounded-md bg-muted sm:h-24 sm:w-24"
                 >
-                  {item.name}
-                </Link>
-                <p className="text-sm font-bold text-destructive">
-                  {formatCurrency(item.price ?? 0)}
-                </p>
-              </div>
-
-              <div className="flex items-end justify-between gap-3 sm:block sm:w-32">
-                <Label htmlFor={`qty-${item.productId}`} className="text-sm font-bold">
-                  Số lượng
-                </Label>
-                <div className="flex items-center gap-1 mt-2">
-                  <div className="space-y-1">
-                    <Input
-                      id={`qty-${item.productId}`}
-                      type="number"
-                      min={1}
-                      value={item.quantity}
-                      onChange={(e) =>
-                        updateQuantity(item.productId, Number(e.target.value || 1))
-                      }
-                      className="h-9 w-16"
+                  {item.thumbnail ? (
+                    <Image
+                      src={item.thumbnail}
+                      alt={item.name}
+                      fill
+                      sizes="(max-width: 640px) 100vw, 96px"
+                      className="object-cover"
                     />
-                  </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeFromCart(item.productId)}
-                    className="h-9 cursor-pointer"
+                  ) : (
+                    <div className="h-full w-full bg-slate-200" />
+                  )}
+                </Link>
+
+                <div className="min-w-0 flex-1 space-y-2">
+                  <Link
+                    href={`/product/${item.productId}`}
+                    className="line-clamp-2 text-sm font-semibold hover:underline"
                   >
-                    Xóa
-                  </Button>
+                    {item.name}
+                  </Link>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-sm font-bold text-destructive">
+                      {formatCurrency(currentPrice)}
+                    </p>
+                    <span className="text-xs text-muted-foreground line-through">
+                      {formatCurrency(fakePrice)}
+                    </span>
+                    <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
+                      -{Math.round(((fakePrice - currentPrice) / fakePrice) * 100)}%
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </article>
-          ))
+
+                <div className="flex items-end justify-between gap-3 sm:block sm:w-32">
+                  <Label htmlFor={`qty-${item.productId}`} className="text-sm font-bold">
+                    Số lượng
+                  </Label>
+                  <div className="flex items-center gap-1 mt-2">
+                    <div className="space-y-1">
+                      <Input
+                        id={`qty-${item.productId}`}
+                        type="number"
+                        min={1}
+                        value={item.quantity}
+                        onChange={(e) =>
+                          updateQuantity(item.productId, Number(e.target.value || 1))
+                        }
+                        className="h-9 w-16"
+                      />
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => removeFromCart(item.productId)}
+                      className="h-9 cursor-pointer"
+                    >
+                      Xóa
+                    </Button>
+                  </div>
+                </div>
+              </article>
+            )
+          })
         )}
       </div>
 
@@ -95,11 +114,20 @@ export function CartPageContent() {
         <div className="space-y-2 text-sm">
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Tạm tính ({totalItems} SP)</span>
-            <span className="font-medium">{formatCurrency(totalPrice)}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground line-through">
+                {formatCurrency(fakeOriginalTotal)}
+              </span>
+              <span className="font-medium">{formatCurrency(totalPrice)}</span>
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Phí vận chuyển</span>
             <span className="font-medium">Miễn phí</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-emerald-600 font-medium">Tiết kiệm</span>
+            <span className="font-semibold text-emerald-600">-{formatCurrency(savings)}</span>
           </div>
           <div className="my-2 h-px bg-border" />
           <div className="flex items-center justify-between">

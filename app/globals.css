@@ -233,4 +233,23 @@
     font-size: 1.1rem;
     font-weight: 700;
   }
+
+  /* Floating heart animation for comments section */
+  @keyframes float-up {
+    0% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      transform: translateY(-60px) scale(1.5);
+    }
+  }
+
+  .animate-float-up {
+    animation: float-up 1s ease-out forwards;
+  }
 }

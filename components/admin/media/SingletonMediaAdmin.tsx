@@ -4,8 +4,6 @@ import { useMemo, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-
-import type { Resolver } from "react-hook-form"
 import { toast } from "sonner"
 import { z } from "zod"
 
@@ -13,6 +11,7 @@ import { ImageSlotList } from "./ImageSlotList"
 import { UploadActions } from "./UploadActions"
 
 import type { SingletonDoc } from "@/types/media"
+import type { Resolver } from "react-hook-form"
 
 import { Button, Input, Label } from "@/components/atoms"
 import { deleteImagesSchema } from "@/lib/validation/deleteImagesSchema"

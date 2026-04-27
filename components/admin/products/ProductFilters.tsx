@@ -1,7 +1,5 @@
 "use client"
 
-import type { Category } from "@/api/category"
-import type { ProductFilterFormData } from "@/lib/schemas/product-filter.schema"
 import type { ProductOrder, ProductSortBy } from "@/api/product"
 
 import { Button, Input, Label } from "@/components/atoms"
