@@ -12,10 +12,12 @@ type AboutGalleryProps = {
 }
 
 export function AboutGallery({ initialPage = 1, initialLimit = 12 }: AboutGalleryProps) {
-  const { items, pagination, page, setPage, isLoading, error, refetch } = useAboutImages(
+  const { images, pagination, page, setPage, isLoading, error, refetch } = useAboutImages(
     initialPage,
     initialLimit,
   )
+
+  console.log(images, 'images')
 
   if (isLoading) return <AboutSkeleton />
 
@@ -37,7 +39,7 @@ export function AboutGallery({ initialPage = 1, initialLimit = 12 }: AboutGaller
     )
   }
 
-  if (items.length === 0) {
+  if (images.length === 0) {
     return (
       <section className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">
         Chưa có hình ảnh giới thiệu.
@@ -51,7 +53,7 @@ export function AboutGallery({ initialPage = 1, initialLimit = 12 }: AboutGaller
   return (
     <section className="space-y-5" aria-label="Hinh anh gioi thieu">
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
-        {items.map((image, index) => (
+        {images.map((image, index) => (
           <article
             key={`${image.url}-${index}`}
             className="group relative overflow-hidden rounded-lg border bg-card"

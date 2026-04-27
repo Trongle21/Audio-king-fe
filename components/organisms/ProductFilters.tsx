@@ -78,23 +78,6 @@ function FilterFields({
         </select>
       </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="status">Trạng thái</Label>
-        <select
-          id="status"
-          name="status"
-          className="w-full rounded-md border bg-background px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          value={state.status}
-          onChange={(e) =>
-            setState((s) => ({ ...s, status: e.target.value }))
-          }
-        >
-          <option value="">Tất cả</option>
-          <option value="1">Đang bán</option>
-          <option value="0">Ngừng bán</option>
-        </select>
-      </div>
-
       <fieldset className="space-y-2">
         <legend className="text-sm font-medium">Khoảng giá (VND)</legend>
         <div className="grid grid-cols-2 gap-3">

@@ -1,224 +1,264 @@
-import { apiDelete, apiGet, apiPatch, apiPost, apiPut, getAccessToken } from "@/api"
+import {
+    apiDelete,
+    apiGet,
+    apiPatch,
+    apiPost,
+    apiPut,
+    getAccessToken,
+} from "@/api"
 
 import type {
-  AboutDocument,
-  AboutImageMutationPayload,
-  AboutImagesData,
-  AboutImagesParams,
-  AboutMutationPayload,
-  AboutUploadSignatureData,
-  ApiSuccessResponse,
+    AboutDocument,
+    AboutImageMutationPayload,
+    AboutImagesData,
+    AboutImagesParams,
+    AboutMutationPayload,
+    AboutUploadSignatureData,
+    ApiSuccessResponse,
 } from "./about.types"
 import type { SingletonDoc } from "@/types/media"
 
 const ABOUT_BASE_PATH = "/about"
 
 function buildTokenHeader(): Record<string, string> {
-  const accessToken = getAccessToken()
+    const accessToken = getAccessToken()
 
-  return {
-    token: accessToken ? `Bearer ${accessToken}` : "",
-  }
+    return {
+        token: accessToken ? `Bearer ${accessToken}` : "",
+    }
 }
 
 function buildAboutImagesQuery(params: AboutImagesParams = {}) {
-  const searchParams = new URLSearchParams()
+    const searchParams = new URLSearchParams()
 
-  if (params.page !== undefined) searchParams.set("page", String(params.page))
-  if (params.limit !== undefined) searchParams.set("limit", String(params.limit))
+    if (params.page !== undefined) searchParams.set("page", String(params.page))
+    if (params.limit !== undefined)
+        searchParams.set("limit", String(params.limit))
 
-  const query = searchParams.toString()
-  return query ? `?${query}` : ""
+    const query = searchParams.toString()
+    return query ? `?${query}` : ""
 }
 
 function buildFilesFormData(files: File[]) {
-  const formData = new FormData()
-  files.forEach((file) => formData.append("files", file))
-  return formData
+    const formData = new FormData()
+    files.forEach((file) => formData.append("files", file))
+    return formData
 }
 
 export async function getAboutImages(params: AboutImagesParams = {}) {
-  const query = buildAboutImagesQuery(params)
-  const response = await apiGet<ApiSuccessResponse<AboutImagesData>>(
-    `${ABOUT_BASE_PATH}${query}`,
-    {},
-    { auth: false },
-  )
+    const query = buildAboutImagesQuery(params)
+    const response = await apiGet<ApiSuccessResponse<AboutImagesData>>(
+        `${ABOUT_BASE_PATH}${query}`,
+        {},
+        { auth: false }
+    )
 
-  return response.data
+    return response.data
 }
 
 export async function getAboutById(id: string) {
-  return apiGet<ApiSuccessResponse<AboutDocument>>(`${ABOUT_BASE_PATH}/${id}`, {}, { auth: false })
+    return apiGet<ApiSuccessResponse<AboutDocument>>(
+        `${ABOUT_BASE_PATH}/${id}`,
+        {},
+        { auth: false }
+    )
 }
 
 export async function getAboutUploadSignature() {
-  const response = await apiGet<ApiSuccessResponse<AboutUploadSignatureData>>(
-    `${ABOUT_BASE_PATH}/upload-signature`,
-    {
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+    const response = await apiGet<ApiSuccessResponse<AboutUploadSignatureData>>(
+        `${ABOUT_BASE_PATH}/upload-signature`,
+        {
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 
-  return response.data
+    return response.data
 }
 
 export async function createAbout(payload: AboutMutationPayload | File[]) {
-  const requestBody = Array.isArray(payload) ? buildFilesFormData(payload) : payload
+    const requestBody = Array.isArray(payload)
+        ? buildFilesFormData(payload)
+        : payload
 
-  return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload | FormData>(
-    ABOUT_BASE_PATH,
-    {
-      body: requestBody,
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+    return apiPost<
+        ApiSuccessResponse<AboutDocument>,
+        AboutMutationPayload | FormData
+    >(
+        ABOUT_BASE_PATH,
+        {
+            body: requestBody,
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 }
 
 export async function getAboutSingleton(): Promise<SingletonDoc | null> {
-  const response = await apiGet<ApiSuccessResponse<SingletonDoc[]>>(ABOUT_BASE_PATH, {}, { auth: false })
-  return response.data[0] ?? null
+    const response = await apiGet<ApiSuccessResponse<AboutImagesData>>(
+        ABOUT_BASE_PATH,
+        {},
+        { auth: false }
+    )
+    return response.data.items[0] ?? null
 }
 
-export async function createAboutSingleton(files: File[]): Promise<SingletonDoc> {
-  const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
-    ABOUT_BASE_PATH,
-    {
-      body: buildFilesFormData(files),
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+export async function createAboutSingleton(
+    files: File[]
+): Promise<SingletonDoc> {
+    const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
+        ABOUT_BASE_PATH,
+        {
+            body: buildFilesFormData(files),
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 
-  return response.data
+    return response.data
 }
 
-export async function updateAboutById(id: string, files: File[]): Promise<SingletonDoc> {
-  const response = await apiPatch<ApiSuccessResponse<SingletonDoc>, FormData>(
-    `${ABOUT_BASE_PATH}/${id}`,
-    {
-      body: buildFilesFormData(files),
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+export async function updateAboutById(
+    id: string,
+    files: File[]
+): Promise<SingletonDoc> {
+    const response = await apiPatch<ApiSuccessResponse<SingletonDoc>, FormData>(
+        `${ABOUT_BASE_PATH}/${id}`,
+        {
+            body: buildFilesFormData(files),
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 
-  return response.data
+    return response.data
 }
 
-export async function addAboutSingletonImages(files: File[]): Promise<SingletonDoc> {
-  const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
-    `${ABOUT_BASE_PATH}/images`,
-    {
-      body: buildFilesFormData(files),
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+export async function addAboutSingletonImages(
+    files: File[]
+): Promise<SingletonDoc> {
+    const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
+        `${ABOUT_BASE_PATH}/images`,
+        {
+            body: buildFilesFormData(files),
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 
-  return response.data
+    return response.data
 }
 
-export async function replaceAboutImages(indices: number[], files: File[]): Promise<SingletonDoc> {
-  const formData = buildFilesFormData(files)
-  formData.append("indices", JSON.stringify(indices))
+export async function replaceAboutImages(
+    indices: number[],
+    files: File[]
+): Promise<SingletonDoc> {
+    const formData = buildFilesFormData(files)
+    formData.append("indices", JSON.stringify(indices))
 
-  const response = await apiPatch<ApiSuccessResponse<SingletonDoc>, FormData>(
-    `${ABOUT_BASE_PATH}/images`,
-    {
-      body: formData,
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+    const response = await apiPatch<ApiSuccessResponse<SingletonDoc>, FormData>(
+        `${ABOUT_BASE_PATH}/images`,
+        {
+            body: formData,
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 
-  return response.data
+    return response.data
 }
 
 export async function deleteAboutImages(payload: {
-  indices?: number[]
-  publicIds?: string[]
+    indices?: number[]
+    publicIds?: string[]
 }): Promise<SingletonDoc> {
-  const response = await apiDelete<ApiSuccessResponse<SingletonDoc>>(
-    `${ABOUT_BASE_PATH}/images`,
-    {
-      headers: buildTokenHeader(),
-      body: JSON.stringify(payload),
-    },
-    { auth: false },
-  )
+    const response = await apiDelete<ApiSuccessResponse<SingletonDoc>>(
+        `${ABOUT_BASE_PATH}/images`,
+        {
+            headers: buildTokenHeader(),
+            body: JSON.stringify(payload),
+        },
+        { auth: false }
+    )
 
-  return response.data
+    return response.data
 }
 
 export async function updateAbout(id: string, payload: AboutMutationPayload) {
-  return apiPut<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
-    `${ABOUT_BASE_PATH}/${id}`,
-    {
-      body: payload,
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+    return apiPut<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
+        `${ABOUT_BASE_PATH}/${id}`,
+        {
+            body: payload,
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 }
 
 export async function deleteAbout(id: string) {
-  return apiDelete<ApiSuccessResponse<AboutDocument>>(
-    `${ABOUT_BASE_PATH}/${id}`,
-    {
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+    return apiDelete<ApiSuccessResponse<AboutDocument>>(
+        `${ABOUT_BASE_PATH}/${id}`,
+        {
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 }
 
-export async function addAboutImages(idOrFiles: string | File[], payload?: AboutMutationPayload) {
-  if (Array.isArray(idOrFiles)) {
-    const response = await apiPost<ApiSuccessResponse<SingletonDoc>, FormData>(
-      `${ABOUT_BASE_PATH}/images`,
-      {
-        body: buildFilesFormData(idOrFiles),
-        headers: buildTokenHeader(),
-      },
-      { auth: false },
+export async function addAboutImages(
+    idOrFiles: string | File[],
+    payload?: AboutMutationPayload
+) {
+    if (Array.isArray(idOrFiles)) {
+        const response = await apiPost<
+            ApiSuccessResponse<SingletonDoc>,
+            FormData
+        >(
+            `${ABOUT_BASE_PATH}/images`,
+            {
+                body: buildFilesFormData(idOrFiles),
+                headers: buildTokenHeader(),
+            },
+            { auth: false }
+        )
+
+        return response
+    }
+
+    return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
+        `${ABOUT_BASE_PATH}/${idOrFiles}/images`,
+        {
+            body: payload as AboutMutationPayload,
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
     )
-
-    return response
-  }
-
-  return apiPost<ApiSuccessResponse<AboutDocument>, AboutMutationPayload>(
-    `${ABOUT_BASE_PATH}/${idOrFiles}/images`,
-    {
-      body: payload as AboutMutationPayload,
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
 }
 
 export async function updateAboutImage(
-  id: string,
-  imageIndex: number,
-  payload: AboutImageMutationPayload,
+    id: string,
+    imageIndex: number,
+    payload: AboutImageMutationPayload
 ) {
-  return apiPatch<ApiSuccessResponse<AboutDocument>, AboutImageMutationPayload>(
-    `${ABOUT_BASE_PATH}/${id}/images/${imageIndex}`,
-    {
-      body: payload,
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+    return apiPatch<
+        ApiSuccessResponse<AboutDocument>,
+        AboutImageMutationPayload
+    >(
+        `${ABOUT_BASE_PATH}/${id}/images/${imageIndex}`,
+        {
+            body: payload,
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 }
 
 export async function deleteAboutImage(id: string, imageIndex: number) {
-  return apiDelete<ApiSuccessResponse<AboutDocument>>(
-    `${ABOUT_BASE_PATH}/${id}/images/${imageIndex}`,
-    {
-      headers: buildTokenHeader(),
-    },
-    { auth: false },
-  )
+    return apiDelete<ApiSuccessResponse<AboutDocument>>(
+        `${ABOUT_BASE_PATH}/${id}/images/${imageIndex}`,
+        {
+            headers: buildTokenHeader(),
+        },
+        { auth: false }
+    )
 }

@@ -1,62 +1,62 @@
 export interface ApiSuccessResponse<T> {
-  message: string
-  data: T
+    message: string
+    data: T
 }
 
 export interface ApiErrorResponse {
-  message: string
-  data?: unknown
-  error?: string
+    message: string
+    data?: unknown
+    error?: string
 }
 
 export interface AboutImage {
-  url: string
-  alt?: string
-  publicId?: string
-  resourceType?: string
+    url: string
+    alt: string
+    publicId?: string
+    resourceType?: string
 }
 
 export interface AboutDocument {
-  _id: string
-  images: AboutImage[]
-  createdAt?: string
-  updatedAt?: string
+    _id: string
+    images: AboutImage[]
+    createdAt?: string
+    updatedAt?: string
 }
 
 export interface AboutImagesPagination {
-  total: number
-  page: number
-  limit: number
-  totalPages: number
+    total: number
+    page: number
+    limit: number
+    totalPages: number
 }
 
 export interface AboutImagesData {
-  items: AboutDocument[]
-  pagination: AboutImagesPagination
+    items: AboutDocument[]
+    pagination: AboutImagesPagination
 }
 
 export interface AboutImagesParams {
-  page?: number
-  limit?: number
+    page?: number
+    limit?: number
 }
 
 export interface AboutPayload {
-  images: AboutImage[]
+    images: AboutImage[]
 }
 
 export type AboutMutationPayload = AboutPayload | FormData
 
 export interface AboutImagePayload {
-  url: string
-  alt?: string
+    url: string
+    alt?: string
 }
 
 export type AboutImageMutationPayload = AboutImagePayload | FormData
 
 export interface AboutUploadSignatureData {
-  timestamp: number
-  folder: string
-  signature: string
-  cloudName: string
-  apiKey: string
+    timestamp: number
+    folder: string
+    signature: string
+    cloudName: string
+    apiKey: string
 }

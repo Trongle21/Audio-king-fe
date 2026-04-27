@@ -11,3 +11,15 @@ export type SingletonDoc = {
   createdAt?: string
   updatedAt?: string
 }
+
+export type AboutImagesPagination = {
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export type AboutImagesData = {
+  items: SingletonDoc[]
+  pagination: AboutImagesPagination
+}
