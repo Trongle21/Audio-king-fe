@@ -5,13 +5,6 @@ export const productImageSchema = z.object({
   alt: z.string().trim().optional(),
 })
 
-export const productReviewSchema = z.object({
-  user: z.string().trim().min(1, "Tên người dùng là bắt buộc"),
-  rating: z.coerce.number().min(1).max(5),
-  comment: z.string().trim().min(1, "Nội dung đánh giá là bắt buộc"),
-  createdAt: z.string().optional(),
-})
-
 export const productCreateSchema = z.object({
   name: z.string().trim().min(1, "Tên sản phẩm là bắt buộc"),
   sku: z.string().trim().optional(),
@@ -26,7 +19,6 @@ export const productCreateSchema = z.object({
   images: z.array(productImageSchema).optional(),
   specifications: z.record(z.string(), z.string().trim()).optional(),
   highlights: z.array(z.string().trim().min(1)).optional(),
-  reviews: z.array(productReviewSchema).optional(),
 })
 
 export const productUpdateSchema = productCreateSchema.partial()

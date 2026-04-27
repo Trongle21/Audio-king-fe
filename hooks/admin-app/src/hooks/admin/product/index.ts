@@ -1,4 +1,3 @@
-export * from "./product-review.hooks"
 export {
     productTrashQueryKeys,
     useDeletedProducts, useHardDeleteProduct, useRestoreDeletedProduct

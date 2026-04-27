@@ -58,6 +58,8 @@ export default function AdminProductDetailPage() {
     const thumbnailUrl =
         typeof data.thumbnail === "string" ? data.thumbnail : data.thumbnail?.url || gallery[0]?.url
 
+    console.log(data, 'data')
+
     return (
         <main className="min-h-screen bg-slate-100 p-6 space-y-4">
             <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
