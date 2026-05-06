@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useMemo, useState, startTransition } from "react"
+import { startTransition, useEffect, useMemo, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Plus, Trash2, Upload } from "lucide-react"
@@ -107,12 +107,14 @@ export function ProductForm({
   const [commentRows, setCommentRows] = useState<CommentRow[]>(
     mapCommentRecordToRows(defaultValues?.comments),
   )
+  const [promotionsText, setPromotionsText] = useState((defaultValues?.promotions ?? []).join("\n"))
 
   useEffect(() => {
     startTransition(() => {
       setExistingImages(getInitialExistingImages(defaultValues))
       setSelectedThumbnailUrl(getInitialThumbnailUrl(defaultValues))
       setHighlightsText((defaultValues?.highlights ?? []).join("\n"))
+      setPromotionsText((defaultValues?.promotions ?? []).join("\n"))
       setSpecRows(mapSpecRecordToRows(defaultValues?.specifications))
       setCommentRows(mapCommentRecordToRows(defaultValues?.comments))
       setFiles([])
@@ -153,6 +155,7 @@ export function ProductForm({
       highlights: defaultValues?.highlights ?? [],
       specifications: defaultValues?.specifications ?? {},
       comments: defaultValues?.comments ?? {},
+      promotions: defaultValues?.promotions ?? [],
     },
   })
 
@@ -258,11 +261,16 @@ export function ProductForm({
       .map((item) => item.trim())
       .filter((item) => item.length > 0)
 
+    const promotions = (values.promotions ?? [])
+      .map((item) => item.trim())
+      .filter((item) => item.length > 0)
+
     await onSubmit({
       ...values,
       specifications,
       comments,
       highlights,
+      promotions,
       files: reorderedFiles,
       images: existingImages,
       thumbnail: selectedThumbnailUrl ? { url: selectedThumbnailUrl } : undefined,
@@ -309,7 +317,7 @@ export function ProductForm({
       </div>
 
       <div className="space-y-1">
-        <Label htmlFor="highlights">Highlights (mỗi dòng là 1 ý)</Label>
+        <Label htmlFor="highlights">Đặc điểm nổi bật (mỗi dòng là 1 ý)</Label>
         <textarea
           id="highlights"
           className="w-full rounded-md border p-2 text-sm"
@@ -325,6 +333,27 @@ export function ProductForm({
               .filter((line) => line.length > 0)
 
             setValue("highlights", values, { shouldValidate: true })
+          }}
+        />
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="promotions">Khuyến mãi, ưu đãi (mỗi dòng là 1 ý)</Label>
+        <textarea
+          id="promotions"
+          className="w-full rounded-md border p-2 text-sm"
+          rows={4}
+          value={promotionsText}
+          onChange={(e) => {
+            const nextText = e.target.value
+            setPromotionsText(nextText)
+
+            const values = nextText
+              .split("\n")
+              .map((line) => line.trim())
+              .filter((line) => line.length > 0)
+
+            setValue("promotions", values, { shouldValidate: true })
           }}
         />
       </div>

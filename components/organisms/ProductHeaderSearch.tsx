@@ -5,7 +5,6 @@ import * as React from "react"
 import { useQuery } from "@tanstack/react-query"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 
 import type { Product } from "@/api/product/product.types"
 
@@ -13,7 +12,6 @@ import { getProducts } from "@/api/product"
 import { Input } from "@/components/atoms"
 import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
 import { mapProductToHomeProduct } from "@/lib/product-list/map-product-to-card"
-import { buildProductListHref } from "@/lib/product-list/product-list-params"
 import { cn } from "@/lib/utils"
 
 type AutocompleteItem = {
@@ -42,10 +40,7 @@ export function ProductHeaderSearch({
   debounceMs = 400,
   minQueryLength = 1,
 }: ProductHeaderSearchProps) {
-  const router = useRouter()
-
   const [value, setValue] = React.useState("")
-  const trimmed = value.trim()
   const debouncedQ = useDebounce(value, debounceMs).trim()
 
   const [open, setOpen] = React.useState(false)
@@ -98,15 +93,6 @@ export function ProductHeaderSearch({
     }
   }, [close])
 
-  const submit = React.useCallback(() => {
-    const q = trimmed
-    if (!q) return
-    router.push(buildProductListHref("/product", { q, page: 1 }))
-    close()
-  }, [close, router, trimmed])
-
-  const onItemClick = React.useCallback(() => close(), [close])
-
   const showDropdown = open && debouncedQ.length >= minQueryLength
 
   return (
@@ -122,7 +108,6 @@ export function ProductHeaderSearch({
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
-            if (e.key === "Enter") submit()
             if (e.key === "Escape") close()
           }}
           placeholder={placeholder}
@@ -151,7 +136,7 @@ export function ProductHeaderSearch({
                     <li key={item.id}>
                       <Link
                         href={`/product/${item.id}`}
-                        onClick={onItemClick}
+                        onClick={() => close()}
                         className="group flex items-center gap-3 px-3 py-2 hover:bg-muted/70"
                       >
                         <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded border border-black/5 bg-muted/40">

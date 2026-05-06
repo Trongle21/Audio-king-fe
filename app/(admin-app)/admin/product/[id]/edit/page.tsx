@@ -12,8 +12,8 @@ import { ProductForm } from "@/components/organisms"
 import {
     useProductDetail,
     useUpdateProduct,
+    useUploadProductFile,
 } from "@/hooks/admin-app/src/hooks/admin/product"
-import { useUploadProductFile } from "@/hooks/admin-app/src/hooks/admin/product"
 
 
 function getErrorMessage(error: unknown) {
@@ -57,6 +57,7 @@ export default function AdminEditProductPage() {
             specifications: data.specifications ?? {},
             comments: data.comments ?? {},
             highlights: data.highlights ?? [],
+            promotions: data.promotions ?? [],
         }
     }, [data])
 
@@ -118,6 +119,7 @@ export default function AdminEditProductPage() {
                     specifications: payload.specifications,
                     comments: payload.comments,
                     highlights: payload.highlights,
+                    promotions: payload.promotions,
                 },
             })
 

@@ -22,6 +22,7 @@ export const productCreateSchema = z.object({
     specifications: z.record(z.string(), z.string().trim()).optional(),
     comments: z.record(z.string(), z.string().trim()).optional(),
     highlights: z.array(z.string().trim().min(1)).optional(),
+    promotions: z.array(z.string().trim().min(1)).optional(),
 })
 
 export const productUpdateSchema = productCreateSchema.partial()

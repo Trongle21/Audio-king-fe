@@ -50,6 +50,7 @@ export default function AdminCreateProductPage() {
                 ...(payload.specifications !== undefined ? { specifications: payload.specifications } : {}),
                 ...(payload.comments !== undefined ? { comments: payload.comments } : {}),
                 ...(payload.highlights !== undefined ? { highlights: payload.highlights } : {}),
+                ...(payload.promotions !== undefined ? { promotions: payload.promotions } : {}),
             })
 
             toast.success(response.message)

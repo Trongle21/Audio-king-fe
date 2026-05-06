@@ -2,7 +2,7 @@
 
 import * as React from "react"
 
-import { Heart, MessageCircle } from "lucide-react"
+import { Star } from "lucide-react"
 import Link from "next/link"
 import { useParams } from "next/navigation"
 
@@ -131,6 +131,17 @@ function BuyingInfo({ product }: { product: Product }) {
         </section>
       )}
 
+      {product.promotions && product.promotions.length > 0 && (
+        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
+          <h2 className="text-base font-semibold">Khuyến mãi, ưu đãi</h2>
+          <ul className="list-disc space-y-1 pl-5">
+            {product.promotions.map((item, idx) => (
+              <li key={`${item}-${idx}`} className="text-emerald-700">{item}</li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       {product.highlights && product.highlights.length > 0 && (
         <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
           <h2 className="text-base font-semibold">Đặc điểm nổi bật</h2>
@@ -156,7 +167,6 @@ interface CommentItem {
 }
 
 function CommentsSection({ comments }: { comments: Record<string, string> }) {
-  const [hearts, setHearts] = React.useState<Array<{ id: number; x: number; y: number }>>([])
 
   const commentEntries: CommentItem[] = React.useMemo(() => {
     return Object.entries(comments)
@@ -170,21 +180,6 @@ function CommentsSection({ comments }: { comments: Record<string, string> }) {
       })
   }, [comments])
 
-  React.useEffect(() => {
-    const interval = setInterval(() => {
-      const x = Math.random() * 80 + 10
-      const y = Math.random() * 80 + 10
-      const heartId = Date.now()
-
-      setHearts((prev) => [...prev, { id: heartId, x, y }])
-
-      setTimeout(() => {
-        setHearts((prev) => prev.filter((h) => h.id !== heartId))
-      }, 1000)
-    }, 5000)
-
-    return () => clearInterval(interval)
-  }, [])
 
   const getInitials = (name: string) => {
     return name
@@ -228,13 +223,23 @@ function CommentsSection({ comments }: { comments: Record<string, string> }) {
 
   return (
     <section className="relative space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
-      <div className="flex items-center gap-2">
-        <MessageCircle className="h-5 w-5 text-primary" />
-        <h2 className="text-base font-semibold">Bình luận</h2>
-        <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-medium text-primary">
-          {commentEntries.length}
-        </span>
-      </div>
+      {/* Fake Rating Summary */}
+      {commentEntries.length > 0 && (
+        <div className="flex items-center gap-3 rounded-lg bg-amber-50 p-3 border border-amber-200">
+          <div className="flex flex-col items-center">
+            <span className="text-2xl font-bold text-amber-600">5.0</span>
+            <div className="flex gap-0.5">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <Star key={star} className="h-3 w-3 fill-amber-400 text-amber-400" />
+              ))}
+            </div>
+            <span className="text-xs text-amber-600">{commentEntries.length} đánh giá</span>
+          </div>
+          <div className="flex-1 border-l border-amber-200 pl-3">
+            <p className="text-xs text-amber-700">Khách hàng đánh giá sản phẩm này</p>
+          </div>
+        </div>
+      )}
 
       <div className="space-y-3">
         {commentEntries.map((comment, index) => {
@@ -257,6 +262,11 @@ function CommentsSection({ comments }: { comments: Record<string, string> }) {
               <div className="min-w-0 flex-1 space-y-1">
                 <div className="flex items-center gap-2">
                   <span className="font-medium">{comment.user}</span>
+                  <div className="flex gap-0.5">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <Star key={star} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                    ))}
+                  </div>
                   {date && (
                     <span className="text-xs text-muted-foreground">{date}</span>
                   )}
@@ -267,20 +277,6 @@ function CommentsSection({ comments }: { comments: Record<string, string> }) {
           )
         })}
       </div>
-
-      {/* Floating hearts animation */}
-      {hearts.map((heart) => (
-        <div
-          key={heart.id}
-          className="pointer-events-none absolute animate-float-up text-rose-500"
-          style={{
-            left: `${heart.x}%`,
-            bottom: `${heart.y}%`,
-          }}
-        >
-          <Heart className="h-4 w-4 fill-rose-500" />
-        </div>
-      ))}
     </section>
   )
 }
@@ -349,6 +345,24 @@ export function ProductDetailClient({ id }: { id: string }) {
         </div>
 
         <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
+
+          {/* Fake  Chinh sach cua hang */}
+          <div className="space-y-2">
+            {[
+              { icon: "🛡️", title: "100% hàng chính hãng", desc: "Đền gấp 3 lần nếu phát hiện hàng giả" },
+              { icon: "💰", title: "Giá luôn rẻ nhất", desc: "Gọi để có giá tốt nhất Việt Nam" },
+              { icon: "🏪", title: "Hệ thống cửa hàng lớn nhất Việt Nam", desc: "" },
+            ].map((policy, index) => (
+              <div key={index} className="flex items-start gap-3 rounded-lg border bg-slate-50 p-3">
+                <span className="text-xl shrink-0">{policy.icon}</span>
+                <div>
+                  <p className="font-medium text-emerald-700">{policy.title}</p>
+                  {policy.desc && <p className="text-xs text-muted-foreground">{policy.desc}</p>}
+                </div>
+              </div>
+            ))}
+          </div>
+
           <h2 className="text-base font-semibold">Mô tả sản phẩm</h2>
           <p className="text-muted-foreground">
             {data.description?.trim() ? data.description : "Chưa có mô tả cho sản phẩm này."}

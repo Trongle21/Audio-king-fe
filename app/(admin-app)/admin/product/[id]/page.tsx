@@ -117,7 +117,7 @@ export default function AdminProductDetailPage() {
             </section>
 
             <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
-                <h2 className="text-lg font-semibold">Highlights</h2>
+                <h2 className="text-lg font-semibold">Đặc điểm nổi bật</h2>
                 {data.highlights && data.highlights.length > 0 ? (
                     <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
                         {data.highlights.map((item, index) => (
@@ -125,7 +125,21 @@ export default function AdminProductDetailPage() {
                         ))}
                     </ul>
                 ) : (
-                    <p className="text-sm text-slate-500">Không có highlights.</p>
+                    <p className="text-sm text-slate-500">Không có đặc điểm nổi bật.</p>
+                )}
+            </section>
+
+
+            <section className="rounded-2xl border bg-white p-5 shadow-sm space-y-3">
+                <h2 className="text-lg font-semibold">Khuyến mãi, ưu đãi</h2>
+                {data.promotions && data.promotions.length > 0 ? (
+                    <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+                        {data.promotions.map((item, index) => (
+                            <li key={`${item}-${index}`}>{item}</li>
+                        ))}
+                    </ul>
+                ) : (
+                    <p className="text-sm text-slate-500">Không có khuyến mãi, ưu đãi.</p>
                 )}
             </section>
 

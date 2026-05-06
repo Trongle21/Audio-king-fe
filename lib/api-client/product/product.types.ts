@@ -41,10 +41,18 @@ export interface Product {
   specifications?: Record<string, string>
   comments?: Record<string, string>
   highlights?: string[]
+  reviews?: Array<{
+    _id: string
+    user?: string
+    rating: number
+    review: string
+    createdAt?: string
+  }>
   categories: string[] | ProductCategoryRef[]
   isDelete: boolean
   createdAt?: string
-  updatedAt?: string
+  updatedAt?: string,
+  promotions?: string[]
 }
 
 /** Alias theo domain backend — một bản ghi sản phẩm trong danh sách / chi tiết */
@@ -132,6 +140,7 @@ export interface UpdateProductPayload {
   specifications?: Record<string, string>
   comments?: Record<string, string>
   highlights?: string[]
+  promotions?: string[]
 }
 
 // ==================== Product Reviews ====================

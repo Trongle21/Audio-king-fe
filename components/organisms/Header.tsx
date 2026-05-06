@@ -4,6 +4,7 @@ import * as React from "react"
 
 import {
   ChevronDown,
+  Grid3X3,
   Menu,
   PhoneCall,
   ShoppingCart,
@@ -39,16 +40,19 @@ const hotlines = [
 export default function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
   const [cartOpen, setCartOpen] = React.useState(false)
+  const [moreCategoriesOpen, setMoreCategoriesOpen] = React.useState(false)
   const { items, totalItems, totalPrice } = useCart()
   const { isAuthenticated: _isAuthenticated, logout: _logout } = useAuth()
   const router = useRouter()
 
   const { data: categoryData } = useCategories({ page: 1, limit: 100 })
-  const categories = categoryData?.items ?? []
+  const allCategories = categoryData?.items ?? []
+  const visibleCategories = allCategories.slice(0, 8)
+  const moreCategories = allCategories.slice(8)
 
   return (
     <>
-      <header className="sticky top-0 z-50 w-full bg-destructive text-white">
+      <header className="relative sticky top-0 z-50 w-full bg-destructive text-white">
         {/* Row 1 */}
         <div className="border-b border-white/15 px-2">
           <div className="m-auto">
@@ -257,15 +261,25 @@ export default function Header() {
                   className="flex items-center gap-1 overflow-x-auto whitespace-nowrap py-1.5 pr-10
                   [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden]"
                 >
-                  {categories.map((c) => (
+                  {visibleCategories.map((c) => (
                     <Link
                       key={c.slug}
-                      href={`/product?category=${encodeURIComponent(c.slug)}`}
+                      href={`/product?categoryId=${encodeURIComponent(c._id)}`}
                       className="flex-shrink-0 px-3 py-2 text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
                     >
                       {c.name}
                     </Link>
                   ))}
+
+                  {moreCategories.length > 0 && (
+                    <button
+                      onClick={() => setMoreCategoriesOpen(true)}
+                      className="flex-shrink-0 cursor-pointer flex items-center gap-1 px-3 py-2 text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
+                    >
+                      <Grid3X3 className="h-4 w-4" />
+                      Xem thêm
+                    </button>
+                  )}
                 </div>
                 {/* Fade gradient on right edge */}
                 <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-destructive to-transparent pointer-events-none" />
@@ -289,7 +303,7 @@ export default function Header() {
           >
             <div className="py-2 max-h-[50vh] overflow-y-auto">
               <div className="grid grid-cols-3 gap-1 px-2">
-                {categories.map((c) => (
+                {visibleCategories.map((c) => (
                   <Link
                     key={c.slug}
                     href={`/product?category=${encodeURIComponent(c.slug)}`}
@@ -299,9 +313,50 @@ export default function Header() {
                     {c.name}
                   </Link>
                 ))}
+
+                {moreCategories.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      setMoreCategoriesOpen(true)
+                    }}
+                    className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate flex items-center justify-center gap-1"
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                    Xem thêm
+                  </button>
+                )}
               </div>
             </div>
           </nav>
+        )}
+
+        {/* Dropdown: More Categories (Desktop) */}
+        {moreCategoriesOpen && (
+          <>
+            {/* Backdrop */}
+            <div
+              className="fixed inset-0 z-40"
+              onClick={() => setMoreCategoriesOpen(false)}
+            />
+            {/* Dropdown */}
+            <div className="absolute left-0 right-0 z-50 bg-white shadow-xl border-t border-black/10">
+              <div className="container py-4">
+                <div className="grid grid-cols-4 lg:grid-cols-6 gap-2">
+                  {allCategories.map((c) => (
+                    <Link
+                      key={c.slug}
+                      href={`/product?categoryId=${encodeURIComponent(c._id)}`}
+                      onClick={() => setMoreCategoriesOpen(false)}
+                      className="rounded-lg border border-black/10 bg-white px-3 py-2.5 text-sm font-medium text-center text-black hover:bg-muted transition-colors truncate"
+                    >
+                      {c.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </header>
     </>
