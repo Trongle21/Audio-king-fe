@@ -12,10 +12,9 @@ import { useSearch } from "@/components/contexts/SearchContext"
 import {
   Sheet,
   SheetContent,
-  SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
+  SheetTrigger
 } from "@/components/ui/sheet"
 import { useCategories } from "@/hooks/client-app/src/hooks/category/useCategories"
 import {
@@ -64,7 +63,7 @@ function FilterFields({
         <select
           id="categoryId"
           name="categoryId"
-          className="w-full rounded-md border bg-background px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="w-3/4 xl:w-full rounded-md border bg-background px-2 py-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           value={state.categoryId}
           onChange={(e) =>
             setState((s) => ({ ...s, categoryId: e.target.value }))
@@ -301,9 +300,6 @@ export function ProductFiltersDrawer() {
       <SheetContent side="right" className="w-[92vw] sm:max-w-md">
         <SheetHeader>
           <SheetTitle>Bộ lọc sản phẩm</SheetTitle>
-          <SheetDescription>
-            Chọn danh mục, trạng thái và khoảng giá, sau đó nhấn Áp dụng.
-          </SheetDescription>
         </SheetHeader>
 
         <div className="mt-6 space-y-5">

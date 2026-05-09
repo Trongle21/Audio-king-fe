@@ -94,7 +94,7 @@ export function ProductSearchBar() {
         <select
           id="sort"
           name="sort"
-          className="h-10 w-full rounded-md border bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          className="h-10 w-[10rem] rounded-md border bg-background px-2 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           value={sortValue}
           onChange={onSortChange}
         >

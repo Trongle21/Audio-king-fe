@@ -195,7 +195,7 @@ export default function Header() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant="ghost"
-                      className="hidden sm:inline-flex cursor-pointer text-white transition-colors hover:bg-white/15 data-[state=open]:bg-white/15 focus-visible:ring-0 focus-visible:border-transparent"
+                      className="inline-flex cursor-pointer text-white transition-colors hover:bg-white/15 data-[state=open]:bg-white/15 focus-visible:ring-0 focus-visible:border-transparent"
                       aria-label="Hotline"
                     >
                       <PhoneCall className="size-5" />
