@@ -184,9 +184,8 @@ function BuyingInfo({ product }: { product: Product }) {
       )}
 
       {/* Comments Section */}
-      {product.comments && Object.keys(product.comments).length > 0 && (
-        <CommentsSection comments={product.comments} />
-      )}
+
+      <CommentsSection comments={product.comments || {}} />
     </div>
   )
 }
@@ -261,40 +260,40 @@ function CommentsSection({ comments }: { comments: Record<string, string> }) {
   return (
     <section className="relative space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
       {/* Fake Rating Summary */}
-      {commentEntries.length > 0 && (
-        <div className="flex items-start gap-4 rounded-lg bg-white p-4">
-          <div className="flex flex-col items-center min-w-[70px]">
-            <span className="text-4xl font-bold text-amber-600">{averageRating.toFixed(1)}</span>
-            <div className="flex gap-0.5 my-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />
-              ))}
-            </div>
-            <span className="text-sm text-amber-600">{commentEntries.length} đánh giá</span>
-          </div>
-          <div className="flex-1 space-y-2 border-l border-amber-200 pl-4">
-            {[5, 4, 3, 2, 1].map((star) => {
-              const count = commentEntries.filter((c) => Math.round(c.rating) === star).length
-              const percentage = commentEntries.length > 0 ? (count / commentEntries.length) * 100 : 0
-              return (
-                <div key={star} className="flex items-center gap-2">
-                  <span className="text-[16px] font-semibold">{star}
-                  </span>
-                  <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />
-                  <div className="flex-1 h-2 bg-amber-200 rounded-full overflow-hidden">
-                    <div
-                      className="h-full bg-amber-400 rounded-full transition-all"
-                      style={{ width: `${percentage}%` }}
-                    />
-                  </div>
-                  <span className="text-[16px] font-semibold w-10 text-right">{count > 0 ? '100%' : '0%'}</span>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-      )}
 
+      <div className="flex items-start gap-4 rounded-lg bg-white p-4">
+        <div className="flex flex-col items-center min-w-[70px]">
+          <span className="text-4xl font-bold text-amber-600">{averageRating.toFixed(1)}</span>
+          <div className="flex gap-0.5 my-1">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />
+            ))}
+          </div>
+          <span className="text-sm text-amber-600">{commentEntries.length} đánh giá</span>
+        </div>
+
+        <div className="flex-1 space-y-2 border-l border-amber-200 pl-4">
+          {[5, 4, 3, 2, 1].map((star) => {
+            const count = commentEntries.filter((c) => Math.round(c.rating) === star).length
+            const percentage = commentEntries.length > 0 ? (count / commentEntries.length) * 100 : 0
+            return (
+              <div key={star} className="flex items-center gap-2">
+                <span className="text-[16px] font-semibold">{star}
+                </span>
+                <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                <div className="flex-1 h-2 bg-amber-200 rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-amber-400 rounded-full transition-all"
+                    style={{ width: `${percentage}%` }}
+                  />
+                </div>
+                <span className="text-[16px] font-semibold w-10 text-right">{count > 0 ? '100%' : '0%'}</span>
+              </div>
+            )
+          })}
+        </div>
+
+      </div>
       <div className="space-y-3">
         {commentEntries.map((comment, index) => {
           const initials = getInitials(comment.user)
