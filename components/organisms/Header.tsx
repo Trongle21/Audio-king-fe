@@ -38,7 +38,7 @@ const hotlines = [
 
 
 export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(true)
   const [cartOpen, setCartOpen] = React.useState(false)
   const [moreCategoriesOpen, setMoreCategoriesOpen] = React.useState(false)
   const { items, totalItems, totalPrice } = useCart()
@@ -52,7 +52,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="relative sticky top-0 z-50 w-full bg-destructive text-white">
+      <header className="sticky top-0 z-50 w-full bg-destructive text-white">
         {/* Row 1 */}
         <div className="border-b border-white/15 px-2">
           <div className="m-auto">
@@ -184,7 +184,7 @@ export default function Header() {
                     <div className="border-t px-3 py-3">
                       <Link href="/cart" className="block">
                         <Button className="w-full bg-destructive text-white hover:bg-destructive/90">
-                          Đặt hàng ngay
+                          Xem giỏ hàng
                         </Button>
                       </Link>
                     </div>
@@ -241,7 +241,6 @@ export default function Header() {
                 placeholder="Bạn tìm thiết bị âm thanh gì?"
                 className="w-full"
                 inputClassName="w-full bg-white text-black placeholder:text-muted-foreground border-0 focus-visible:ring-0"
-                searchButtonClassName="bg-white text-destructive hover:bg-white/90 border border-white/20"
               />
             </div>
           </div>

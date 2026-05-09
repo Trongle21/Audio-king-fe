@@ -8,6 +8,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { GetProductsParams } from "@/api/product/product.types"
 
 import { Button, Input, Label } from "@/components/atoms"
+import { useSearch } from "@/components/contexts/SearchContext"
 import {
   Sheet,
   SheetContent,
@@ -136,6 +137,7 @@ export function ProductFiltersSidebar() {
   const [state, setState] = React.useState<FilterFormState>(() =>
     stateFromUrl(new URLSearchParams(searchParams.toString())),
   )
+  const { clearSearch } = useSearch()
 
   const { data: catData } = useCategories({ page: 1, limit: 200 })
   const categories =
@@ -182,13 +184,13 @@ export function ProductFiltersSidebar() {
     )
     router.push(
       buildProductListHref(pathname, {
-        q: base.q,
         sortBy: base.sortBy,
         order: base.order,
         page: 1,
         limit: base.limit,
       }),
     )
+    clearSearch()
   }
 
   return (
@@ -223,6 +225,7 @@ export function ProductFiltersDrawer() {
   const [state, setState] = React.useState<FilterFormState>(() =>
     stateFromUrl(new URLSearchParams(searchParams.toString())),
   )
+  const { clearSearch } = useSearch()
 
   const { data: catData } = useCategories({ page: 1, limit: 200 })
   const categories =
@@ -270,13 +273,13 @@ export function ProductFiltersDrawer() {
     )
     router.push(
       buildProductListHref(pathname, {
-        q: base.q,
         sortBy: base.sortBy,
         order: base.order,
         page: 1,
         limit: base.limit,
       }),
     )
+    clearSearch()
     setOpen(false)
   }
 

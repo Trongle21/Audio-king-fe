@@ -7,7 +7,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import type { ProductOrder, ProductSortBy } from "@/api/product/product.types"
 
 import { Button, Input } from "@/components/atoms"
-import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
+import { useSearch } from "@/components/contexts/SearchContext"
 import {
   buildProductListHref,
   parseProductListSearchParams,
@@ -35,36 +35,12 @@ export function ProductSearchBar() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const searchString = searchParams.toString()
+  const { searchValue, setSearchValue, submitSearch } = useSearch()
 
   const params = React.useMemo(
     () => parseProductListSearchParams(new URLSearchParams(searchString)),
     [searchString],
   )
-
-  const [qInput, setQInput] = React.useState(params.q ?? "")
-
-  React.useEffect(() => {
-    setQInput(params.q ?? "")
-  }, [params.q])
-
-  const debouncedQ = useDebounce(qInput, 400)
-
-  React.useEffect(() => {
-    const fromUrl = (
-      new URLSearchParams(searchString).get("q") ?? ""
-    ).trim()
-    const next = debouncedQ.trim()
-    if (next === fromUrl) return
-
-    const base = parseProductListSearchParams(new URLSearchParams(searchString))
-    router.replace(
-      buildProductListHref(pathname, {
-        ...base,
-        q: next || undefined,
-        page: 1,
-      }),
-    )
-  }, [debouncedQ, pathname, router, searchString])
 
   const sortValue =
     params.sortBy && params.order
@@ -91,16 +67,7 @@ export function ProductSearchBar() {
         className="flex min-w-0 flex-1 items-center gap-2 md:max-w-md"
         onSubmit={(e) => {
           e.preventDefault()
-          const base = parseProductListSearchParams(
-            new URLSearchParams(searchString),
-          )
-          router.replace(
-            buildProductListHref(pathname, {
-              ...base,
-              q: qInput.trim() || undefined,
-              page: 1,
-            }),
-          )
+          submitSearch()
         }}
       >
         <Input
@@ -109,8 +76,8 @@ export function ProductSearchBar() {
           placeholder="Tìm sản phẩm..."
           className="h-10 w-full min-w-0"
           aria-label="Tìm kiếm sản phẩm"
-          value={qInput}
-          onChange={(e) => setQInput(e.target.value)}
+          value={searchValue}
+          onChange={(e) => setSearchValue(e.target.value)}
         />
         <Button
           type="submit"

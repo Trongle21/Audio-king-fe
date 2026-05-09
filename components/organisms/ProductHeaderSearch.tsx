@@ -10,6 +10,7 @@ import type { Product } from "@/api/product/product.types"
 
 import { getProducts } from "@/api/product"
 import { Input } from "@/components/atoms"
+import { useSearch } from "@/components/contexts/SearchContext"
 import { useDebounce } from "@/hooks/client-app/src/hooks/ui/useDebounce"
 import { mapProductToHomeProduct } from "@/lib/product-list/map-product-to-card"
 import { cn } from "@/lib/utils"
@@ -40,11 +41,11 @@ export function ProductHeaderSearch({
   debounceMs = 400,
   minQueryLength = 1,
 }: ProductHeaderSearchProps) {
-  const [value, setValue] = React.useState("")
-  const debouncedQ = useDebounce(value, debounceMs).trim()
-
+  const { searchValue, setSearchValue, submitSearch } = useSearch()
   const [open, setOpen] = React.useState(false)
   const rootRef = React.useRef<HTMLDivElement | null>(null)
+
+  const debouncedQ = useDebounce(searchValue, debounceMs).trim()
 
   const { data, isFetching } = useQuery({
     queryKey: ["product-autocomplete", debouncedQ],
@@ -100,14 +101,18 @@ export function ProductHeaderSearch({
       <div className="relative flex w-full items-center gap-2">
         <Input
           type="search"
-          value={value}
+          value={searchValue}
           onChange={(e) => {
             const next = e.target.value
-            setValue(next)
+            setSearchValue(next)
             setOpen(next.trim().length >= minQueryLength)
           }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault()
+              submitSearch()
+            }
             if (e.key === "Escape") close()
           }}
           placeholder={placeholder}
@@ -168,4 +173,3 @@ export function ProductHeaderSearch({
     </div>
   )
 }
-

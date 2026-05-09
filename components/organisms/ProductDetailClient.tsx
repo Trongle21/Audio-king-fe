@@ -4,7 +4,7 @@ import * as React from "react"
 
 import { Star } from "lucide-react"
 import Link from "next/link"
-import { useParams } from "next/navigation"
+import { useParams, useRouter } from "next/navigation"
 
 import type { Product, ProductCategoryRef } from "@/api/product"
 
@@ -44,7 +44,8 @@ function renderCategories(categories: string[] | ProductCategoryRef[]): string {
 }
 
 function BuyingInfo({ product }: { product: Product }) {
-  const { addToCart } = useCart()
+  const router = useRouter()
+  const { addToCart, clearCart } = useCart()
 
   // Always show fake original price (10% higher) with strikethrough
   const currentPrice = product.sale !== undefined && product.sale > 0 ? product.sale : product.price
@@ -90,10 +91,10 @@ function BuyingInfo({ product }: { product: Product }) {
         </div>
       </section>
 
-      <div className="flex flex-col gap-2 sm:flex-row">
+      <div className="grid grid-cols-2 gap-2">
         <Button
           type="button"
-          className="w-full bg-destructive text-white hover:bg-destructive/90 sm:flex-1"
+          className="w-full bg-destructive text-white hover:bg-destructive/90"
           disabled={product.stock <= 0}
           onClick={() => {
             addToCart({
@@ -110,16 +111,40 @@ function BuyingInfo({ product }: { product: Product }) {
         >
           Thêm vào giỏ
         </Button>
-        <Link href="/cart" className="sm:flex-1">
+        <Link href="/cart">
           <Button type="button" variant="outline" className="w-full">
             Xem giỏ hàng
           </Button>
         </Link>
       </div>
 
+      <div>
+        <Button
+          type="button"
+          className="w-full bg-destructive text-white hover:bg-destructive/90 sm:flex-1"
+          disabled={product.stock <= 0}
+          onClick={() => {
+            clearCart()
+            addToCart({
+              product: {
+                productId: product._id,
+                name: product.name,
+                thumbnail: thumbnailUrl,
+                price: currentPrice,
+                sale: fakeOriginalPrice,
+              },
+              quantity: 1,
+            })
+            router.push("/checkout")
+          }}
+        >
+          Mua ngay
+        </Button>
+      </div>
+
       {product.specifications && Object.keys(product.specifications).length > 0 && (
-        <section className="space-y-2 rounded-lg border bg-card p-4 text-xs md:text-sm">
-          <h2 className="text-sm font-semibold">Thông số kỹ thuật</h2>
+        <section className="space-y-2 rounded-lg border bg-card p-4 text-xs md:text-sm relative">
+          <span className="absolute -top-3 left-6 bg-white text-base font-semibold">Thông số kỹ thuật</span>
           <dl className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-x-4 gap-y-1.5">
             {Object.entries(product.specifications).map(([k, v]) => (
               <React.Fragment key={k}>
@@ -132,19 +157,24 @@ function BuyingInfo({ product }: { product: Product }) {
       )}
 
       {product.promotions && product.promotions.length > 0 && (
-        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
-          <h2 className="text-base font-semibold">Khuyến mãi, ưu đãi</h2>
-          <ul className="list-disc space-y-1 pl-5">
+        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
+          <span className="absolute -top-3 left-6 bg-white text-base font-semibold text-blue-700">Khuyến mãi, ưu đãi</span>
+          <ul className="flex flex-col gap-2">
             {product.promotions.map((item, idx) => (
-              <li key={`${item}-${idx}`} className="text-emerald-700">{item}</li>
+              <div key={`${item}-${idx}`} className="text-emerald-700 flex items-center gap-3">
+                <div className="text-[14px] text-blue-600 font-semibold w-5 h-5 flex items-center justify-center rounded-full bg-blue-300 border border-blue-400">
+                  {idx + 1}
+                </div>
+                {item}
+              </div>
             ))}
           </ul>
         </section>
       )}
 
       {product.highlights && product.highlights.length > 0 && (
-        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
-          <h2 className="text-base font-semibold">Đặc điểm nổi bật</h2>
+        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
+          <span className="absolute -top-3 left-6 bg-white text-base font-semibold">Đặc điểm nổi bật</span>
           <ul className="list-disc space-y-1 pl-5">
             {product.highlights.map((item, idx) => (
               <li key={`${item}-${idx}`}>{item}</li>
@@ -164,13 +194,14 @@ function BuyingInfo({ product }: { product: Product }) {
 interface CommentItem {
   user: string
   content: string
+  rating: number
 }
 
 function CommentsSection({ comments }: { comments: Record<string, string> }) {
 
   const commentEntries: CommentItem[] = React.useMemo(() => {
     return Object.entries(comments)
-      .map(([user, content]) => ({ user, content }))
+      .map(([user, content]) => ({ user, content, rating: 5 }))
       .sort((a, b) => {
         const dateStrA = a.content.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "01/01/2000"
         const dateStrB = b.content.match(/\d{2}\/\d{2}\/\d{4}/)?.[0] || "01/01/2000"
@@ -179,6 +210,12 @@ function CommentsSection({ comments }: { comments: Record<string, string> }) {
         return dateB - dateA
       })
   }, [comments])
+
+  const averageRating = React.useMemo(() => {
+    if (commentEntries.length === 0) return 0
+    const sum = commentEntries.reduce((acc, c) => acc + c.rating, 0)
+    return sum / commentEntries.length
+  }, [commentEntries])
 
 
   const getInitials = (name: string) => {
@@ -225,18 +262,35 @@ function CommentsSection({ comments }: { comments: Record<string, string> }) {
     <section className="relative space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
       {/* Fake Rating Summary */}
       {commentEntries.length > 0 && (
-        <div className="flex items-center gap-3 rounded-lg bg-amber-50 p-3 border border-amber-200">
-          <div className="flex flex-col items-center">
-            <span className="text-2xl font-bold text-amber-600">5.0</span>
-            <div className="flex gap-0.5">
+        <div className="flex items-start gap-4 rounded-lg bg-white p-4">
+          <div className="flex flex-col items-center min-w-[70px]">
+            <span className="text-4xl font-bold text-amber-600">{averageRating.toFixed(1)}</span>
+            <div className="flex gap-0.5 my-1">
               {[1, 2, 3, 4, 5].map((star) => (
-                <Star key={star} className="h-3 w-3 fill-amber-400 text-amber-400" />
+                <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />
               ))}
             </div>
-            <span className="text-xs text-amber-600">{commentEntries.length} đánh giá</span>
+            <span className="text-sm text-amber-600">{commentEntries.length} đánh giá</span>
           </div>
-          <div className="flex-1 border-l border-amber-200 pl-3">
-            <p className="text-xs text-amber-700">Khách hàng đánh giá sản phẩm này</p>
+          <div className="flex-1 space-y-2 border-l border-amber-200 pl-4">
+            {[5, 4, 3, 2, 1].map((star) => {
+              const count = commentEntries.filter((c) => Math.round(c.rating) === star).length
+              const percentage = commentEntries.length > 0 ? (count / commentEntries.length) * 100 : 0
+              return (
+                <div key={star} className="flex items-center gap-2">
+                  <span className="text-[16px] font-semibold">{star}
+                  </span>
+                  <Star key={star} className="h-4 w-4 fill-amber-400 text-amber-400" />
+                  <div className="flex-1 h-2 bg-amber-200 rounded-full overflow-hidden">
+                    <div
+                      className="h-full bg-amber-400 rounded-full transition-all"
+                      style={{ width: `${percentage}%` }}
+                    />
+                  </div>
+                  <span className="text-[16px] font-semibold w-10 text-right">{count > 0 ? '100%' : '0%'}</span>
+                </div>
+              )
+            })}
           </div>
         </div>
       )}
@@ -344,7 +398,7 @@ export function ProductDetailClient({ id }: { id: string }) {
           <BuyingInfo product={data} />
         </div>
 
-        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed">
+        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
 
           {/* Fake  Chinh sach cua hang */}
           <div className="space-y-2">
@@ -363,7 +417,7 @@ export function ProductDetailClient({ id }: { id: string }) {
             ))}
           </div>
 
-          <h2 className="text-base font-semibold">Mô tả sản phẩm</h2>
+          <span className="absolute -top-3 left-6 bg-white text-base font-semibold">Mô tả sản phẩm</span>
           <p className="text-muted-foreground">
             {data.description?.trim() ? data.description : "Chưa có mô tả cho sản phẩm này."}
           </p>

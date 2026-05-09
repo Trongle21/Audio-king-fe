@@ -2,6 +2,7 @@
 
 import { usePathname } from "next/navigation"
 
+import { SearchProvider } from "@/components/contexts/SearchContext"
 import Footer from "@/components/organisms/Footer"
 import Header from "@/components/organisms/Header"
 import { ZaloFloatingButton } from "@/components/organisms/ZaloFloatingButton"
@@ -25,11 +26,11 @@ export default function ClientAppLayout({
   }
 
   return (
-    <>
+    <SearchProvider>
       <Header />
       <main className="flex-1">{children}</main>
       <ZaloFloatingButton />
       <Footer />
-    </>
+    </SearchProvider>
   )
 }
