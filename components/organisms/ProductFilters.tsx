@@ -137,7 +137,7 @@ export function ProductFiltersSidebar() {
   const [state, setState] = React.useState<FilterFormState>(() =>
     stateFromUrl(new URLSearchParams(searchParams.toString())),
   )
-  const { clearSearch } = useSearch()
+  const { setSearchValue } = useSearch()
 
   const { data: catData } = useCategories({ page: 1, limit: 200 })
   const categories =
@@ -179,18 +179,20 @@ export function ProductFiltersSidebar() {
   }
 
   const clear = () => {
-    const base = parseProductListSearchParams(
-      new URLSearchParams(searchParams.toString()),
-    )
-    router.push(
-      buildProductListHref(pathname, {
-        sortBy: base.sortBy,
-        order: base.order,
-        page: 1,
-        limit: base.limit,
-      }),
-    )
-    clearSearch()
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("categoryId")
+    params.delete("minPrice")
+    params.delete("maxPrice")
+    params.delete("status")
+    params.delete("q")
+    params.delete("sortBy")
+    params.delete("order")
+
+    const queryString = params.toString()
+    router.push(queryString ? `${pathname}?${queryString}` : pathname)
+
+    setState({ categoryId: "", status: "", minPrice: "", maxPrice: "" })
+    setSearchValue("")
   }
 
   return (
@@ -225,7 +227,7 @@ export function ProductFiltersDrawer() {
   const [state, setState] = React.useState<FilterFormState>(() =>
     stateFromUrl(new URLSearchParams(searchParams.toString())),
   )
-  const { clearSearch } = useSearch()
+  const { setSearchValue } = useSearch()
 
   const { data: catData } = useCategories({ page: 1, limit: 200 })
   const categories =
@@ -268,18 +270,18 @@ export function ProductFiltersDrawer() {
   }
 
   const clear = () => {
-    const base = parseProductListSearchParams(
-      new URLSearchParams(searchParams.toString()),
-    )
-    router.push(
-      buildProductListHref(pathname, {
-        sortBy: base.sortBy,
-        order: base.order,
-        page: 1,
-        limit: base.limit,
-      }),
-    )
-    clearSearch()
+    const params = new URLSearchParams(searchParams.toString())
+    params.delete("categoryId")
+    params.delete("minPrice")
+    params.delete("maxPrice")
+    params.delete("status")
+    params.delete("q")
+
+    const queryString = params.toString()
+    router.push(queryString ? `${pathname}?${queryString}` : pathname)
+
+    setState({ categoryId: "", status: "", minPrice: "", maxPrice: "" })
+    setSearchValue("")
     setOpen(false)
   }
 
