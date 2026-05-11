@@ -32,7 +32,7 @@ export function mapProductToHomeProduct(product: Product): HomeProduct {
 
   const stock = product.stock
   const badge =
-    stock <= 0 ? "Hết hàng" : product.rating && product.rating >= 4 ? "Nổi bật" : undefined
+    stock <= 0 ? "Hết hàng" : product.rating && product.rating >= 0 ? "Nổi bật" : undefined
 
   return {
     id: product._id,

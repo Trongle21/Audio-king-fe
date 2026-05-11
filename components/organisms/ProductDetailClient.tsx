@@ -142,23 +142,10 @@ function BuyingInfo({ product }: { product: Product }) {
         </Button>
       </div>
 
-      {product.specifications && Object.keys(product.specifications).length > 0 && (
-        <section className="space-y-2 rounded-lg border bg-card p-4 text-xs md:text-sm relative">
-          <span className="absolute -top-3 left-6 bg-white text-base font-semibold">Thông số kỹ thuật</span>
-          <dl className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-x-4 gap-y-1.5">
-            {Object.entries(product.specifications).map(([k, v]) => (
-              <React.Fragment key={k}>
-                <dt className="text-muted-foreground font-medium">{k}</dt>
-                <dd className="">{v}</dd>
-              </React.Fragment>
-            ))}
-          </dl>
-        </section>
-      )}
 
       {product.promotions && product.promotions.length > 0 && (
-        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
-          <span className="absolute -top-3 left-6 bg-white text-base font-semibold text-blue-700">Khuyến mãi, ưu đãi</span>
+        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative mt-[30px]">
+          <span className="absolute -top-4 left-6 bg-white text-[20px] font-semibold text-blue-700">Khuyến mãi, ưu đãi</span>
           <ul className="flex flex-col gap-2">
             {product.promotions.map((item, idx) => (
               <div key={`${item}-${idx}`} className="text-emerald-700 flex items-center gap-3">
@@ -172,9 +159,49 @@ function BuyingInfo({ product }: { product: Product }) {
         </section>
       )}
 
+      <section className="block lg:hidden space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
+        {/* Fake  Chinh sach cua hang */}
+        <div className="space-y-2">
+          {[
+            { icon: "🛡️", title: "100% hàng chính hãng", desc: "Đền gấp 3 lần nếu phát hiện hàng giả" },
+            { icon: "💰", title: "Giá luôn rẻ nhất", desc: "Gọi để có giá tốt nhất Việt Nam" },
+            { icon: "🏪", title: "Hệ thống cửa hàng lớn nhất Việt Nam", desc: "" },
+          ].map((policy, index) => (
+            <div key={index} className="flex items-start gap-3 rounded-lg border bg-slate-50 p-3">
+              <span className="text-xl shrink-0">{policy.icon}</span>
+              <div>
+                <p className="font-medium text-emerald-700">{policy.title}</p>
+                {policy.desc && <p className="text-xs text-muted-foreground">{policy.desc}</p>}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <span className="absolute -top-4 left-6 bg-white text-[20px] font-semibold">Mô tả sản phẩm</span>
+        <p className="text-muted-foreground">
+          {product.description?.trim() ? product.description : "Chưa có mô tả cho sản phẩm này."}
+        </p>
+      </section>
+
+
+
+      {product.specifications && Object.keys(product.specifications).length > 0 && (
+        <section className="space-y-2 rounded-lg border bg-card p-4 text-xs md:text-sm relative">
+          <span className="absolute -top-4 left-6 bg-white text-[20px] font-semibold">Thông số kỹ thuật</span>
+          <dl className="grid grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)] gap-x-4 gap-y-1.5">
+            {Object.entries(product.specifications).map(([k, v]) => (
+              <React.Fragment key={k}>
+                <dt className="text-muted-foreground font-medium">{k}</dt>
+                <dd className="">{v}</dd>
+              </React.Fragment>
+            ))}
+          </dl>
+        </section>
+      )}
+
       {product.highlights && product.highlights.length > 0 && (
         <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
-          <span className="absolute -top-3 left-6 bg-white text-base font-semibold">Đặc điểm nổi bật</span>
+          <span className="absolute -top-4 left-6 bg-white text-[20px] font-semibold">Đặc điểm nổi bật</span>
           <ul className="list-disc space-y-1 pl-5">
             {product.highlights.map((item, idx) => (
               <li key={`${item}-${idx}`}>{item}</li>
@@ -397,8 +424,7 @@ export function ProductDetailClient({ id }: { id: string }) {
           <BuyingInfo product={data} />
         </div>
 
-        <section className="space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
-
+        <section className="hidden lg:block space-y-3 rounded-lg border bg-card p-4 text-sm leading-relaxed relative">
           {/* Fake  Chinh sach cua hang */}
           <div className="space-y-2">
             {[
@@ -416,7 +442,7 @@ export function ProductDetailClient({ id }: { id: string }) {
             ))}
           </div>
 
-          <span className="absolute -top-3 left-6 bg-white text-base font-semibold">Mô tả sản phẩm</span>
+          <span className="absolute -top-4 left-6 bg-white text-[20px] font-semibold">Mô tả sản phẩm</span>
           <p className="text-muted-foreground">
             {data.description?.trim() ? data.description : "Chưa có mô tả cho sản phẩm này."}
           </p>
