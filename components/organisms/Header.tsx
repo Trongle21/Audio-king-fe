@@ -48,6 +48,9 @@ export default function Header() {
   const visibleCategories = allCategories.slice(0, 8)
   const moreCategories = allCategories.slice(8)
 
+  const visibleCategoriesMobile = allCategories.slice(0, 5)
+  const moreCategoriesMobile = allCategories.slice(5)
+
   return (
     <>
       <header className="sticky top-0 z-50 w-full bg-destructive text-white">
@@ -300,7 +303,7 @@ export default function Header() {
         >
           <div className="py-2 max-h-[50vh] overflow-y-auto">
             <div className="grid grid-cols-3 gap-1 px-2">
-              {visibleCategories.map((c) => (
+              {visibleCategoriesMobile.map((c) => (
                 <Link
                   key={c.slug}
                   href={`/product?categoryId=${encodeURIComponent(c._id)}`}
@@ -311,7 +314,7 @@ export default function Header() {
                 </Link>
               ))}
 
-              {moreCategories.length > 0 && (
+              {moreCategoriesMobile.length > 0 && (
                 <button
                   onClick={() => {
                     // setMobileMenuOpen(false)

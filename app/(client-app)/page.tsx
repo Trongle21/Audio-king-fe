@@ -2,14 +2,13 @@ import Link from "next/link"
 
 import type { Metadata } from "next"
 
-import { getTrending } from "@/api/trending"
 import { Button } from "@/components/atoms"
 import { HomeBannerSlider } from "@/components/organisms/HomeBannerSlider"
 import { PaginatedProductGrid } from "@/components/organisms/PaginatedProductGrid"
 import { type HomeProduct } from "@/components/organisms/ProductCard"
 import { TrendingProductsSlider } from "@/components/organisms/TrendingProductsSlider"
+import { getTrendingServer } from "@/lib/api-server/trending"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
-import { mapProductToHomeProduct } from "@/lib/product-list/map-product-to-card"
 
 export const metadata: Metadata = genMetadata({
     title: "Trang chủ",
@@ -42,14 +41,26 @@ export default async function ClientHomePage() {
     }
 
     let trendingProducts: HomeProduct[] = []
+    let trendingError: string | null = null
     try {
-        const trendingItems = await getTrending()
+        const trendingItems = await getTrendingServer()
         trendingProducts = trendingItems
             .map((item) => item.product)
             .filter((product) => Boolean(product) && !product.isDelete)
-            .map((product) => mapProductToHomeProduct(product))
-    } catch {
+            .map((product) => ({
+                id: product._id,
+                name: product.name,
+                imageUrl: product.thumbnail?.url ?? "/file.svg",
+                price: `${new Intl.NumberFormat("vi-VN").format(product.price)}đ`,
+                oldPrice: `${new Intl.NumberFormat("vi-VN").format(Math.round(product.price * 1.1))}đ`,
+                discountLabel: "-10%",
+                badge: product.rating ? "Nổi bật" : undefined,
+                meta: product.description?.slice(0, 80),
+            }))
+    } catch (err) {
         trendingProducts = []
+        trendingError = err instanceof Error ? err.message : "Failed to load trending products"
+        console.error("[ClientHomePage] getTrending error:", err)
     }
 
     const hallSoundProducts: HomeProduct[] = [
@@ -199,7 +210,13 @@ export default async function ClientHomePage() {
                             </p>
                         </header>
 
-                        <TrendingProductsSlider products={trendingProducts} />
+                        {trendingError ? (
+                            <p className="text-sm text-muted-foreground py-4">
+                                {trendingError}
+                            </p>
+                        ) : (
+                            <TrendingProductsSlider products={trendingProducts} />
+                        )}
                     </div>
                 </section>
 
