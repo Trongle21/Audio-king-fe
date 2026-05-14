@@ -346,7 +346,7 @@ export default function Header() {
             {/* Dropdown */}
             <div className="absolute left-0 right-0 z-50 bg-white shadow-xl border-t border-black/10">
               <div className="container py-4">
-                <div className="grid grid-cols-4 lg:grid-cols-6 gap-2">
+                <div className="grid grid-cols-3 lg:grid-cols-6 gap-2">
                   {allCategories.map((c) => (
                     <Link
                       key={c.slug}
