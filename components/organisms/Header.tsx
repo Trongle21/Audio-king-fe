@@ -5,8 +5,10 @@ import * as React from "react"
 import {
   ChevronDown,
   Grid3X3,
+  Menu,
   PhoneCall,
-  ShoppingCart
+  ShoppingCart,
+  X
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -36,7 +38,7 @@ const hotlines = [
 
 
 export default function Header() {
-  // const [mobileMenuOpen, setMobileMenuOpen] = React.useState(true)
+  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(true)
   const [cartOpen, setCartOpen] = React.useState(false)
   const [moreCategoriesOpen, setMoreCategoriesOpen] = React.useState(false)
   const { items, totalItems, totalPrice } = useCart()
@@ -219,7 +221,7 @@ export default function Header() {
                 </DropdownMenu>
 
                 {/* Mobile menu toggle */}
-                {/* <Button
+                <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setMobileMenuOpen((v) => !v)}
@@ -232,7 +234,7 @@ export default function Header() {
                   ) : (
                     <Menu className="size-6" />
                   )}
-                </Button> */}
+                </Button>
               </div>
             </div>
 
@@ -296,39 +298,41 @@ export default function Header() {
 
         {/* Mobile category panel */}
 
-        <nav
-          className="md:hidden border-t border-white/15 bg-destructive/95"
-          role="navigation"
-          aria-label="Danh mục"
-        >
-          <div className="py-2 max-h-[50vh] overflow-y-auto">
-            <div className="grid grid-cols-3 gap-1 px-2">
-              {visibleCategoriesMobile.map((c) => (
-                <Link
-                  key={c.slug}
-                  href={`/product?categoryId=${encodeURIComponent(c._id)}`}
-                  className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate"
-                // onClick={() => setMobileMenuOpen(false)}
-                >
-                  {c.name}
-                </Link>
-              ))}
+        {mobileMenuOpen && (
+          <nav
+            className="md:hidden border-t border-white/15 bg-destructive/95"
+            role="navigation"
+            aria-label="Danh mục"
+          >
+            <div className="py-2 max-h-[50vh] overflow-y-auto">
+              <div className="grid grid-cols-3 gap-1 px-2">
+                {visibleCategoriesMobile.map((c) => (
+                  <Link
+                    key={c.slug}
+                    href={`/product?categoryId=${encodeURIComponent(c._id)}`}
+                    className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    {c.name}
+                  </Link>
+                ))}
 
-              {moreCategoriesMobile.length > 0 && (
-                <button
-                  onClick={() => {
-                    // setMobileMenuOpen(false)
-                    setMoreCategoriesOpen(true)
-                  }}
-                  className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate flex items-center justify-center gap-1"
-                >
-                  <Grid3X3 className="h-4 w-4" />
-                  Xem thêm
-                </button>
-              )}
+                {moreCategoriesMobile.length > 0 && (
+                  <button
+                    onClick={() => {
+                      setMobileMenuOpen(false)
+                      setMoreCategoriesOpen(true)
+                    }}
+                    className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate flex items-center justify-center gap-1"
+                  >
+                    <Grid3X3 className="h-4 w-4" />
+                    Xem thêm
+                  </button>
+                )}
+              </div>
             </div>
-          </div>
-        </nav>
+          </nav>
+        )}
 
 
         {/* Dropdown: More Categories (Desktop) */}
