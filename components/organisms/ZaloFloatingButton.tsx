@@ -14,7 +14,7 @@ const PHONE_NUMBER = '0986344085'
 
 export function ZaloFloatingButton() {
   return (
-    <div className="fixed bottom-4 right-4 z-50">
+    <div className="fixed bottom-4 right-4 z-50 space-y-1">
       <Link
         href={ZALO_CONTACT_URL}
         target="_blank"
