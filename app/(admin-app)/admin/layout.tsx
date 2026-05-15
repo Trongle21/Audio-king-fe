@@ -60,7 +60,7 @@ export default function AdminAppLayout({
 
         <div className="grid grid-cols-[240px_minmax(0,1fr)] gap-6 p-6">
           <aside className="rounded-2xl border bg-white p-4 shadow-sm">
-            <h2 className="mb-4 text-lg font-bold text-slate-900">Navigation</h2>
+            <h2 className="mb-4 text-lg font-bold text-slate-900">Trang Quản trị</h2>
             <AdminSidebarNav items={adminMenus} />
           </aside>
 

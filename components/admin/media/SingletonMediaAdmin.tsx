@@ -209,10 +209,6 @@ export function SingletonMediaAdmin({
                     accept="image/*"
                     onChange={(event) => setReplaceFiles(Array.from(event.target.files ?? []))}
                   />
-                  <p className="text-xs text-slate-500">
-                    Vị trí đang chọn: {sortedSelectedIndices.length ? sortedSelectedIndices.join(", ") : "(chưa chọn)"} | Số file:{" "}
-                    {replaceFiles.length}
-                  </p>
                   {replaceForm.formState.errors.indices?.message ? (
                     <p className="text-sm text-destructive">{replaceForm.formState.errors.indices.message}</p>
                   ) : null}
@@ -228,8 +224,7 @@ export function SingletonMediaAdmin({
               <h2 className="text-lg font-semibold text-slate-900">Xóa ảnh</h2>
               <form className="space-y-3" onSubmit={(event) => void handleDelete(event)}>
                 <div className="space-y-2">
-                  <Label htmlFor={`${moduleTitle}-public-ids`}>Public ID (phân tách bằng dấu phẩy hoặc xuống dòng)</Label>
-                  <textarea
+                  {/* <textarea
                     id={`${moduleTitle}-public-ids`}
                     className="min-h-24 w-full rounded-md border px-3 py-2 text-sm"
                     placeholder="Chọn ít nhất 1 ảnh để xóa"
@@ -241,7 +236,7 @@ export function SingletonMediaAdmin({
 
                       deleteForm.setValue("publicIds", publicIds, { shouldValidate: true })
                     }}
-                  />
+                  /> */}
                 </div>
 
                 {deleteForm.formState.errors.root?.message ? (

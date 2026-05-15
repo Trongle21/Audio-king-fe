@@ -70,9 +70,6 @@ export default function Header() {
                   <span className="text-xl md:text-2xl font-extrabold tracking-tight">
                     FE-Audio
                   </span>
-                  <span className="hidden sm:inline text-xs md:text-sm font-semibold opacity-95">
-                    ONLINE STORE
-                  </span>
                 </div>
                 <span className="hidden lg:inline text-[10px] opacity-85">
                   TRUNG TÂM PHÂN PHỐI CHÍNH HÃNG
@@ -85,8 +82,8 @@ export default function Header() {
                   <ProductHeaderSearch
                     placeholder="Bạn tìm thiết bị âm thanh gì?"
                     className="w-full"
-                    inputClassName="bg-white text-black placeholder:text-muted-foreground border-0 rounded-md rounded-r-none focus-visible:ring-0"
-                    searchButtonClassName="bg-white text-destructive hover:bg-white/90 border border-white/20 rounded-md rounded-l-none"
+                    inputClassName="bg-white text-black placeholder:text-muted-foreground border-0 rounded-md focus-visible:ring-0"
+                    searchButtonClassName="bg-white text-destructive hover:bg-white/90 border border-white/20 rounded-md"
                   />
                 </div>
               </div>

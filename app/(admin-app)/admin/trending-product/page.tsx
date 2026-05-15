@@ -32,6 +32,14 @@ import {
 } from "@/api/trending"
 import { Badge, Button, Input } from "@/components/atoms"
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/organisms/select"
+import { useCategories } from "@/hooks/admin-app/src/hooks/admin/category"
+import {
   productFilterSchema,
   type ProductFilterFormData,
   type ProductFilterSchemaInput,
@@ -211,6 +219,8 @@ export default function AdminTrendingProductsPage() {
     queryFn: () => getProducts(requestParams),
   })
 
+  const { data: categoriesData } = useCategories({ page: 1, limit: 200 })
+
   const {
     data: trendingData,
     isLoading: trendingLoading,
@@ -330,11 +340,27 @@ export default function AdminTrendingProductsPage() {
           <div className="space-y-3">
             <h2 className="text-base font-semibold text-slate-900">Danh sách sản phẩm</h2>
             <form onSubmit={submitFilters} className="grid gap-2 md:grid-cols-2">
-              <Input placeholder="Search name" {...form.register("q")} />
-              <Input placeholder="Category ID" {...form.register("categoryId")} />
+              <Input placeholder="Tên sản phẩm " {...form.register("q")} />
+              <Select
+                value={form.watch("categoryId") ?? ""}
+                onValueChange={(value) => form.setValue("categoryId", value, { shouldDirty: true })}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Tất cả danh mục" />
+                </SelectTrigger>
+                <SelectContent>
+                  {categoriesData?.items
+                    ?.filter((c) => !c.isDelete)
+                    .map((cat) => (
+                      <SelectItem key={cat._id} value={cat._id}>
+                        {cat.name}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
               <Input placeholder="Min price" {...form.register("minPrice")} />
               <Input placeholder="Max price" {...form.register("maxPrice")} />
-              <select
+              {/* <select
                 className="h-9 rounded-md border bg-background px-3 text-sm"
                 {...form.register("status")}
               >
@@ -342,26 +368,26 @@ export default function AdminTrendingProductsPage() {
                 <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
-              </select>
+              </select> */}
               <div className="grid grid-cols-2 gap-2">
                 <select
                   className="h-9 rounded-md border bg-background px-3 text-sm"
                   {...form.register("sortBy")}
                 >
-                  <option value="createdAt">createdAt</option>
-                  <option value="name">name</option>
-                  <option value="price">price</option>
+                  <option value="createdAt">Ngày tạo</option>
+                  <option value="name">Tên</option>
+                  <option value="price">Giá</option>
                 </select>
-                <select
+                {/* <select
                   className="h-9 rounded-md border bg-background px-3 text-sm"
                   {...form.register("order")}
                 >
                   <option value="desc">desc</option>
                   <option value="asc">asc</option>
-                </select>
+                </select> */}
               </div>
               <div className="md:col-span-2 flex gap-2">
-                <Button type="submit">Apply</Button>
+                <Button type="submit">Áp dụng</Button>
                 <Button type="button" variant="outline" onClick={resetFilters}>
                   Reset
                 </Button>

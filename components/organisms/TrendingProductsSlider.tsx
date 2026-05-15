@@ -48,7 +48,6 @@ export function TrendingProductsSlider({
         }}
         spaceBetween={16}
         className="trending-swiper"
-        // 1 dòng, responsive số lượng item; desktop tối đa 6 item
         breakpoints={{
           0: { slidesPerView: 2, spaceBetween: 12 },
           640: { slidesPerView: 2, spaceBetween: 14 },

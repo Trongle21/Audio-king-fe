@@ -40,7 +40,7 @@ export function CartPageContent() {
               >
                 <Link
                   href={`/product/${item.productId}`}
-                  className="relative h-20 w-full overflow-hidden rounded-md bg-muted sm:h-24 sm:w-24"
+                  className="relative h-[320px] w-full overflow-hidden rounded-md bg-muted sm:h-24 sm:w-24"
                 >
                   {item.thumbnail ? (
                     <Image
