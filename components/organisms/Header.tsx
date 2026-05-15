@@ -48,10 +48,10 @@ export default function Header() {
   const { data: categoryData } = useCategories({ page: 1, limit: 100 })
   const allCategories = categoryData?.items ?? []
   const visibleCategories = allCategories.slice(0, 200)
-  const _moreCategories = allCategories.slice(200)
+  // const _moreCategories = allCategories.slice(200)
 
-  const visibleCategoriesMobile = allCategories.slice(0, 200)
-  const moreCategoriesMobile = allCategories.slice(200)
+  // const visibleCategoriesMobile = allCategories.slice(0, 200)
+  // const moreCategoriesMobile = allCategories.slice(200)
 
   return (
     <>
