@@ -4,7 +4,6 @@ import * as React from "react"
 
 import {
   ChevronDown,
-  Grid3X3,
   Menu,
   PhoneCall,
   ShoppingCart,
@@ -48,11 +47,11 @@ export default function Header() {
 
   const { data: categoryData } = useCategories({ page: 1, limit: 100 })
   const allCategories = categoryData?.items ?? []
-  const visibleCategories = allCategories.slice(0, 8)
-  const moreCategories = allCategories.slice(8)
+  const visibleCategories = allCategories.slice(0, 200)
+  const _moreCategories = allCategories.slice(200)
 
-  const visibleCategoriesMobile = allCategories.slice(0, 5)
-  const moreCategoriesMobile = allCategories.slice(5)
+  const visibleCategoriesMobile = allCategories.slice(0, 200)
+  const moreCategoriesMobile = allCategories.slice(200)
 
   return (
     <>
@@ -251,7 +250,7 @@ export default function Header() {
 
         {/* Row 2: Categories (md+) */}
         <nav
-          className="hidden md:block"
+          className="block"
           role="navigation"
           aria-label="Chuyên mục"
         >
@@ -267,21 +266,12 @@ export default function Header() {
                     <Link
                       key={c.slug}
                       href={`/product?categoryId=${encodeURIComponent(c._id)}`}
-                      className="flex-shrink-0 px-3 py-2 text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
+                      className="flex-shrink-0 px-2 py-1 md:px-3 md:py-2 text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
                     >
                       {c.name}
                     </Link>
                   ))}
 
-                  {moreCategories.length > 0 && (
-                    <button
-                      onClick={() => setMoreCategoriesOpen(true)}
-                      className="flex-shrink-0 cursor-pointer flex items-center gap-1 px-3 py-2 text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
-                    >
-                      <Grid3X3 className="h-4 w-4" />
-                      Xem thêm
-                    </button>
-                  )}
                 </div>
                 {/* Fade gradient on right edge */}
                 <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-destructive to-transparent pointer-events-none" />
@@ -297,20 +287,20 @@ export default function Header() {
         </nav>
 
         {/* Mobile category panel */}
-
-        {mobileMenuOpen && (
-          <nav
-            className="md:hidden border-t border-white/15 bg-destructive/95"
-            role="navigation"
-            aria-label="Danh mục"
-          >
-            <div className="md:py-2 max-h-[50vh] overflow-y-auto">
-              <div className="grid grid-cols-3 gap-1 px-2">
+        {/* <div
+          className="md:hidden overflow-hidden border-t border-white/15 bg-destructive/95 transition-all duration-300 ease-in-out"
+          style={{
+            maxHeight: mobileMenuOpen ? "50vh" : "0",
+          }}
+        >
+          <nav role="navigation" aria-label="Danh mục">
+            <div className="max-h-[50vh] overflow-y-auto">
+              <div className="relative flex items-center gap-1 overflow-x-auto whitespace-nowrap py-1.5 pr-10 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden]">
                 {visibleCategoriesMobile.map((c) => (
                   <Link
                     key={c.slug}
                     href={`/product?categoryId=${encodeURIComponent(c._id)}`}
-                    className="rounded-md px-2 py-1 md:py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate"
+                    className="flex-shrink-0 rounded-md px-2 py-1 md:py-2 text-[12px] md:text-sm font-medium text-center hover:bg-white/10 transition-colors truncate"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {c.name}
@@ -323,16 +313,17 @@ export default function Header() {
                       setMobileMenuOpen(false)
                       setMoreCategoriesOpen(true)
                     }}
-                    className="rounded-md px-2 py-1 md:py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate flex items-center justify-center gap-1"
+                    className="flex-shrink-0 rounded-md px-2 py-1 md:py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate flex items-center justify-center gap-1"
                   >
                     <Grid3X3 className="h-4 w-4" />
                     Xem thêm
                   </button>
                 )}
+                <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-destructive to-transparent pointer-events-none" />
               </div>
             </div>
           </nav>
-        )}
+        </div> */}
 
 
         {/* Dropdown: More Categories (Desktop) */}
