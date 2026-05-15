@@ -25,13 +25,13 @@ import { useAuth } from "@/hooks/client-app/src/hooks/useAuth"
 import { cn } from "@/lib/utils"
 
 
-const hotlines = [
-  { label: "Tư vấn mua hàng: 0986344085", href: "tel:0986344085" },
-] as const
+// const hotlines = [
+//   { label: "Tư vấn mua hàng: 0986344085", href: "tel:0986344085" },
+// ] as const
 
 
 export default function Header() {
-  const [mobileMenuOpen, setMobileMenuOpen] = React.useState(true)
+  // const [mobileMenuOpen, setMobileMenuOpen] = React.useState(true)
   const [cartOpen, setCartOpen] = React.useState(false)
   const [moreCategoriesOpen, setMoreCategoriesOpen] = React.useState(false)
   const { items, totalItems, totalPrice } = useCart()
@@ -235,9 +235,7 @@ export default function Header() {
             </div>
 
             {/* Mobile: Search row full width */}
-            <div className={cn("md:hidden pb-3 w-full", {
-              'pb-0': mobileMenuOpen
-            })}>
+            <div className={cn("md:hidden pb-3 w-full")}>
               <ProductHeaderSearch
                 placeholder="Bạn tìm thiết bị âm thanh gì?"
                 className="w-full"
