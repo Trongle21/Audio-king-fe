@@ -2,87 +2,20 @@
 
 import * as React from "react"
 
-import { Autoplay } from "swiper/modules"
-import { Swiper, SwiperSlide } from "swiper/react"
-
-import type { Swiper as SwiperInstance } from "swiper"
-
-import {
-  ProductCard,
-  type HomeProduct,
-} from "@/components/organisms/ProductCard"
-
-
-import "swiper/css"
+import { ProductCard, type HomeProduct } from "@/components/organisms/ProductCard"
 
 interface TrendingProductsSliderProps {
   products: HomeProduct[]
 }
 
-const AUTO_PLAY_INTERVAL = 5000 // 5s
-const MAX_PRODUCTS = 12
-
-export function TrendingProductsSlider({
-  products,
-}: TrendingProductsSliderProps) {
-  const swiperRef = React.useRef<SwiperInstance | null>(null)
-
-  const visibleProducts = React.useMemo(
-    () => products.slice(0, MAX_PRODUCTS),
-    [products]
-  )
-
-  if (visibleProducts.length === 0) return null
+export function TrendingProductsSlider({ products }: TrendingProductsSliderProps) {
+  if (products.length === 0) return null
 
   return (
-    <div className="space-y-4">
-      <Swiper
-        modules={[Autoplay]}
-        autoplay={{
-          delay: AUTO_PLAY_INTERVAL,
-          disableOnInteraction: false,
-        }}
-        loop={visibleProducts.length > 1}
-        onSwiper={(swiper: SwiperInstance) => {
-          swiperRef.current = swiper
-        }}
-        spaceBetween={16}
-        className="trending-swiper"
-        breakpoints={{
-          0: { slidesPerView: 2, spaceBetween: 12 },
-          640: { slidesPerView: 2, spaceBetween: 14 },
-          768: { slidesPerView: 3, spaceBetween: 16 },
-          1024: { slidesPerView: 4, spaceBetween: 18 },
-          1280: { slidesPerView: 4, spaceBetween: 20 },
-        }}
-      >
-        {visibleProducts.map((product) => (
-          <SwiperSlide key={product.id} className="h-auto!">
-            <ProductCard product={product} />
-          </SwiperSlide>
-        ))}
-      </Swiper>
-
-      {visibleProducts.length > 1 && (
-        <div className="flex items-center justify-center gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => swiperRef.current?.slidePrev()}
-            className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-full border bg-background text-sm text-foreground shadow hover:bg-accent"
-            aria-label="Xem nhóm sản phẩm trước"
-          >
-            ‹
-          </button>
-          <button
-            type="button"
-            onClick={() => swiperRef.current?.slideNext()}
-            className="cursor-pointer inline-flex h-9 w-9 items-center justify-center rounded-full border bg-background text-sm text-foreground shadow hover:bg-accent"
-            aria-label="Xem nhóm sản phẩm tiếp theo"
-          >
-            ›
-          </button>
-        </div>
-      )}
+    <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 2xl:grid-cols-4">
+      {products.map((product) => (
+        <ProductCard key={product.id} product={product} />
+      ))}
     </div>
   )
 }
