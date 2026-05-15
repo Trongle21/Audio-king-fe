@@ -263,7 +263,7 @@ export default function Header() {
                     <Link
                       key={c.slug}
                       href={`/product?categoryId=${encodeURIComponent(c._id)}`}
-                      className="flex-shrink-0 px-2 py-1 md:px-3 md:py-2 text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
+                      className="flex-shrink-0 px-0.5 py-1 md:px-3 md:py-2 text-[12px] md:text-sm font-semibold hover:bg-white/10 rounded-md transition-colors"
                     >
                       {c.name}
                     </Link>
