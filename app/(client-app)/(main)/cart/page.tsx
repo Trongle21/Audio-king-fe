@@ -9,7 +9,7 @@ import { generateMetadata as genMetadata } from "@/lib/metadata"
 export const metadata: Metadata = genMetadata({
   title: "Giỏ hàng",
   description:
-    "Xem lại sản phẩm trong giỏ hàng FE-Audio, cập nhật số lượng và tiến hành thanh toán nhanh chóng.",
+    "Xem lại sản phẩm trong giỏ hàng HVN AUDIO, cập nhật số lượng và tiến hành thanh toán nhanh chóng.",
   canonical: "/cart",
 })
 

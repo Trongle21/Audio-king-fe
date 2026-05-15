@@ -8,7 +8,7 @@ import { generateMetadata as genMetadata } from "@/lib/metadata"
 export const metadata: Metadata = genMetadata({
   title: "Xác thực",
   description:
-    "Đăng nhập hoặc đăng ký tài khoản FE-Audio để truy cập các tính năng đặc biệt",
+    "Đăng nhập hoặc đăng ký tài khoản HVN AUDIO để truy cập các tính năng đặc biệt",
   noindex: true,
 })
 
@@ -24,9 +24,9 @@ export default function AuthLayout({
           <Link
             href="/admin"
             className="cursor-pointer text-xl font-bold"
-            aria-label="FE-Audio - Về trang chủ"
+            aria-label="HVN AUDIO - Về trang chủ"
           >
-            FE-Audio
+            HVN AUDIO
           </Link>
           {/* <nav>
             <Link href="/" aria-label="Về trang chủ">

@@ -18,7 +18,7 @@ export default function HomePage() {
         <div className="text-center space-y-4">
           <h1 className="text-4xl font-bold">Trang chủ</h1>
           <p className="text-muted-foreground text-lg">
-            Chào mừng đến với FE-Audio
+            Chào mừng đến với HVN AUDIO
           </p>
         </div>
 
@@ -57,7 +57,7 @@ export default function HomePage() {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                FE-Audio là nền tảng audio hàng đầu với chất lượng cao và trải
+                HVN AUDIO là nền tảng audio hàng đầu với chất lượng cao và trải
                 nghiệm tuyệt vời
               </p>
             </CardContent>

@@ -24,18 +24,18 @@ export async function generateMetadata({
     const name = product?.name?.trim() || `Sản phẩm ${id}`
 
     return genMetadata({
-      title: `${name} | FE-Audio`,
+      title: `${name} | HVN AUDIO`,
       description: product?.description?.trim()
         ? product.description
-        : `Chi tiết ${name} – xem thông số kỹ thuật, giá bán và chính sách tại FE-Audio.`,
+        : `Chi tiết ${name} – xem thông số kỹ thuật, giá bán và chính sách tại HVN AUDIO.`,
       canonical: `/product/${id}`,
     })
   } catch {
     const name = `Sản phẩm ${id}`
 
     return genMetadata({
-      title: `${name} | FE-Audio`,
-      description: `Chi tiết ${name} – xem thông số kỹ thuật, giá bán và chính sách tại FE-Audio.`,
+      title: `${name} | HVN AUDIO`,
+      description: `Chi tiết ${name} – xem thông số kỹ thuật, giá bán và chính sách tại HVN AUDIO.`,
       canonical: `/product/${id}`,
     })
   }

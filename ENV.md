@@ -1,14 +1,14 @@
 # Environment Variables
 
-File này mô tả các biến môi trường được sử dụng trong dự án FE-Audio.
+File này mô tả các biến môi trường được sử dụng trong dự án HVN AUDIO.
 
 ## Cấu hình
 
 1. Copy file `.env.example` thành `.env.local`:
 
-   ```bash
-   cp .env.example .env.local
-   ```
+    ```bash
+    cp .env.example .env.local
+    ```
 
 2. Điền các giá trị cần thiết vào `.env.local`
 
@@ -17,7 +17,7 @@ File này mô tả các biến môi trường được sử dụng trong dự á
 ### Site Configuration
 
 - `NEXT_PUBLIC_SITE_URL`: URL của website (ví dụ: `http://localhost:3000` hoặc `https://feaudio.com`)
-  - Sử dụng cho: Metadata, canonical URLs, Open Graph
+    - Sử dụng cho: Metadata, canonical URLs, Open Graph
 
 ### Search Engine Verification
 

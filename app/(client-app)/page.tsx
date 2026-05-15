@@ -11,9 +11,9 @@ import { generateMetadata as genMetadata } from "@/lib/metadata"
 export const metadata: Metadata = genMetadata({
     title: "Trang chủ",
     description:
-        "Chào mừng đến với FE-Audio - Nền tảng audio chất lượng cao với đa dạng sản phẩm và trải nghiệm tuyệt vời",
+        "Chào mừng đến với HVN AUDIO - Nền tảng audio chất lượng cao với đa dạng sản phẩm và trải nghiệm tuyệt vời",
     keywords: [
-        "FE-Audio",
+        "HVN AUDIO",
         "audio",
         "loa karaoke",
         "dàn âm thanh",
@@ -28,7 +28,7 @@ export default async function ClientHomePage() {
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "WebSite",
-        name: "FE-Audio",
+        name: "HVN AUDIO",
         description: "Nền tảng audio chất lượng cao",
         url: "https://feaudio.com",
         potentialAction: {
@@ -64,7 +64,7 @@ export default async function ClientHomePage() {
     const hallSoundProducts: HomeProduct[] = [
         {
             id: "h1",
-            name: "Dàn Âm Thanh Hội Trường FE-Audio HT25 (Array Active, 25m)",
+            name: "Dàn Âm Thanh Hội Trường HVN AUDIO HT25 (Array Active, 25m)",
             imageUrl:
                 "https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=800",
             price: "79.990.000đ",
@@ -86,7 +86,7 @@ export default async function ClientHomePage() {
         },
         {
             id: "h3",
-            name: "Dàn Âm Thanh Line Array FE-Audio LA26 (Array 2 Way Passive)",
+            name: "Dàn Âm Thanh Line Array HVN AUDIO LA26 (Array 2 Way Passive)",
             imageUrl:
                 "https://images.pexels.com/photos/164716/pexels-photo-164716.jpeg?auto=compress&cs=tinysrgb&w=800",
             price: "119.990.000đ",
@@ -97,7 +97,7 @@ export default async function ClientHomePage() {
         },
         {
             id: "h4",
-            name: "Dàn Loa Hội Trường FE-Audio HT30 (3.000W, Có Sub Active)",
+            name: "Dàn Loa Hội Trường HVN AUDIO HT30 (3.000W, Có Sub Active)",
             imageUrl:
                 "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
             price: "124.900.000đ",
@@ -108,7 +108,7 @@ export default async function ClientHomePage() {
         },
         {
             id: "h5",
-            name: "Dàn Loa Hội Trường FE-Audio HT40 (4.000W, Sub kép Active)",
+            name: "Dàn Loa Hội Trường HVN AUDIO HT40 (4.000W, Sub kép Active)",
             imageUrl:
                 "https://images.pexels.com/photos/164716/pexels-photo-164716.jpeg?auto=compress&cs=tinysrgb&w=800",
             price: "156.900.000đ",
@@ -119,7 +119,7 @@ export default async function ClientHomePage() {
         },
         {
             id: "h6",
-            name: "Dàn Loa Hội Trường FE-Audio HT50 (5.000W, Full Array)",
+            name: "Dàn Loa Hội Trường HVN AUDIO HT50 (5.000W, Full Array)",
             imageUrl:
                 "https://images.pexels.com/photos/63703/pexels-photo-63703.jpeg?auto=compress&cs=tinysrgb&w=800",
             price: "189.900.000đ",
@@ -200,7 +200,7 @@ export default async function ClientHomePage() {
                                 id="trending-heading"
                                 className="text-2xl font-bold tracking-tight md:text-3xl"
                             >
-                                Sản phẩm đang thịnh hành tại FE-Audio
+                                Sản phẩm đang thịnh hành tại HVN AUDIO
                             </h1>
                             <p className="text-sm text-muted-foreground md:text-base">
                                 Những sản phẩm audio được khách hàng lựa chọn

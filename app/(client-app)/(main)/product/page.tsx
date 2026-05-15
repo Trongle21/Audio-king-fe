@@ -14,14 +14,14 @@ import { generateMetadata as genMetadata } from "@/lib/metadata"
 export const metadata: Metadata = genMetadata({
   title: "Sản phẩm",
   description:
-    "Khám phá danh sách các sản phẩm audio chất lượng cao tại FE-Audio với đầy đủ loa karaoke, dàn âm thanh hội trường, vang số, micro và nhiều thiết bị khác.",
+    "Khám phá danh sách các sản phẩm audio chất lượng cao tại HVN AUDIO với đầy đủ loa karaoke, dàn âm thanh hội trường, vang số, micro và nhiều thiết bị khác.",
   keywords: [
     "sản phẩm audio",
     "loa karaoke",
     "dàn âm thanh",
     "thiết bị âm thanh",
     "mua loa",
-    "FE-Audio products",
+    "HVN AUDIO products",
   ],
   canonical: "/product",
 })
@@ -32,7 +32,7 @@ export default function ProductPage() {
     "@type": "ItemList",
     name: "Danh sách sản phẩm audio",
     description:
-      "Danh sách các sản phẩm loa karaoke, dàn âm thanh, micro, vang số tại FE-Audio.",
+      "Danh sách các sản phẩm loa karaoke, dàn âm thanh, micro, vang số tại HVN AUDIO.",
   }
 
   return (
@@ -60,7 +60,7 @@ export default function ProductPage() {
 
         <header className="space-y-2 md:space-y-3">
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl lg:text-4xl">
-            Sản phẩm audio tại FE-Audio
+            Sản phẩm audio tại HVN AUDIO
           </h1>
         </header>
 

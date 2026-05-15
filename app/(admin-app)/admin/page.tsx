@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
     <section className="space-y-4">
       <header className="rounded-2xl border bg-white p-5 shadow-sm">
         <h1 className="text-2xl font-bold text-slate-900">Admin Dashboard</h1>
-        <p className="mt-1 text-sm text-slate-500">Quản trị tổng quan hệ thống FE-Audio</p>
+        <p className="mt-1 text-sm text-slate-500">Quản trị tổng quan hệ thống HVN AUDIO</p>
       </header>
 
       {isError && (

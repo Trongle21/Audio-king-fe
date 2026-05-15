@@ -39,7 +39,7 @@ export function HomeBannerSlider() {
 
   return (
     <section
-      aria-label="Banner khuyến mãi FE-Audio"
+      aria-label="Banner khuyến mãi HVN AUDIO"
       className="relative w-full overflow-hidden rounded-lg"
     >
       <Swiper

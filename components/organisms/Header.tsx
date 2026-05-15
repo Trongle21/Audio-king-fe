@@ -57,11 +57,11 @@ export default function Header() {
               <Link
                 href="/"
                 className="flex flex-col shrink-0 leading-tight"
-                aria-label="FE-Audio - Về trang chủ"
+                aria-label="HVN AUDIO - Về trang chủ"
               >
                 <div className="flex items-baseline gap-2">
                   <span className="text-xl md:text-2xl font-extrabold tracking-tight">
-                    FE-Audio
+                    HVN AUDIO
                   </span>
                 </div>
                 <span className="hidden lg:inline text-[10px] opacity-85">

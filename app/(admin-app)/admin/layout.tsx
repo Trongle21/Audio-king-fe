@@ -12,7 +12,7 @@ import { generateMetadata as genMetadata } from "@/lib/metadata"
 
 export const metadata: Metadata = genMetadata({
   title: "Admin Dashboard",
-  description: "Trang quản trị hệ thống FE-Audio",
+  description: "Trang quản trị hệ thống HVN AUDIO",
   noindex: true,
 })
 
@@ -47,7 +47,7 @@ export default function AdminAppLayout({
               className="cursor-pointer text-xl font-bold text-slate-900"
               aria-label="Admin Panel - Về dashboard"
             >
-              FE-Audio Admin
+              HVN AUDIO Admin
             </Link>
 
             <Link href="/" aria-label="Về Client App">

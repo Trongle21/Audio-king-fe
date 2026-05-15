@@ -7,7 +7,7 @@ import { generateMetadata as genMetadata } from "@/lib/metadata"
 export const metadata: Metadata = genMetadata({
   title: "Đặt hàng thành công",
   description:
-    "Đơn hàng của bạn đã được ghi nhận thành công tại FE-Audio. Theo dõi và tiếp tục mua sắm ngay.",
+    "Đơn hàng của bạn đã được ghi nhận thành công tại HVN AUDIO. Theo dõi và tiếp tục mua sắm ngay.",
   canonical: "/checkout/success",
 })
 

@@ -50,7 +50,7 @@ export function CheckoutSuccessContent() {
           </div>
 
           <p className="text-xs font-medium uppercase tracking-wide text-emerald-600 sm:text-sm">
-            FE-Audio cảm ơn bạn
+            HVN AUDIO cảm ơn bạn
           </p>
           <h1 className="mt-2 text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
             Đặt hàng thành công

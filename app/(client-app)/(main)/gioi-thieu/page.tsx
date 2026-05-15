@@ -10,7 +10,7 @@ import { generateMetadata as genMetadata } from "@/lib/metadata"
 export const metadata: Metadata = genMetadata({
   title: "Giới thiệu",
   description:
-    "Giới thiệu FE-Audio và các công trình karaoke đã thi công, lắp đặt thực tế trên toàn quốc.",
+    "Giới thiệu HVN AUDIO và các công trình karaoke đã thi công, lắp đặt thực tế trên toàn quốc.",
   canonical: "/gioi-thieu",
 })
 
@@ -34,10 +34,10 @@ export default function AboutPage() {
 
       <section className="rounded-xl border bg-card p-4 sm:p-6 lg:p-8">
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
-          FE-Audio – Chuyên gia giải pháp karaoke & âm thanh
+          HVN AUDIO – Chuyên gia giải pháp karaoke & âm thanh
         </h1>
         <p className="mt-3 max-w-4xl text-sm leading-relaxed text-muted-foreground md:text-base">
-          FE-Audio cung cấp giải pháp âm thanh chất lượng cao cho gia đình, phòng
+          HVN AUDIO cung cấp giải pháp âm thanh chất lượng cao cho gia đình, phòng
           karaoke kinh doanh, nhà hàng và hội trường. Với đội ngũ kỹ thuật kinh
           nghiệm, chúng tôi đã thi công hàng trăm công trình thực tế trên toàn
           quốc.
@@ -89,7 +89,7 @@ export default function AboutPage() {
       <section className="mt-8 space-y-3">
         <h2 className="text-xl font-semibold md:text-2xl">Công trình đã lắp đặt</h2>
         <p className="text-sm text-muted-foreground">
-          Một số hình ảnh thực tế các dự án karaoke FE-Audio đã thi công.
+          Một số hình ảnh thực tế các dự án karaoke HVN AUDIO đã thi công.
         </p>
         <AboutGallery initialPage={1} initialLimit={12} />
       </section>

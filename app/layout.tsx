@@ -24,9 +24,9 @@ const geistMono = Geist_Mono({
 })
 
 export const metadata: Metadata = genMetadata({
-  title: "FE-Audio",
+  title: "HVN AUDIO",
   description: "Nền tảng audio chất lượng cao với trải nghiệm tuyệt vời",
-  keywords: ["audio", "music", "sound", "audio platform", "FE-Audio"],
+  keywords: ["audio", "music", "sound", "audio platform", "HVN AUDIO"],
 })
 
 export default function RootLayout({

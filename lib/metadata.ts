@@ -1,7 +1,7 @@
 import type { Metadata } from "next"
 
 const siteConfig = {
-  name: "FE-Audio",
+  name: "HVN AUDIO",
   description: "Nền tảng audio chất lượng cao với trải nghiệm tuyệt vời",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://feaudio.com",
   ogImage: "/og-image.jpg",

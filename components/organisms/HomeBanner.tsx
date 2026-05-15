@@ -43,7 +43,7 @@ export function HomeBanner() {
 
   return (
     <section
-      aria-label="Banner FE-Audio"
+      aria-label="Banner HVN AUDIO"
       className="relative w-full overflow-hidden rounded-lg"
     >
       <Swiper

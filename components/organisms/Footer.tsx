@@ -1,30 +1,40 @@
+import { Globe, Mail, MapPin, Phone } from "lucide-react"
 import Link from "next/link"
 
 export default function Footer() {
   const currentYear = new Date().getFullYear()
+  const mapSrc = `https://www.google.com/maps?q=20.729112,106.365208&z=17&output=embed`
 
   return (
     <footer
-      className="border-t bg-background"
+      className="border-t bg-[#8B0000] text-white"
       role="contentinfo"
       aria-label="Site footer"
     >
-      <div className="container py-8">
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+      <div className="container py-10">
+        {/* Main grid */}
+        <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
+          {/* Brand & Description */}
           <section>
-            <h3 className="text-lg font-semibold mb-4">FE-Audio</h3>
-            <p className="text-sm text-muted-foreground">
-              Nền tảng audio chất lượng cao
+            <h3 className="text-xl font-bold mb-2">HVN AUDIO</h3>
+            <p className="text-sm font-medium text-white/80 mb-4">
+              ÂM THANH NHẬP KHẨU CHÍNH HÃNG
+            </p>
+            <p className="text-sm text-white">
+              Chuyên cung cấp các thiết bị âm thanh cao cấp, nhập khẩu chính hãng với
+              chế độ bảo hành uy tín.
             </p>
           </section>
+
+          {/* Quick Links */}
           <section>
-            <h4 className="text-sm font-semibold mb-4">Liên kết</h4>
+            <h4 className="text-base font-semibold mb-4">Liên kết nhanh</h4>
             <nav aria-label="Footer navigation">
               <ul className="space-y-2 text-sm">
                 <li>
                   <Link
                     href="/"
-                    className="text-muted-foreground hover:text-primary"
+                    className="text-white transition-colors hover:text-yellow-300"
                     aria-label="Trang chủ"
                   >
                     Trang chủ
@@ -33,30 +43,112 @@ export default function Footer() {
                 <li>
                   <Link
                     href="/product"
-                    className="text-muted-foreground hover:text-primary"
+                    className="text-white transition-colors hover:text-yellow-300"
                     aria-label="Sản phẩm"
                   >
                     Sản phẩm
                   </Link>
                 </li>
+                <li>
+                  <Link
+                    href="/gioi-thieu"
+                    className="text-white transition-colors hover:text-yellow-300"
+                    aria-label="Giới thiệu"
+                  >
+                    Giới thiệu
+                  </Link>
+                </li>
               </ul>
             </nav>
           </section>
+
+          {/* Contact Info */}
           <section>
-            <h4 className="text-sm font-semibold mb-4">Liên hệ</h4>
-            <address className="text-sm text-muted-foreground not-italic">
+            <h4 className="text-base font-semibold mb-4">Thông tin liên hệ</h4>
+            <div className="space-y-3 text-sm">
+              {/* Hotline */}
               <a
-                href="mailto:contact@feaudio.com"
-                className="hover:text-primary"
-                aria-label="Gửi email đến contact@feaudio.com"
+                href="tel:0986344085"
+                className="flex items-start gap-3 text-white hover:text-yellow-300 transition-colors group"
+                aria-label="Gọi hotline 0986344085"
               >
-                Email: contact@feaudio.com
+                <Phone className="size-4 mt-0.5 shrink-0 text-yellow-300 group-hover:scale-110 transition-transform" />
+                <span className="font-semibold">Hotline: 0986344085</span>
               </a>
-            </address>
+
+
+              {/* Website */}
+              <a
+                href="https://hvnaudio.vn"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-start gap-3 text-white hover:text-yellow-300 transition-colors group"
+                aria-label="Truy cập website hvnaudio.vn"
+              >
+                <Globe className="size-4 mt-0.5 shrink-0 text-yellow-300 group-hover:scale-110 transition-transform" />
+                <span>hvnaudio.vn</span>
+              </a>
+
+              {/* Email */}
+              <a
+                href="mailto:hvnaudio@gmail.com"
+                className="flex items-start gap-3 text-white hover:text-yellow-300 transition-colors group"
+                aria-label="Gửi email đến hvnaudio@gmail.com"
+              >
+                <Mail className="size-4 mt-0.5 shrink-0 text-yellow-300 group-hover:scale-110 transition-transform" />
+                <span>hvnaudio@gmail.com</span>
+              </a>
+
+
+              {/* Address */}
+              <div className="flex items-start gap-3 text-white hover:text-yellow-300 transition-colors group">
+                <MapPin className="size-4 mt-0.5 shrink-0 text-yellow-300 group-hover:scale-110 transition-transform" />
+                <span>
+                  <a
+                    href="https://www.google.com/maps/search/?api=1&query=20.729112,106.365208"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    232 đường tỉnh 396 - Ninh Giang - Hải Phòng
+                  </a>
+                </span>
+              </div>
+            </div>
+          </section>
+
+          {/* Google Maps */}
+          <section>
+            <h4 className="text-base font-semibold mb-4">Bản đồ</h4>
+            <div className="rounded-lg overflow-hidden border-2 border-white/20 shadow-lg">
+              <iframe
+                src={mapSrc}
+                width="100%"
+                height="180"
+                style={{ border: 0 }}
+                allowFullScreen
+                loading="lazy"
+                referrerPolicy="no-referrer-when-downgrade"
+                title="HVN Audio trên Google Maps"
+                className="grayscale hover:grayscale-0 transition-all duration-300"
+              />
+            </div>
+            <a
+              href="https://www.google.com/maps/search/?api=1&query=20.729112,106.365208"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-3 text-sm text-yellow-300 hover:text-yellow-200 hover:underline transition-colors"
+            >
+              <MapPin className="size-4" />
+              Xem bản đồ lớn hơn
+            </a>
           </section>
         </div>
-        <div className="mt-8 pt-8 border-t text-center text-sm text-muted-foreground">
-          <p>© {currentYear} FE-Audio. All rights reserved.</p>
+
+        {/* Bottom bar */}
+        <div className="mt-10 pt-6 border-t border-white/20 text-center">
+          <p className="text-sm text-white/60">
+            © {currentYear} HVN Audio. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>
