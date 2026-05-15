@@ -1,8 +1,6 @@
-import Link from "next/link"
 
 import type { Metadata } from "next"
 
-import { Button } from "@/components/atoms"
 import { HomeBannerSlider } from "@/components/organisms/HomeBannerSlider"
 import { PaginatedProductGrid } from "@/components/organisms/PaginatedProductGrid"
 import { type HomeProduct } from "@/components/organisms/ProductCard"
@@ -262,19 +260,6 @@ export default async function ClientHomePage() {
                             products={hallSoundProducts}
                             itemsPerPage={4}
                         />
-
-                        <div className="pt-2">
-                            <Button
-                                asChild
-                                variant="outline"
-                                size="sm"
-                                className="border-destructive text-destructive hover:bg-destructive/5"
-                            >
-                                <Link href="/dan-am-thanh-hoi-truong">
-                                    Xem tất cả dàn âm thanh hội trường
-                                </Link>
-                            </Button>
-                        </div>
                     </div>
                 </section>
 

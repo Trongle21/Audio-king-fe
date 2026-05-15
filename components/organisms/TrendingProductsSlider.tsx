@@ -50,8 +50,8 @@ export function TrendingProductsSlider({
         className="trending-swiper"
         // 1 dòng, responsive số lượng item; desktop tối đa 6 item
         breakpoints={{
-          0: { slidesPerView: 1.2, spaceBetween: 12 },
-          640: { slidesPerView: 2.2, spaceBetween: 14 },
+          0: { slidesPerView: 2, spaceBetween: 12 },
+          640: { slidesPerView: 2, spaceBetween: 14 },
           768: { slidesPerView: 3, spaceBetween: 16 },
           1024: { slidesPerView: 4, spaceBetween: 18 },
           1280: { slidesPerView: 4, spaceBetween: 20 },
