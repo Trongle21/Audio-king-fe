@@ -251,7 +251,7 @@ export default function Header() {
           role="navigation"
           aria-label="Chuyên mục"
         >
-          <div className="container">
+          <div className="px-1 md:container">
             <div className="flex items-center gap-3">
               {/* Categories with horizontal scroll + fade gradient */}
               <div className="relative flex-1 min-w-0">
