@@ -98,7 +98,7 @@ export function ProductHeaderSearch({
 
   return (
     <div ref={rootRef} className={className}>
-      <div className="relative flex w-[90%] lg:w-[480px] lg:ml-[40px] xl:ml-[100px] items-center gap-2">
+      <div className="relative flex w-full lg:w-[480px] lg:ml-[40px] xl:ml-[100px] items-center gap-2">
         <Input
           type="search"
           value={searchValue}

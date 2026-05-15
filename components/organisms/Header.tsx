@@ -3,11 +3,7 @@
 import * as React from "react"
 
 import {
-  ChevronDown,
-  Menu,
-  PhoneCall,
-  ShoppingCart,
-  X
+  ShoppingCart
 } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
@@ -20,10 +16,7 @@ import { IconButton } from "@/components/atoms/icon-button"
 import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
+  DropdownMenuTrigger
 } from "@/components/organisms/dropdown-menu"
 import { ProductHeaderSearch } from "@/components/organisms/ProductHeaderSearch"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
@@ -192,7 +185,13 @@ export default function Header() {
                 </DropdownMenu>
 
 
+                <div className="flex items-center gap-2 shrink-0 px-2 py-1 bg-white rounded-md">
+                  <Link href="/gioi-thieu" className="text-black font-bold text-[14px]">
+                    Giới thiệu
+                  </Link>
+                </div>
 
+                {/* 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button
@@ -215,10 +214,10 @@ export default function Header() {
                       </DropdownMenuItem>
                     ))}
                   </DropdownMenuContent>
-                </DropdownMenu>
+                </DropdownMenu> */}
 
                 {/* Mobile menu toggle */}
-                <Button
+                {/* <Button
                   variant="ghost"
                   size="icon"
                   onClick={() => setMobileMenuOpen((v) => !v)}
@@ -231,7 +230,7 @@ export default function Header() {
                   ) : (
                     <Menu className="size-6" />
                   )}
-                </Button>
+                </Button> */}
               </div>
             </div>
 
@@ -275,12 +274,6 @@ export default function Header() {
                 </div>
                 {/* Fade gradient on right edge */}
                 <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-destructive to-transparent pointer-events-none" />
-              </div>
-
-              <div className="flex items-center gap-2 shrink-0">
-                <Link href="/gioi-thieu">
-                  Giới thiệu
-                </Link>
               </div>
             </div>
           </div>
