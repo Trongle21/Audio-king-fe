@@ -253,3 +253,21 @@
     animation: float-up 1s ease-out forwards;
   }
 }
+
+/* Shake animation for floating buttons */
+@keyframes shake {
+  0%, 100% { transform: rotate(0deg); }
+  10% { transform: rotate(8deg); }
+  20% { transform: rotate(-8deg); }
+  30% { transform: rotate(8deg); }
+  40% { transform: rotate(-8deg); }
+  50% { transform: rotate(4deg); }
+  60% { transform: rotate(-4deg); }
+  70% { transform: rotate(2deg); }
+  80% { transform: rotate(-2deg); }
+  90% { transform: rotate(1deg); }
+}
+
+.animate-shake {
+  animation: shake 1.5s ease-in-out infinite;
+}

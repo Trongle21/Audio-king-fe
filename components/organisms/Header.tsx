@@ -30,6 +30,7 @@ import { ProductHeaderSearch } from "@/components/organisms/ProductHeaderSearch"
 import { useCart } from "@/hooks/client-app/src/hooks/cart"
 import { useCategories } from "@/hooks/client-app/src/hooks/category"
 import { useAuth } from "@/hooks/client-app/src/hooks/useAuth"
+import { cn } from "@/lib/utils"
 
 
 const hotlines = [
@@ -59,7 +60,7 @@ export default function Header() {
         {/* Row 1 */}
         <div className="border-b border-white/15 px-2">
           <div className="m-auto">
-            <div className="flex items-center gap-2 py-2.5 md:py-3">
+            <div className="flex items-center gap-2 py-1.5 md:py-3">
               {/* Logo (keep branding) */}
               <Link
                 href="/"
@@ -236,7 +237,9 @@ export default function Header() {
             </div>
 
             {/* Mobile: Search row full width */}
-            <div className="md:hidden pb-3 w-full">
+            <div className={cn("md:hidden pb-3 w-full", {
+              'pb-0': mobileMenuOpen
+            })}>
               <ProductHeaderSearch
                 placeholder="Bạn tìm thiết bị âm thanh gì?"
                 className="w-full"
@@ -301,13 +304,13 @@ export default function Header() {
             role="navigation"
             aria-label="Danh mục"
           >
-            <div className="py-2 max-h-[50vh] overflow-y-auto">
+            <div className="md:py-2 max-h-[50vh] overflow-y-auto">
               <div className="grid grid-cols-3 gap-1 px-2">
                 {visibleCategoriesMobile.map((c) => (
                   <Link
                     key={c.slug}
                     href={`/product?categoryId=${encodeURIComponent(c._id)}`}
-                    className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate"
+                    className="rounded-md px-2 py-1 md:py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate"
                     onClick={() => setMobileMenuOpen(false)}
                   >
                     {c.name}
@@ -320,7 +323,7 @@ export default function Header() {
                       setMobileMenuOpen(false)
                       setMoreCategoriesOpen(true)
                     }}
-                    className="rounded-md px-2 py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate flex items-center justify-center gap-1"
+                    className="rounded-md px-2 py-1 md:py-2 text-sm font-medium text-center hover:bg-white/10 transition-colors truncate flex items-center justify-center gap-1"
                   >
                     <Grid3X3 className="h-4 w-4" />
                     Xem thêm
