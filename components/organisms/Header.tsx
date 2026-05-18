@@ -53,20 +53,28 @@ export default function Header() {
         <div className="border-b border-white/15 px-2">
           <div className="m-auto">
             <div className="flex items-center gap-2 py-1.5 md:py-3">
-              {/* Logo (keep branding) */}
+              {/* Logo */}
               <Link
                 href="/"
-                className="flex flex-col shrink-0 leading-tight"
+                className="flex items-center gap-2 shrink-0"
                 aria-label="HVN AUDIO - Về trang chủ"
               >
-                <div className="flex items-baseline gap-2">
-                  <span className="text-xl md:text-2xl font-extrabold tracking-tight">
+                <Image
+                  src="/logo.png"
+                  alt="HVN AUDIO Logo"
+                  width={48}
+                  height={48}
+                  className="h-10 w-10 md:h-12 md:w-12 object-contain"
+                  priority
+                />
+                <div className="flex flex-col leading-tight">
+                  <span className="text-lg sm:text-xl md:text-2xl font-extrabold tracking-tight">
                     HVN AUDIO
                   </span>
+                  <span className="hidden md:text-[10px] opacity-85">
+                    TRUNG TÂM PHÂN PHỐI CHÍNH HÃNG
+                  </span>
                 </div>
-                <span className="hidden lg:inline text-[10px] opacity-85">
-                  TRUNG TÂM PHÂN PHỐI CHÍNH HÃNG
-                </span>
               </Link>
 
               {/* Desktop/Tablet: Category + Search inline */}

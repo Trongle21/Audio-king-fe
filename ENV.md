@@ -16,7 +16,7 @@ File này mô tả các biến môi trường được sử dụng trong dự á
 
 ### Site Configuration
 
-- `NEXT_PUBLIC_SITE_URL`: URL của website (ví dụ: `http://localhost:3000` hoặc `https://feaudio.com`)
+- `NEXT_PUBLIC_SITE_URL`: URL của website (ví dụ: `http://localhost:3000` hoặc `https://hvnaudio.vn`)
     - Sử dụng cho: Metadata, canonical URLs, Open Graph
 
 ### Search Engine Verification

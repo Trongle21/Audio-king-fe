@@ -1,0 +1,25 @@
+{
+  "name": "HVN AUDIO",
+  "short_name": "HVN AUDIO",
+  "description": "Trung tâm phân phối thiết bị âm thanh chính hãng",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#8B0000",
+  "theme_color": "#8B0000",
+  "icons": [
+    {
+      "src": "/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["shopping", "business"],
+  "lang": "vi"
+}

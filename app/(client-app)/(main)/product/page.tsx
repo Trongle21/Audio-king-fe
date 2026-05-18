@@ -2,6 +2,7 @@ import { Suspense } from "react"
 
 import Link from "next/link"
 
+import type { GenerateMetadataParams } from "@/lib/metadata"
 import type { Metadata } from "next"
 
 import {
@@ -10,36 +11,105 @@ import {
 import { ProductListingClient } from "@/components/organisms/ProductListingClient"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
 
-
 export const metadata: Metadata = genMetadata({
-  title: "Sản phẩm",
+  title: "Sản phẩm Audio Chính Hãng - Loa Karaoke, Dàn Âm Thanh Giá Tốt | HVN AUDIO",
   description:
-    "Khám phá danh sách các sản phẩm audio chất lượng cao tại HVN AUDIO với đầy đủ loa karaoke, dàn âm thanh hội trường, vang số, micro và nhiều thiết bị khác.",
+    "Khám phá danh sách các sản phẩm audio chất lượng cao tại HVN AUDIO với đầy đủ loa karaoke, dàn âm thanh hội trường, vang số, micro và nhiều thiết bị khác. Giá tốt, bảo hành chính hãng.",
   keywords: [
     "sản phẩm audio",
     "loa karaoke",
     "dàn âm thanh",
     "thiết bị âm thanh",
     "mua loa",
+    "loa karaoke chính hãng",
+    "dàn âm thanh hội trường",
+    "vang số",
+    "micro không dây",
     "HVN AUDIO products",
   ],
   canonical: "/product",
-})
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  openGraph: {
+    title: "Sản phẩm Audio Chính Hãng - HVN AUDIO",
+    description:
+      "Khám phá danh sách các sản phẩm audio chất lượng cao: loa karaoke, dàn âm thanh hội trường, vang số, micro. Giá tốt, bảo hành chính hãng.",
+    url: "/product",
+    siteName: "HVN AUDIO",
+    locale: "vi_VN",
+    type: "website",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "HVN AUDIO - Sản phẩm audio chính hãng",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Sản phẩm Audio Chính Hãng - HVN AUDIO",
+    description:
+      "Khám phá danh sách các sản phẩm audio chất lượng cao: loa karaoke, dàn âm thanh hội trường, vang số, micro.",
+    images: ["/og-image.jpg"],
+    site: "@HVNAUDIO",
+  },
+} satisfies GenerateMetadataParams)
 
 export default function ProductPage() {
-  const jsonLd = {
+  const websiteJsonLd = {
     "@context": "https://schema.org",
-    "@type": "ItemList",
-    name: "Danh sách sản phẩm audio",
-    description:
-      "Danh sách các sản phẩm loa karaoke, dàn âm thanh, micro, vang số tại HVN AUDIO.",
+    "@type": "WebSite",
+    name: "HVN AUDIO",
+    url: "https://hvnaudio.com",
+    potentialAction: {
+      "@type": "SearchAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "/product?search={search_term_string}",
+      },
+      "query-input": "required name=search_term_string",
+    },
+  }
+
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Trang chủ",
+        item: "/",
+      },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Sản phẩm",
+        item: "/product",
+      },
+    ],
   }
 
   return (
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
 
       <main className="container py-6 md:py-8 lg:py-10">

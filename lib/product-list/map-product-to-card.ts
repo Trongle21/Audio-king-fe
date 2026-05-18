@@ -8,6 +8,18 @@ function pickThumbnailUrl(product: Product): string {
   return t.url || "/file.svg"
 }
 
+function pickThumbnail(product: Product): HomeProduct["thumbnail"] {
+  const t = product.thumbnail
+  if (!t) return undefined
+  if (typeof t === "string") {
+    return { url: t, alt: product.name }
+  }
+  return {
+    url: t.url || "/file.svg",
+    alt: t.alt || product.name,
+  }
+}
+
 function collectImages(product: Product): string[] {
   const urls: string[] = []
   const thumb = pickThumbnailUrl(product)
@@ -39,6 +51,7 @@ export function mapProductToHomeProduct(product: Product): HomeProduct {
     name: product.name,
     imageUrl: pickThumbnailUrl(product),
     images: collectImages(product),
+    thumbnail: pickThumbnail(product),
     price: formatVnd(currentPrice),
     oldPrice: formatVnd(fakeOriginalPrice),
     discountLabel: `-${Math.round(((fakeOriginalPrice - currentPrice) / fakeOriginalPrice) * 100)}%`,

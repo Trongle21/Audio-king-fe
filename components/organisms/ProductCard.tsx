@@ -16,6 +16,10 @@ export type HomeProduct = {
   name: string
   imageUrl: string
   images?: string[]
+  thumbnail?: {
+    url: string
+    alt: string
+  }
   price: string
   oldPrice?: string
   discountLabel?: string
@@ -27,7 +31,8 @@ export function ProductCard({ product }: { product: HomeProduct }) {
   const imageContainerRef = React.useRef<HTMLAnchorElement | null>(null)
   const { addToCart } = useCart()
 
-  const thumbnailUrl = product.imageUrl || product.images?.[0] || ""
+  const thumbnailUrl = product.thumbnail?.url || product.imageUrl || product.images?.[0] || ""
+  const thumbnailAlt = product.thumbnail?.alt || product.name
 
   const detailHref = `/product/${product.id}`
 
@@ -112,7 +117,7 @@ export function ProductCard({ product }: { product: HomeProduct }) {
         {thumbnailUrl ? (
           <img
             src={thumbnailUrl}
-            alt={product.name}
+            alt={thumbnailAlt}
             loading="lazy"
             className="h-full w-full object-cover transition-transform duration-300 ease-out group-hover:scale-105 cursor-pointer"
             itemProp="image"
@@ -151,12 +156,19 @@ export function ProductCard({ product }: { product: HomeProduct }) {
             <p
               className="text-base font-bold text-destructive"
               itemProp="price"
+              content={product.price.replace(/[^\d]/g, "")}
             >
               {product.price}
             </p>
             {product.oldPrice && (
               <p className="flex items-center gap-2 text-xs text-muted-foreground">
-                <span className="line-through">{product.oldPrice}</span>
+                <span
+                  className="line-through"
+                  itemProp="price"
+                  content={product.oldPrice.replace(/[^\d]/g, "")}
+                >
+                  {product.oldPrice}
+                </span>
                 {product.discountLabel && (
                   <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-[11px] font-semibold text-emerald-700">
                     {product.discountLabel}
@@ -165,6 +177,10 @@ export function ProductCard({ product }: { product: HomeProduct }) {
               </p>
             )}
             <meta itemProp="priceCurrency" content="VND" />
+            <link
+              itemProp="availability"
+              href="https://schema.org/InStock"
+            />
           </div>
 
           <div className="mt-auto flex flex-col gap-2 sm:flex-row">

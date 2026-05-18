@@ -5,8 +5,29 @@ import { HomeBannerSlider } from "@/components/organisms/HomeBannerSlider"
 import { PaginatedProductGrid } from "@/components/organisms/PaginatedProductGrid"
 import { type HomeProduct } from "@/components/organisms/ProductCard"
 import { TrendingProductsSlider } from "@/components/organisms/TrendingProductsSlider"
+import { getCategoriesServer } from "@/lib/api-server/categories"
 import { getTrendingServer } from "@/lib/api-server/trending"
 import { generateMetadata as genMetadata } from "@/lib/metadata"
+
+interface CategoryProduct {
+    _id: string
+    name: string
+    slug: string
+    price: number
+    description?: string
+    thumbnail?: {
+        url: string
+        alt: string
+    }
+}
+
+interface Category {
+    _id: string
+    name: string
+    slug: string
+    isDelete: boolean
+    products: CategoryProduct[]
+}
 
 export const metadata: Metadata = genMetadata({
     title: "Trang chủ",
@@ -24,20 +45,121 @@ export const metadata: Metadata = genMetadata({
     canonical: "/",
 })
 
-export default async function ClientHomePage() {
-    const jsonLd = {
-        "@context": "https://schema.org",
-        "@type": "WebSite",
-        name: "HVN AUDIO",
-        description: "Nền tảng audio chất lượng cao",
-        url: "https://feaudio.com",
-        potentialAction: {
-            "@type": "SearchAction",
-            target: "https://feaudio.com/search?q={search_term_string}",
-            "query-input": "required name=search_term_string",
-        },
+type CategorySection = {
+    id: string
+    title: string
+    description: string
+    badge: string | undefined
+    products: HomeProduct[]
+}
+
+function mapProductToHomeProduct(
+    id: string,
+    name: string,
+    price: number,
+    description: string | undefined,
+    thumbnail?: { url: string; alt?: string },
+    _categoryName?: string,
+): HomeProduct {
+    return {
+        id,
+        name,
+        imageUrl: thumbnail?.url || "/file.svg",
+        thumbnail: thumbnail ? { url: thumbnail.url, alt: thumbnail.alt || name } : undefined,
+        price: `${new Intl.NumberFormat("vi-VN").format(price)}đ`,
+        oldPrice: `${new Intl.NumberFormat("vi-VN").format(Math.round(price * 1.1))}đ`,
+        discountLabel: "-10%",
+        meta: description?.slice(0, 80),
+    }
+}
+
+const CATEGORY_MAPPING: Record<string, { title: string; description: string }> = {
+    "Vang số": {
+        title: "Vang số chuyên nghiệp",
+        description: "Giải pháp xử lý âm thanh tối ưu cho karaoke, sân khấu, hội trường và sự kiện.",
+    },
+    "Loa full": {
+        title: "Loa âm thanh chất lượng cao",
+        description: "Mang đến âm thanh mạnh mẽ, rõ nét cho hội trường, sân khấu, quán café và sự kiện.",
+    },
+    "Cục đẩy": {
+        title: "Cục đẩy công suất",
+        description: "Khuếch đại âm thanh mạnh mẽ, vận hành ổn định cho dàn karaoke và sân khấu chuyên nghiệp.",
+    },
+    "Quản lý nguồn": {
+        title: "Quản lý nguồn thông minh",
+        description: "Bảo vệ và kiểm soát hệ thống âm thanh an toàn, ổn định và chuyên nghiệp.",
+    },
+    Micro: {
+        title: "Micro không dây cao cấp",
+        description: "Thu âm rõ ràng, chống hú hiệu quả cho karaoke, hội trường và biểu diễn sân khấu.",
+    },
+    "Siêu trầm": {
+        title: "Loa siêu trầm uy lực",
+        description: "Tái tạo âm bass sâu, mạnh mẽ cho hệ thống âm thanh sân khấu và giải trí.",
+    },
+    "Loa kéo": {
+        title: "Loa kéo di động tiện lợi",
+        description: "Giải pháp âm thanh linh hoạt cho du lịch, bán hàng, sự kiện và karaoke mọi lúc mọi nơi.",
+    },
+}
+
+const PRIORITY_ORDER = [
+    "Vang số",
+    "Loa full",
+    "Cục đẩy",
+    "Micro",
+    "Siêu trầm",
+    "Quản lý nguồn",
+    "Loa kéo",
+]
+
+function buildCategorySections(categories: Category[]): CategorySection[] {
+    const sections: CategorySection[] = []
+
+    // First add categories that match our mapping and have products
+    for (const categoryName of PRIORITY_ORDER) {
+        const category = categories.find((c) => c.name === categoryName)
+        if (category && category.products.length > 0) {
+            const mapping = CATEGORY_MAPPING[categoryName]
+            if (mapping) {
+                sections.push({
+                    id: category._id,
+                    title: mapping.title,
+                    description: mapping.description,
+                    badge: "Nổi bật",
+                    products: category.products.map((p) =>
+                        mapProductToHomeProduct(p._id, p.name, p.price, p.description, p.thumbnail, category.name),
+                    ),
+                })
+            }
+        }
     }
 
+    // Then add any remaining categories with products that aren't in our mapping
+    for (const category of categories) {
+        if (!PRIORITY_ORDER.includes(category.name) && category.products.length > 0) {
+            sections.push({
+                id: category._id,
+                title: category.name,
+                description: `Danh mục ${category.name} chất lượng cao`,
+                badge: undefined,
+                products: category.products.map((p) =>
+                    mapProductToHomeProduct(p._id, p.name, p.price, p.description, p.thumbnail, category.name),
+                ),
+            })
+        }
+    }
+
+    return sections
+}
+
+export default async function ClientHomePage() {
+    // Fetch categories with products
+    const categories = await getCategoriesServer()
+    const categorySections = buildCategorySections(categories)
+
+    // Fetch trending products
     let trendingProducts: HomeProduct[] = []
     let trendingError: string | null = null
     try {
@@ -45,133 +167,38 @@ export default async function ClientHomePage() {
         trendingProducts = trendingItems
             .map((item) => item.product)
             .filter((product) => Boolean(product) && !product.isDelete)
-            .map((product) => ({
-                id: product._id,
-                name: product.name,
-                imageUrl: product.thumbnail?.url ?? "/file.svg",
-                price: `${new Intl.NumberFormat("vi-VN").format(product.price)}đ`,
-                oldPrice: `${new Intl.NumberFormat("vi-VN").format(Math.round(product.price * 1.1))}đ`,
-                discountLabel: "-10%",
-                badge: product.rating ? "Nổi bật" : undefined,
-                meta: product.description?.slice(0, 80),
-            }))
+            .map((product) => {
+                const thumb = product.thumbnail
+                return {
+                    id: product._id,
+                    name: product.name,
+                    imageUrl: thumb?.url ?? "/file.svg",
+                    thumbnail: thumb ? { url: thumb.url, alt: thumb.alt || product.name } : undefined,
+                    price: `${new Intl.NumberFormat("vi-VN").format(product.price)}đ`,
+                    oldPrice: `${new Intl.NumberFormat("vi-VN").format(Math.round(product.price * 1.1))}đ`,
+                    discountLabel: "-10%",
+                    badge: product.rating ? "Nổi bật" : undefined,
+                    meta: product.description?.slice(0, 80),
+                }
+            })
     } catch (err) {
         trendingProducts = []
         trendingError = err instanceof Error ? err.message : "Failed to load trending products"
         console.error("[ClientHomePage] getTrending error:", err)
     }
 
-    const hallSoundProducts: HomeProduct[] = [
-        {
-            id: "h1",
-            name: "Dàn Âm Thanh Hội Trường HVN AUDIO HT25 (Array Active, 25m)",
-            imageUrl:
-                "https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "79.990.000đ",
-            oldPrice: "114.430.000đ",
-            discountLabel: "-30%",
-            badge: "Siêu sốc",
-            meta: "Phù hợp hội trường 200–300m²",
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: "HVN AUDIO",
+        description: "Nền tảng audio chất lượng cao",
+        url: "https://hvnaudio.vn",
+        potentialAction: {
+            "@type": "SearchAction",
+            target: "https://hvnaudio.vn/search?q={search_term_string}",
+            "query-input": "required name=search_term_string",
         },
-        {
-            id: "h2",
-            name: "Dàn Âm Thanh Hội Trường BK New 2026-01 (BIK CS-620, BIK BJ-V12)",
-            imageUrl:
-                "https://images.pexels.com/photos/63703/pexels-photo-63703.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "71.900.000đ",
-            oldPrice: "100.170.000đ",
-            discountLabel: "-28%",
-            badge: "New 2026",
-            meta: "Dàn sân khấu đám cưới, hội nghị",
-        },
-        {
-            id: "h3",
-            name: "Dàn Âm Thanh Line Array HVN AUDIO LA26 (Array 2 Way Passive)",
-            imageUrl:
-                "https://images.pexels.com/photos/164716/pexels-photo-164716.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "119.990.000đ",
-            oldPrice: "204.710.000đ",
-            discountLabel: "-41%",
-            badge: "Bán chạy",
-            meta: "Line array mini cho sân khấu ngoài trời",
-        },
-        {
-            id: "h4",
-            name: "Dàn Loa Hội Trường HVN AUDIO HT30 (3.000W, Có Sub Active)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "124.900.000đ",
-            oldPrice: "174.300.000đ",
-            discountLabel: "-28%",
-            badge: "New 2026",
-            meta: "Phù hợp sân khấu, hội trường đa năng",
-        },
-        {
-            id: "h5",
-            name: "Dàn Loa Hội Trường HVN AUDIO HT40 (4.000W, Sub kép Active)",
-            imageUrl:
-                "https://images.pexels.com/photos/164716/pexels-photo-164716.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "156.900.000đ",
-            oldPrice: "210.300.000đ",
-            discountLabel: "-25%",
-            badge: "Bán chạy",
-            meta: "Dành cho sân khấu ngoài trời, nhạc sống",
-        },
-        {
-            id: "h6",
-            name: "Dàn Loa Hội Trường HVN AUDIO HT50 (5.000W, Full Array)",
-            imageUrl:
-                "https://images.pexels.com/photos/63703/pexels-photo-63703.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "189.900.000đ",
-            oldPrice: "259.300.000đ",
-            discountLabel: "-27%",
-            badge: "New 2026",
-            meta: "Giải pháp full array cho hội trường lớn 400–500m²",
-        },
-    ]
-
-    const hotKaraokeProducts: HomeProduct[] = [
-        {
-            id: "k1",
-            name: "Loa Karaoke Nhật BIK BJ S888II (Bass 25cm, 600W)",
-            imageUrl:
-                "https://images.pexels.com/photos/63703/pexels-photo-63703.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "8.290.000đ",
-            oldPrice: "10.890.000đ",
-            discountLabel: "-25%",
-            badge: "Bán chạy",
-        },
-        {
-            id: "k2",
-            name: "Loa Karaoke Nhật BIK BKS C50 (Bass 25cm, 800W)",
-            imageUrl:
-                "https://images.pexels.com/photos/164716/pexels-photo-164716.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "17.900.000đ",
-            oldPrice: "23.900.000đ",
-            discountLabel: "-25%",
-            badge: "New 2026",
-        },
-        {
-            id: "k3",
-            name: "Loa Karaoke JBL CV1652T (Bass 16.5cm, 8 Ohm)",
-            imageUrl:
-                "https://images.pexels.com/photos/164745/pexels-photo-164745.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "23.100.000đ",
-            oldPrice: "28.000.000đ",
-            discountLabel: "-17%",
-            badge: "Mua nhiều nhất",
-        },
-        {
-            id: "k4",
-            name: "Loa RCF C MAX 4112 (Full Bass 30, SX: Italy)",
-            imageUrl:
-                "https://images.pexels.com/photos/164747/pexels-photo-164747.jpeg?auto=compress&cs=tinysrgb&w=800",
-            price: "61.900.000đ",
-            oldPrice: "74.700.000đ",
-            discountLabel: "-17%",
-            badge: "Sản phẩm hot",
-        },
-    ]
+    }
 
     return (
         <>
@@ -218,95 +245,35 @@ export default async function ClientHomePage() {
                     </div>
                 </section>
 
-                {/* Dàn âm thanh hội trường, sân khấu */}
-                <section
-                    aria-labelledby="hall-heading"
-                    className="bg-muted/40 py-6"
-                >
-                    <div className="container space-y-4">
-                        <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h2
-                                    id="hall-heading"
-                                    className="text-xl font-bold tracking-tight md:text-2xl"
-                                >
-                                    Dàn âm thanh hội trường, sân khấu
-                                </h2>
-                                <p className="text-sm text-muted-foreground md:text-base">
-                                    Giải pháp trọn bộ cho hội trường, sân khấu,
-                                    đám cưới, sự kiện.
-                                </p>
-                            </div>
-                            {/* <div className="flex flex-wrap gap-2">
-                                <Button
-                                    size="sm"
-                                    className="bg-destructive text-white hover:bg-destructive/90"
-                                >
-                                    Tất cả
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                    Dàn sân khấu
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                    Dàn đám cưới
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                    Dàn hội trường mini
-                                </Button>
-                            </div> */}
-                        </header>
+                {/* Danh mục sản phẩm từ API */}
+                {categorySections.map((section, index) => (
+                    <section
+                        key={section.id}
+                        aria-labelledby={`category-heading-${section.id}`}
+                        className={index % 2 === 0 ? "bg-muted/40 py-6" : "bg-background py-6"}
+                    >
+                        <div className="container space-y-4">
+                            <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                <div>
+                                    <h2
+                                        id={`category-heading-${section.id}`}
+                                        className="text-xl font-bold tracking-tight md:text-2xl"
+                                    >
+                                        {section.title}
+                                    </h2>
+                                    <p className="text-sm text-muted-foreground md:text-base">
+                                        {section.description}
+                                    </p>
+                                </div>
+                            </header>
 
-                        <PaginatedProductGrid
-                            products={hallSoundProducts}
-                            itemsPerPage={4}
-                        />
-                    </div>
-                </section>
-
-                {/* Loa karaoke hot nhất */}
-                <section
-                    aria-labelledby="karaoke-heading"
-                    className="bg-background"
-                >
-                    <div className="container space-y-4">
-                        <header className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                            <div>
-                                <h2
-                                    id="karaoke-heading"
-                                    className="text-xl font-bold tracking-tight md:text-2xl"
-                                >
-                                    Loa karaoke hot nhất
-                                </h2>
-                                <p className="text-sm text-muted-foreground md:text-base">
-                                    Tuyển chọn các mẫu loa karaoke bán chạy,
-                                    được đánh giá cao về chất lượng và độ bền.
-                                </p>
-                            </div>
-                            {/* <div className="flex flex-wrap gap-2">
-                                <Button
-                                    size="sm"
-                                    className="bg-destructive text-white hover:bg-destructive/90"
-                                >
-                                    Tất cả
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                    Loa JBL
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                    Loa BIK
-                                </Button>
-                                <Button size="sm" variant="outline">
-                                    Loa RCF
-                                </Button>
-                            </div> */}
-                        </header>
-
-                        <PaginatedProductGrid
-                            products={hotKaraokeProducts}
-                            itemsPerPage={8}
-                        />
-                    </div>
-                </section>
+                            <PaginatedProductGrid
+                                products={section.products}
+                                itemsPerPage={4}
+                            />
+                        </div>
+                    </section>
+                ))}
             </div>
         </>
     )

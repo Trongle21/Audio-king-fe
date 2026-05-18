@@ -1,4 +1,5 @@
 import { Globe, Mail, MapPin, Phone } from "lucide-react"
+import Image from "next/image"
 import Link from "next/link"
 
 export default function Footer() {
@@ -14,13 +15,22 @@ export default function Footer() {
       <div className="container py-10">
         {/* Main grid */}
         <div className="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
-          {/* Brand & Description */}
-          <section>
-            <h3 className="text-xl font-bold mb-2">HVN AUDIO</h3>
-            <p className="text-sm font-medium text-white/80 mb-4">
-              ÂM THANH NHẬP KHẨU CHÍNH HÃNG
-            </p>
-            <p className="text-sm text-white">
+          {/* Brand & Logo */}
+          <section className="flex flex-col">
+            <Link href="/" className="flex items-center gap-3 mb-3" aria-label="HVN AUDIO - Về trang chủ">
+              <Image
+                src="/logo.png"
+                alt="HVN AUDIO Logo"
+                width={64}
+                height={64}
+                className="h-14 w-14 md:h-16 md:w-16 object-contain"
+              />
+              <div className="flex flex-col leading-tight">
+                <span className="text-xl font-bold">HVN AUDIO</span>
+                <span className="text-[10px] opacity-80">TRUNG TÂM PHÂN PHỐI CHÍNH HÃNG</span>
+              </div>
+            </Link>
+            <p className="text-sm text-white/80">
               Chuyên cung cấp các thiết bị âm thanh cao cấp, nhập khẩu chính hãng với
               chế độ bảo hành uy tín.
             </p>
@@ -66,17 +76,6 @@ export default function Footer() {
           <section>
             <h4 className="text-base font-semibold mb-4">Thông tin liên hệ</h4>
             <div className="space-y-3 text-sm">
-              {/* Hotline */}
-              <a
-                href="tel:0986344085"
-                className="flex items-start gap-3 text-white hover:text-yellow-300 transition-colors group"
-                aria-label="Gọi hotline 0986344085"
-              >
-                <Phone className="size-4 mt-0.5 shrink-0 text-yellow-300 group-hover:scale-110 transition-transform" />
-                <span className="font-semibold">Hotline: 0986344085</span>
-              </a>
-
-
               {/* Website */}
               <a
                 href="https://hvnaudio.vn"
@@ -88,6 +87,19 @@ export default function Footer() {
                 <Globe className="size-4 mt-0.5 shrink-0 text-yellow-300 group-hover:scale-110 transition-transform" />
                 <span>hvnaudio.vn</span>
               </a>
+
+              {/* Hotline */}
+              <a
+                href="tel:0986344085"
+                className="flex items-start gap-3 text-white hover:text-yellow-300 transition-colors group"
+                aria-label="Gọi hotline 0986344085"
+              >
+                <Phone className="size-4 mt-0.5 shrink-0 text-yellow-300 group-hover:scale-110 transition-transform" />
+                <span>Hotline: 0986344085</span>
+              </a>
+
+
+
 
               {/* Email */}
               <a

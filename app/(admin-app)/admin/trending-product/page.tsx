@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 
 import {
   DndContext,
@@ -199,11 +199,20 @@ export default function AdminTrendingProductsPage() {
   const [localTrending, setLocalTrending] = useState<SelectedTrendingItem[] | null>(null)
   const [appliedFilters, setAppliedFilters] =
     useState<ProductFilterFormData>(defaultFilterValues)
+  const [categoryIdValue, setCategoryIdValue] = useState<string>("")
 
   const form = useForm<ProductFilterSchemaInput, unknown, ProductFilterFormData>({
     resolver: zodResolver(productFilterSchema),
     defaultValues: defaultFilterValues,
   })
+
+  /* eslint-disable react-hooks/incompatible-library */
+  useEffect(() => {
+    const { unsubscribe } = form.watch((values) => {
+      setCategoryIdValue(values.categoryId ?? "")
+    })
+    return unsubscribe
+  }, [form])
   const requestParams = useMemo(
     () => toRequestParams(appliedFilters, page),
     [appliedFilters, page],
@@ -342,7 +351,7 @@ export default function AdminTrendingProductsPage() {
             <form onSubmit={submitFilters} className="grid gap-2 md:grid-cols-2">
               <Input placeholder="Tên sản phẩm " {...form.register("q")} />
               <Select
-                value={form.watch("categoryId") ?? ""}
+                value={categoryIdValue}
                 onValueChange={(value) => form.setValue("categoryId", value, { shouldDirty: true })}
               >
                 <SelectTrigger className="w-full">
