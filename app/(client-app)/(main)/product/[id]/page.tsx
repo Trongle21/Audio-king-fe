@@ -60,11 +60,11 @@ export async function generateMetadata({
       title: `${name} | HVN AUDIO`,
       description,
       keywords,
-      canonical: `/product/${id}`,
+      canonical: `${siteConfig.url}/product/${id}`,
       openGraph: {
         title: `${name} | HVN AUDIO`,
         description: description.substring(0, 155),
-        url: `/product/${id}`,
+        url: `${siteConfig.url}/product/${id}`,
         siteName: "HVN AUDIO",
         locale: "vi_VN",
         type: "website",
@@ -93,7 +93,7 @@ export async function generateMetadata({
     return genMetadata({
       title: `${name} | HVN AUDIO`,
       description: `Chi tiết ${name} – xem thông số kỹ thuật, giá bán và chính sách tại HVN AUDIO.`,
-      canonical: `/product/${id}`,
+      canonical: `${siteConfig.url}/product/${id}`,
     })
   }
 }
